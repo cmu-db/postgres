@@ -100,8 +100,8 @@ int			max_replication_slots = 0;	/* the maximum number of replication
 										 * slots */
 
 static ReplicationSlot *SearchNamedReplicationSlot(const char *name);
-static int ReplicationSlotAcquireInternal(ReplicationSlot *slot,
-										  const char *name, SlotAcquireBehavior behavior);
+static int	ReplicationSlotAcquireInternal(ReplicationSlot *slot,
+										   const char *name, SlotAcquireBehavior behavior);
 static void ReplicationSlotDropAcquired(void);
 static void ReplicationSlotDropPtr(ReplicationSlot *slot);
 
@@ -335,7 +335,7 @@ static ReplicationSlot *
 SearchNamedReplicationSlot(const char *name)
 {
 	int			i;
-	ReplicationSlot	*slot = NULL;
+	ReplicationSlot *slot = NULL;
 
 	Assert(LWLockHeldByMeInMode(ReplicationSlotControlLock,
 								LW_SHARED));
@@ -434,8 +434,8 @@ retry:
 
 	/*
 	 * If we found the slot but it's already active in another process, we
-	 * either error out, return the PID of the owning process, or retry
-	 * after a short wait, as caller specified.
+	 * either error out, return the PID of the owning process, or retry after
+	 * a short wait, as caller specified.
 	 */
 	if (active_pid != MyProcPid)
 	{
@@ -454,7 +454,7 @@ retry:
 		goto retry;
 	}
 	else if (behavior == SAB_Block)
-		ConditionVariableCancelSleep();	/* no sleep needed after all */
+		ConditionVariableCancelSleep(); /* no sleep needed after all */
 
 	/* Let everybody know we've modified this slot */
 	ConditionVariableBroadcast(&s->active_cv);
@@ -1240,8 +1240,8 @@ InvalidatePossiblyObsoleteSlot(ReplicationSlot *s, XLogRecPtr oldestLSN,
 								   WAIT_EVENT_REPLICATION_SLOT_DROP);
 
 			/*
-			 * Re-acquire lock and start over; we expect to invalidate the slot
-			 * next time (unless another process acquires the slot in the
+			 * Re-acquire lock and start over; we expect to invalidate the
+			 * slot next time (unless another process acquires the slot in the
 			 * meantime).
 			 */
 			LWLockAcquire(ReplicationSlotControlLock, LW_SHARED);

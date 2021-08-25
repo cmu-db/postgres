@@ -3097,7 +3097,7 @@ show_hashagg_info(AggState *aggstate, ExplainState *es)
 			if (aggstate->hash_batches_used > 1)
 			{
 				appendStringInfo(es->str, "  Disk Usage: " UINT64_FORMAT "kB",
-					aggstate->hash_disk_used);
+								 aggstate->hash_disk_used);
 			}
 		}
 

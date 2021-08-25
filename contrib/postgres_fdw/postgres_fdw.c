@@ -1967,13 +1967,13 @@ postgresBeginForeignInsert(ModifyTableState *mtstate,
 
 	/*
 	 * If the foreign table is a partition that doesn't have a corresponding
-	 * RTE entry, we need to create a new RTE
-	 * describing the foreign table for use by deparseInsertSql and
-	 * create_foreign_modify() below, after first copying the parent's RTE and
-	 * modifying some fields to describe the foreign partition to work on.
-	 * However, if this is invoked by UPDATE, the existing RTE may already
-	 * correspond to this partition if it is one of the UPDATE subplan target
-	 * rels; in that case, we can just use the existing RTE as-is.
+	 * RTE entry, we need to create a new RTE describing the foreign table for
+	 * use by deparseInsertSql and create_foreign_modify() below, after first
+	 * copying the parent's RTE and modifying some fields to describe the
+	 * foreign partition to work on. However, if this is invoked by UPDATE,
+	 * the existing RTE may already correspond to this partition if it is one
+	 * of the UPDATE subplan target rels; in that case, we can just use the
+	 * existing RTE as-is.
 	 */
 	if (resultRelInfo->ri_RangeTableIndex == 0)
 	{

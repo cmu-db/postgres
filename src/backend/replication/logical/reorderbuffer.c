@@ -1681,8 +1681,8 @@ ReorderBufferCommit(ReorderBuffer *rb, TransactionId xid,
 			change_done:
 
 					/*
-					 * If speculative insertion was confirmed, the record isn't
-					 * needed anymore.
+					 * If speculative insertion was confirmed, the record
+					 * isn't needed anymore.
 					 */
 					if (specinsert != NULL)
 					{

@@ -11786,7 +11786,7 @@ ATExecAlterColumnType(AlteredTableInfo *tab, Relation rel,
 	 * fix up the missing value if any. There shouldn't be any missing values
 	 * for anything except plain tables, but if there are, ignore them.
 	 */
-	if (rel->rd_rel->relkind == RELKIND_RELATION  && attTup->atthasmissing)
+	if (rel->rd_rel->relkind == RELKIND_RELATION && attTup->atthasmissing)
 	{
 		Datum		missingval;
 		bool		missingNull;
@@ -14097,9 +14097,9 @@ MergeAttributesIntoExisting(Relation child_rel, Relation parent_rel)
 
 				if (strcmp(child_expr, parent_expr) != 0)
 					ereport(ERROR,
-						(errcode(ERRCODE_DATATYPE_MISMATCH),
-						 errmsg("column \"%s\" in child table has a conflicting generation expression",
-								attributeName)));
+							(errcode(ERRCODE_DATATYPE_MISMATCH),
+							 errmsg("column \"%s\" in child table has a conflicting generation expression",
+									attributeName)));
 			}
 
 			/*

@@ -2416,11 +2416,12 @@ get_steps_using_prefix_recurse(GeneratePruningStepsContext *context,
 		 */
 		Assert(list_length(step_exprs) == cur_keyno ||
 			   !bms_is_empty(step_nullkeys));
+
 		/*
 		 * Note also that for hash partitioning, each partition key should
 		 * have either equality clauses or an IS NULL clause, so if a
-		 * partition key doesn't have an expression, it would be specified
-		 * in step_nullkeys.
+		 * partition key doesn't have an expression, it would be specified in
+		 * step_nullkeys.
 		 */
 		Assert(context->rel->part_scheme->strategy
 			   != PARTITION_STRATEGY_HASH ||

@@ -1655,13 +1655,13 @@ heapam_index_build_range_scan(Relation heapRelation,
 			offnum = ItemPointerGetOffsetNumber(&heapTuple->t_self);
 
 			/*
-			 * If a HOT tuple points to a root that we don't know
-			 * about, obtain root items afresh.  If that still fails,
-			 * report it as corruption.
+			 * If a HOT tuple points to a root that we don't know about,
+			 * obtain root items afresh.  If that still fails, report it as
+			 * corruption.
 			 */
 			if (root_offsets[offnum - 1] == InvalidOffsetNumber)
 			{
-				Page	page = BufferGetPage(hscan->rs_cbuf);
+				Page		page = BufferGetPage(hscan->rs_cbuf);
 
 				LockBuffer(hscan->rs_cbuf, BUFFER_LOCK_SHARE);
 				heap_get_root_tuples(page, root_offsets);
