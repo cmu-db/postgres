@@ -20,4 +20,4 @@ cat \
   | sort | uniq >> $ROOT_FOLDER/src/tools/pgindent/typedefs.list
 
 # Run pgindent.
-$ROOT_FOLDER/src/tools/pgindent/pgindent
+perl $ROOT_FOLDER/src/tools/pgindent/pgindent
