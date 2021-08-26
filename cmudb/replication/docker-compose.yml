@@ -1,0 +1,31 @@
+version: '3'
+services:
+  np-primary:
+    image: pgnp:latest
+    container_name: primary
+    ports:
+      - "15721:15721"
+    environment:
+      - PGPORT=15721
+      - POSTGRES_DB=noisepage
+      - POSTGRES_USER=noisepage
+      - POSTGRES_PASSWORD=terrier
+      - NP_REPLICATION_TYPE=primary
+      - NP_REPLICATION_USER=replicator
+      - NP_REPLICATION_PASSWORD=passyMcPassword
+  np-replica:
+    image: pgnp:latest
+    container_name: replica
+    depends_on:
+      - np-primary
+    ports:
+      - "15722:15721"
+    environment:
+      - PGPORT=15721
+      - POSTGRES_DB=noisepage
+      - POSTGRES_USER=noisepage
+      - POSTGRES_PASSWORD=terrier
+      - NP_PRIMARY_PORT=15721
+      - NP_REPLICATION_TYPE=replica
+      - NP_REPLICATION_USER=replicator
+      - NP_REPLICATION_PASSWORD=passyMcPassword
