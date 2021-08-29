@@ -16,9 +16,9 @@ ENV POSTGRES_HOST_AUTH_METHOD ""
 # PostgreSQL env vars that we customize.
 ENV PGDATA "/pgdata"
 ENV PGPORT "15721"
-# Our own env vars.
+# NoisePage env vars.
 # BIN_DIR       :   Destination for PostgreSQL binaries.
-ENV BIN_DIR "/home/dev/repo/build/bin"
+ENV BIN_DIR "/home/terrier/repo/build/bin"
 
 # Install packages.
 COPY ./cmudb/env/packages.sh /packages.sh
@@ -30,28 +30,30 @@ RUN \
 # Create a non-sudo user and switch to them.
 # This is because PostgreSQL binaries don't like being
 # run as root, e.g., initdb.
-RUN adduser --disabled-password --gecos '' dev \
-    && adduser dev sudo \
+RUN adduser --disabled-password --gecos '' terrier \
+    && adduser terrier sudo \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-USER dev
-WORKDIR /home/dev
+USER terrier
+WORKDIR /home/terrier
 
 # Create the directories that PostgreSQL expects.
 RUN sudo mkdir -p "$PGDATA" \
-    && sudo chown --recursive dev:dev "$PGDATA" \
+    && sudo chown --recursive terrier:terrier "$PGDATA" \
     && sudo chmod 700 "$PGDATA"
 
 # Copy the contents of the build context (working directory).
-COPY --chown=dev:dev . /home/dev/repo
+COPY --chown=terrier:terrier . /home/terrier/repo
 
-# Configure and build PostgreSQL.
-RUN cd /home/dev/repo \
+# Configure and build NoisePage.
+RUN cd /home/terrier/repo \
     && bash ./cmudb/build/configure.sh debug \
     && make -j -s \
     && make install -j -s
 
-# Expose the necessary ports.
-# EXPOSE 15721
+# Document that the following ports need to be exposed.
+# Note that the ports are not actually exposed unless the relevant
+# -p or -P flag is given to docker run, see Docker documentation.
+EXPOSE 15721
 
 # Copy and set the Docker entrypoint script into the image.
 COPY ./cmudb/env/docker-entrypoint.sh /

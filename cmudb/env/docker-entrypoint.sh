@@ -18,7 +18,7 @@ PGDATA=${PGDATA}
 # From our own Docker image.
 
 BIN_DIR=${BIN_DIR}  # Folder containing all the PostgreSQL binaries.
-PGPORT=${PGPORT}
+PGPORT=${PGPORT}    # The port to listen on.
 
 # =====================================================================
 # Default environment variable values.
