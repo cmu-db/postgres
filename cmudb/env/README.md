@@ -15,3 +15,9 @@ docker exec --interactive --tty pgnp_instance /bin/bash
 # Shut down the container AND DELETE ALL THE DATA ON IT.
 docker container rm --force --volumes pgnp_instance
 ```
+
+# Docker gotchas.
+
+Anything that takes you over 1 day to figure out should be documented here.
+
+- You will not be able to `psql` from the host to the Docker container unless `listen_addresses = '*'` (or similar) is in `postgresql.conf`.

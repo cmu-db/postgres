@@ -68,6 +68,7 @@ _pg_config() {
   AUTO_CONF=${PGDATA}/postgresql.auto.conf
   HBA_CONF=${PGDATA}/pg_hba.conf
 
+  echo "listen_addresses = '*'" >> ${AUTO_CONF}
   echo "host all all 0.0.0.0/0 ${POSTGRES_HOST_AUTH_METHOD}" >> ${HBA_CONF}
 }
 
