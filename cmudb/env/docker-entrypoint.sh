@@ -105,6 +105,10 @@ _pg_setup_replication() {
   echo "hot_standby_feedback = on" >> ${AUTO_CONF}
 
   if [ "${NP_REPLICATION_TYPE}" = "primary" ]; then
+    # ===============================
+    # Enable replication.
+    # ===============================
+
     # Create replication user.
     ${BIN_DIR}/psql -c "create user ${NP_REPLICATION_USER} with replication encrypted password '${NP_REPLICATION_PASSWORD}'" postgres
     # Allow replication user to connect..
@@ -113,6 +117,11 @@ _pg_setup_replication() {
     ${BIN_DIR}/psql -c "select pg_reload_conf()" postgres
     # Create replication slot for replica.
     ${BIN_DIR}/psql -c "select pg_create_physical_replication_slot('replication_slot_replica1')" postgres
+
+    # ===============================
+    # Enable replication stats.
+    # ===============================
+    ${BIN_DIR}/psql -c "grant pg_monitor to ${POSTGRES_USER}" postgres
   fi
 }
 
@@ -153,7 +162,7 @@ main() {
 
     rm -rf ${PGDATA}/*
     # Initialize replica backup from primary.
-    echo passyMcPassword | ${BIN_DIR}/pg_basebackup --host primary --username replicator --port 15721 --pgdata=${PGDATA} --format=p --wal-method=stream --progress --write-recovery-conf
+    echo passyMcPassword | ${BIN_DIR}/pg_basebackup --host primary --username replicator --port 15721 --pgdata=${PGDATA} --format=p --wal-method=stream --progress --write-recovery-conf --slot replication_slot_replica1
     _pg_start
   fi
 }
