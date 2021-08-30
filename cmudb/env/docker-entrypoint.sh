@@ -151,6 +151,7 @@ main() {
       fi
     done
 
+    rm -rf ${PGDATA}/*
     # Initialize replica backup from primary.
     echo passyMcPassword | ${BIN_DIR}/pg_basebackup --host primary --username replicator --port 15721 --pgdata=${PGDATA} --format=p --wal-method=stream --progress --write-recovery-conf
     _pg_start
