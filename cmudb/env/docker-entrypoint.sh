@@ -85,6 +85,8 @@ _pg_config() {
 _pg_create_user_and_db() {
   ${BIN_DIR}/psql -c "create user ${POSTGRES_USER} with login password '${POSTGRES_PASSWORD}'" postgres
   ${BIN_DIR}/psql -c "create database ${POSTGRES_DB} with owner = '${POSTGRES_USER}'" postgres
+  # Enable monitoring for the created user.
+  ${BIN_DIR}/psql -c "grant pg_monitor to ${POSTGRES_USER}" postgres
 }
 
 _pg_setup_replication() {
@@ -117,11 +119,6 @@ _pg_setup_replication() {
     ${BIN_DIR}/psql -c "select pg_reload_conf()" postgres
     # Create replication slot for replica.
     ${BIN_DIR}/psql -c "select pg_create_physical_replication_slot('replication_slot_replica1')" postgres
-
-    # ===============================
-    # Enable replication stats.
-    # ===============================
-    ${BIN_DIR}/psql -c "grant pg_monitor to ${POSTGRES_USER}" postgres
   fi
 }
 
