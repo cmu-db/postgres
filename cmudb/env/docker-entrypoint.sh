@@ -148,7 +148,7 @@ main() {
   else
     # This is a replica.
     while true ; do
-      # Note that there is a potential race here where the primary restarts and healthcheck succeeds.
+      # TODO(WAN): Issue #6 Note that there is a potential race here where the primary restarts and healthcheck succeeds.
       sleep 10
       ${BIN_DIR}/pg_isready --host primary --port 15721 --username noisepage
       READY_CHECK=$?
