@@ -1,0 +1,12 @@
+version: '3'
+services:
+  np-single:
+    image: pgnp:latest
+    container_name: single
+    ports:
+      - "15721:15721"
+    environment:
+      - PGPORT=15721
+      - POSTGRES_DB=noisepage
+      - POSTGRES_USER=noisepage
+      - POSTGRES_PASSWORD=terrier
