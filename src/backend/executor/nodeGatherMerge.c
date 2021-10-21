@@ -24,6 +24,7 @@
 #include "lib/binaryheap.h"
 #include "miscadmin.h"
 #include "optimizer/optimizer.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 
@@ -184,8 +185,8 @@ ExecInitGatherMerge(GatherMerge *node, EState *estate, int eflags)
  *		the next qualifying tuple.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecGatherMerge(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecGatherMerge(PlanState *pstate)
 {
 	GatherMergeState *node = castNode(GatherMergeState, pstate);
 	TupleTableSlot *slot;
@@ -277,6 +278,20 @@ ExecGatherMerge(PlanState *pstate)
 	 */
 	econtext->ecxt_outertuple = slot;
 	return ExecProject(node->ps.ps_ProjInfo);
+}
+
+static TupleTableSlot *
+ExecGatherMerge(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeGatherMerge_ExecGatherMerge_begin);
+
+  result = _ExecGatherMerge(pstate);
+
+  TS_MARKER(nodeGatherMerge_ExecGatherMerge_end);
+  TS_MARKER(nodeGatherMerge_ExecGatherMerge_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "executor/nodeLimit.h"
 #include "miscadmin.h"
 #include "nodes/nodeFuncs.h"
+#include "tscout/marker.h"
 
 static void recompute_limits(LimitState *node);
 static int64 compute_tuples_needed(LimitState *node);
@@ -37,8 +38,8 @@ static int64 compute_tuples_needed(LimitState *node);
  *		filtering on the stream of tuples returned by a subplan.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *			/* return: a tuple or NULL */
-ExecLimit(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
+_ExecLimit(PlanState *pstate)
 {
 	LimitState *node = castNode(LimitState, pstate);
 	ExprContext *econtext = node->ps.ps_ExprContext;
@@ -343,6 +344,19 @@ ExecLimit(PlanState *pstate)
 	Assert(!TupIsNull(slot));
 
 	return slot;
+}
+
+static TupleTableSlot *			/* return: a tuple or NULL */
+ExecLimit(PlanState *pstate) {
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeLimit_ExecLimit_begin);
+
+  result = _ExecLimit(pstate);
+
+  TS_MARKER(nodeLimit_ExecLimit_end);
+  TS_MARKER(nodeLimit_ExecLimit_features);
+
+  return result;
 }
 
 /*

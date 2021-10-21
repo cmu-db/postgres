@@ -27,6 +27,7 @@
 #include "executor/tablefunc.h"
 #include "miscadmin.h"
 #include "nodes/execnodes.h"
+#include "tscout/marker.h"
 #include "utils/builtins.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
@@ -92,14 +93,28 @@ TableFuncRecheck(TableFuncScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecTableFuncScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecTableFuncScan(PlanState *pstate)
 {
 	TableFuncScanState *node = castNode(TableFuncScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) TableFuncNext,
 					(ExecScanRecheckMtd) TableFuncRecheck);
+}
+
+static TupleTableSlot *
+ExecTableFuncScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_begin);
+
+  result = _ExecTableFuncScan(pstate);
+
+  TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_end);
+  TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

@@ -19,6 +19,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeSort.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/tuplesort.h"
 
 
@@ -36,8 +37,8 @@
  *		  -- the outer child is prepared to return the first tuple.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecSort(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecSort(PlanState *pstate)
 {
 	SortState  *node = castNode(SortState, pstate);
 	EState	   *estate;
@@ -154,6 +155,20 @@ ExecSort(PlanState *pstate)
 								  ScanDirectionIsForward(dir),
 								  false, slot, NULL);
 	return slot;
+}
+
+static TupleTableSlot *
+ExecSort(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeSort_ExecSort_begin);
+
+  result = _ExecSort(pstate);
+
+  TS_MARKER(nodeSort_ExecSort_end);
+  TS_MARKER(nodeSort_ExecSort_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

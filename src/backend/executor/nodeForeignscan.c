@@ -25,6 +25,7 @@
 #include "executor/executor.h"
 #include "executor/nodeForeignscan.h"
 #include "foreign/fdwapi.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 
@@ -117,8 +118,8 @@ ForeignRecheck(ForeignScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecForeignScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecForeignScan(PlanState *pstate)
 {
 	ForeignScanState *node = castNode(ForeignScanState, pstate);
 
@@ -127,6 +128,19 @@ ExecForeignScan(PlanState *pstate)
 					(ExecScanRecheckMtd) ForeignRecheck);
 }
 
+static TupleTableSlot *
+ExecForeignScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeForeignscan_ExecForeignScan_begin);
+
+  result = _ExecForeignScan(pstate);
+
+  TS_MARKER(nodeForeignscan_ExecForeignScan_end);
+  TS_MARKER(nodeForeignscan_ExecForeignScan_features);
+
+  return result;
+}
 
 /* ----------------------------------------------------------------
  *		ExecInitForeignScan

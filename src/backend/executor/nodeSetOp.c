@@ -48,6 +48,7 @@
 #include "executor/executor.h"
 #include "executor/nodeSetOp.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 
 
@@ -186,8 +187,8 @@ set_output_count(SetOpState *setopstate, SetOpStatePerGroup pergroup)
  *		ExecSetOp
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *			/* return: a tuple or NULL */
-ExecSetOp(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
+_ExecSetOp(PlanState *pstate)
 {
 	SetOpState *node = castNode(SetOpState, pstate);
 	SetOp	   *plannode = (SetOp *) node->ps.plan;
@@ -218,6 +219,20 @@ ExecSetOp(PlanState *pstate)
 	}
 	else
 		return setop_retrieve_direct(node);
+}
+
+static TupleTableSlot *
+ExecSetOp(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeSetOp_ExecSetOp_begin);
+
+  result = _ExecSetOp(pstate);
+
+  TS_MARKER(nodeSetOp_ExecSetOp_end);
+  TS_MARKER(nodeSetOp_ExecSetOp_features);
+
+  return result;
 }
 
 /*

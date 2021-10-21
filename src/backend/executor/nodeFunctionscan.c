@@ -26,6 +26,7 @@
 #include "executor/nodeFunctionscan.h"
 #include "funcapi.h"
 #include "nodes/nodeFuncs.h"
+#include "tscout/marker.h"
 #include "utils/builtins.h"
 #include "utils/memutils.h"
 
@@ -262,14 +263,28 @@ FunctionRecheck(FunctionScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecFunctionScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecFunctionScan(PlanState *pstate)
 {
 	FunctionScanState *node = castNode(FunctionScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) FunctionNext,
 					(ExecScanRecheckMtd) FunctionRecheck);
+}
+
+static TupleTableSlot *
+ExecFunctionScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeFunctionscan_ExecFunctionScan_begin);
+
+  result = _ExecFunctionScan(pstate);
+
+  TS_MARKER(nodeFunctionscan_ExecFunctionScan_end);
+  TS_MARKER(nodeFunctionscan_ExecFunctionScan_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

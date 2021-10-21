@@ -114,6 +114,7 @@
 #include "executor/nodeHashjoin.h"
 #include "miscadmin.h"
 #include "pgstat.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 #include "utils/sharedtuplestore.h"
 
@@ -162,7 +163,7 @@ static void ExecParallelHashJoinPartitionOuter(HashJoinState *node);
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-ExecHashJoinImpl(PlanState *pstate, bool parallel)
+_ExecHashJoinImpl(PlanState *pstate, bool parallel)
 {
 	HashJoinState *node = castNode(HashJoinState, pstate);
 	PlanState  *outerNode;
@@ -573,6 +574,19 @@ ExecHashJoinImpl(PlanState *pstate, bool parallel)
 					 (int) node->hj_JoinState);
 		}
 	}
+}
+
+static pg_attribute_always_inline TupleTableSlot *
+ExecHashJoinImpl(PlanState *pstate, bool parallel) {
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeHashjoin_ExecHashJoinImpl_begin);
+
+  result = _ExecHashJoinImpl(pstate, parallel);
+
+  TS_MARKER(nodeHashjoin_ExecHashJoinImpl_end);
+  TS_MARKER(nodeHashjoin_ExecHashJoinImpl_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

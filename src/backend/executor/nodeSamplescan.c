@@ -23,6 +23,7 @@
 #include "pgstat.h"
 #include "storage/bufmgr.h"
 #include "storage/predicate.h"
+#include "tscout/marker.h"
 #include "utils/builtins.h"
 #include "utils/rel.h"
 
@@ -78,14 +79,28 @@ SampleRecheck(SampleScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecSampleScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecSampleScan(PlanState *pstate)
 {
 	SampleScanState *node = castNode(SampleScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) SampleNext,
 					(ExecScanRecheckMtd) SampleRecheck);
+}
+
+static TupleTableSlot *
+ExecSampleScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeSamplescan_ExecSampleScan_begin);
+
+  result = _ExecSampleScan(pstate);
+
+  TS_MARKER(nodeSamplescan_ExecSampleScan_end);
+  TS_MARKER(nodeSamplescan_ExecSampleScan_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

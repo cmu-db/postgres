@@ -26,6 +26,7 @@
 #include "executor/nodeProjectSet.h"
 #include "miscadmin.h"
 #include "nodes/nodeFuncs.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 
 
@@ -39,8 +40,8 @@ static TupleTableSlot *ExecProjectSRF(ProjectSetState *node, bool continuing);
  *		returning functions).
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecProjectSet(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecProjectSet(PlanState *pstate)
 {
 	ProjectSetState *node = castNode(ProjectSetState, pstate);
 	TupleTableSlot *outerTupleSlot;
@@ -114,6 +115,20 @@ ExecProjectSet(PlanState *pstate)
 	}
 
 	return NULL;
+}
+
+static TupleTableSlot *
+ExecProjectSet(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeProjectSet_ExecProjectSet_begin);
+
+  result = _ExecProjectSet(pstate);
+
+  TS_MARKER(nodeProjectSet_ExecProjectSet_end);
+  TS_MARKER(nodeProjectSet_ExecProjectSet_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

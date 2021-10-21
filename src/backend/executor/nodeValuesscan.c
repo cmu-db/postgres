@@ -27,6 +27,7 @@
 #include "executor/nodeValuesscan.h"
 #include "jit/jit.h"
 #include "optimizer/clauses.h"
+#include "tscout/marker.h"
 #include "utils/expandeddatum.h"
 
 
@@ -193,14 +194,28 @@ ValuesRecheck(ValuesScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecValuesScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecValuesScan(PlanState *pstate)
 {
 	ValuesScanState *node = castNode(ValuesScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) ValuesNext,
 					(ExecScanRecheckMtd) ValuesRecheck);
+}
+
+static TupleTableSlot *
+ExecValuesScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeValuesscan_ExecValuesScan_begin);
+
+  result = _ExecValuesScan(pstate);
+
+  TS_MARKER(nodeValuesscan_ExecValuesScan_end);
+  TS_MARKER(nodeValuesscan_ExecValuesScan_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

@@ -36,6 +36,7 @@
 #include "executor/executor.h"
 #include "executor/nodeUnique.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 
 
@@ -43,8 +44,8 @@
  *		ExecUnique
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *			/* return: a tuple or NULL */
-ExecUnique(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
+_ExecUnique(PlanState *pstate)
 {
 	UniqueState *node = castNode(UniqueState, pstate);
 	ExprContext *econtext = node->ps.ps_ExprContext;
@@ -102,6 +103,20 @@ ExecUnique(PlanState *pstate)
 	 * fetching the next source tuple.
 	 */
 	return ExecCopySlot(resultTupleSlot, slot);
+}
+
+static TupleTableSlot *
+ExecUnique(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeUnique_ExecUnique_begin);
+
+  result = _ExecUnique(pstate);
+
+  TS_MARKER(nodeUnique_ExecUnique_end);
+  TS_MARKER(nodeUnique_ExecUnique_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

@@ -96,6 +96,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeMergejoin.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
 
@@ -596,8 +597,8 @@ ExecMergeTupleDump(MergeJoinState *mergestate)
  *		ExecMergeJoin
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecMergeJoin(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecMergeJoin(PlanState *pstate)
 {
 	MergeJoinState *node = castNode(MergeJoinState, pstate);
 	ExprState  *joinqual;
@@ -1426,6 +1427,20 @@ ExecMergeJoin(PlanState *pstate)
 					 (int) node->mj_JoinState);
 		}
 	}
+}
+
+static TupleTableSlot *
+ExecMergeJoin(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeMergejoin_ExecMergeJoin_begin);
+
+  result = _ExecMergeJoin(pstate);
+
+  TS_MARKER(nodeMergejoin_ExecMergeJoin_end);
+  TS_MARKER(nodeMergejoin_ExecMergeJoin_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

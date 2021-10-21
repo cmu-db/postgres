@@ -31,6 +31,7 @@
 #include "access/tableam.h"
 #include "executor/execdebug.h"
 #include "executor/nodeSeqscan.h"
+#include "tscout/marker.h"
 #include "utils/rel.h"
 
 static TupleTableSlot *SeqNext(SeqScanState *node);
@@ -104,14 +105,28 @@ SeqRecheck(SeqScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecSeqScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecSeqScan(PlanState *pstate)
 {
 	SeqScanState *node = castNode(SeqScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) SeqNext,
 					(ExecScanRecheckMtd) SeqRecheck);
+}
+
+static TupleTableSlot *
+ExecSeqScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeSeqscan_ExecSeqScan_begin);
+
+  result = _ExecSeqScan(pstate);
+
+  TS_MARKER(nodeSeqscan_ExecSeqScan_end);
+  TS_MARKER(nodeSeqscan_ExecSeqScan_features);
+
+  return result;
 }
 
 

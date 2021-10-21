@@ -29,6 +29,7 @@
 
 #include "executor/execdebug.h"
 #include "executor/nodeSubqueryscan.h"
+#include "tscout/marker.h"
 
 static TupleTableSlot *SubqueryNext(SubqueryScanState *node);
 
@@ -79,14 +80,28 @@ SubqueryRecheck(SubqueryScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecSubqueryScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecSubqueryScan(PlanState *pstate)
 {
 	SubqueryScanState *node = castNode(SubqueryScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) SubqueryNext,
 					(ExecScanRecheckMtd) SubqueryRecheck);
+}
+
+static TupleTableSlot *
+ExecSubqueryScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeSubqueryscan_ExecSubqueryScan_begin);
+
+  result = _ExecSubqueryScan(pstate);
+
+  TS_MARKER(nodeSubqueryscan_ExecSubqueryScan_end);
+  TS_MARKER(nodeSubqueryscan_ExecSubqueryScan_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

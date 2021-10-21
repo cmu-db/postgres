@@ -21,6 +21,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeRecursiveunion.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 
 
@@ -71,8 +72,8 @@ build_hash_table(RecursiveUnionState *rustate)
  * 2.6 go back to 2.2
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecRecursiveUnion(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecRecursiveUnion(PlanState *pstate)
 {
 	RecursiveUnionState *node = castNode(RecursiveUnionState, pstate);
 	PlanState  *outerPlan = outerPlanState(node);
@@ -157,6 +158,20 @@ ExecRecursiveUnion(PlanState *pstate)
 	}
 
 	return NULL;
+}
+
+static TupleTableSlot *
+ExecRecursiveUnion(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeRecursiveunion_ExecRecursiveUnion_begin);
+
+  result = _ExecRecursiveUnion(pstate);
+
+  TS_MARKER(nodeRecursiveunion_ExecRecursiveUnion_end);
+  TS_MARKER(nodeRecursiveunion_ExecRecursiveUnion_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

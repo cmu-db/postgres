@@ -18,6 +18,7 @@
 #include "nodes/extensible.h"
 #include "nodes/plannodes.h"
 #include "parser/parsetree.h"
+#include "tscout/marker.h"
 #include "utils/hsearch.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
@@ -104,8 +105,8 @@ ExecInitCustomScan(CustomScan *cscan, EState *estate, int eflags)
 	return css;
 }
 
-static TupleTableSlot *
-ExecCustomScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecCustomScan(PlanState *pstate)
 {
 	CustomScanState *node = castNode(CustomScanState, pstate);
 
@@ -113,6 +114,20 @@ ExecCustomScan(PlanState *pstate)
 
 	Assert(node->methods->ExecCustomScan != NULL);
 	return node->methods->ExecCustomScan(node);
+}
+
+static TupleTableSlot *
+ExecCustomScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeCustom_ExecCustomScan_begin);
+
+  result = _ExecCustomScan(pstate);
+
+  TS_MARKER(nodeCustom_ExecCustomScan_end);
+  TS_MARKER(nodeCustom_ExecCustomScan_features);
+
+  return result;
 }
 
 void

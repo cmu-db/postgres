@@ -18,6 +18,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeCtescan.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 
 static TupleTableSlot *CteScanNext(CteScanState *node);
 
@@ -156,14 +157,28 @@ CteScanRecheck(CteScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecCteScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecCteScan(PlanState *pstate)
 {
 	CteScanState *node = castNode(CteScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) CteScanNext,
 					(ExecScanRecheckMtd) CteScanRecheck);
+}
+
+static TupleTableSlot *
+ExecCteScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeCtescan_ExecCteScan_begin);
+
+  result = _ExecCteScan(pstate);
+
+  TS_MARKER(nodeCtescan_ExecCteScan_end);
+  TS_MARKER(nodeCtescan_ExecCteScan_features);
+
+  return result;
 }
 
 

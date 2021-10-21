@@ -24,6 +24,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeNestloop.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 
 
@@ -57,8 +58,8 @@
  *			   are prepared to return the first tuple.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecNestLoop(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecNestLoop(PlanState *pstate)
 {
 	NestLoopState *node = castNode(NestLoopState, pstate);
 	NestLoop   *nl;
@@ -253,6 +254,20 @@ ExecNestLoop(PlanState *pstate)
 
 		ENL1_printf("qualification failed, looping");
 	}
+}
+
+static TupleTableSlot *
+ExecNestLoop(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeNestloop_ExecNestLoop_begin);
+
+  result = _ExecNestLoop(pstate);
+
+  TS_MARKER(nodeNestloop_ExecNestLoop_end);
+  TS_MARKER(nodeNestloop_ExecNestLoop_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

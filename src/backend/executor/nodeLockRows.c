@@ -27,6 +27,7 @@
 #include "executor/nodeLockRows.h"
 #include "foreign/fdwapi.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/rel.h"
 
 
@@ -34,8 +35,8 @@
  *		ExecLockRows
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *			/* return: a tuple or NULL */
-ExecLockRows(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
+_ExecLockRows(PlanState *pstate)
 {
 	LockRowsState *node = castNode(LockRowsState, pstate);
 	TupleTableSlot *slot;
@@ -279,6 +280,20 @@ lnext:
 
 	/* Got all locks, so return the current tuple */
 	return slot;
+}
+
+static TupleTableSlot *
+ExecLockRows(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeLockRows_ExecLockRows_begin);
+
+  result = _ExecLockRows(pstate);
+
+  TS_MARKER(nodeLockRows_ExecLockRows_end);
+  TS_MARKER(nodeLockRows_ExecLockRows_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

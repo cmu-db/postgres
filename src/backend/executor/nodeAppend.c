@@ -64,6 +64,7 @@
 #include "miscadmin.h"
 #include "pgstat.h"
 #include "storage/latch.h"
+#include "tscout/marker.h"
 
 /* Shared state for parallel-aware Append. */
 struct ParallelAppendState
@@ -293,8 +294,8 @@ ExecInitAppend(Append *node, EState *estate, int eflags)
  *		Handles iteration over multiple subplans.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecAppend(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecAppend(PlanState *pstate)
 {
 	AppendState *node = castNode(AppendState, pstate);
 	TupleTableSlot *result;
@@ -381,6 +382,19 @@ ExecAppend(PlanState *pstate)
 		if (!node->choose_next_subplan(node) && node->as_nasyncremain == 0)
 			return ExecClearTuple(node->ps.ps_ResultTupleSlot);
 	}
+}
+static TupleTableSlot *
+ExecAppend(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeAppend_ExecAppend_begin);
+
+  result = _ExecAppend(pstate);
+
+  TS_MARKER(nodeAppend_ExecAppend_end);
+  TS_MARKER(nodeAppend_ExecAppend_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

@@ -35,6 +35,7 @@
 #include "miscadmin.h"
 #include "nodes/makefuncs.h"
 #include "nodes/nodeFuncs.h"
+#include "tscout/marker.h"
 #include "utils/array.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
@@ -58,8 +59,8 @@ static bool slotNoNulls(TupleTableSlot *slot);
  * This is the main entry point for execution of a regular SubPlan.
  * ----------------------------------------------------------------
  */
-Datum
-ExecSubPlan(SubPlanState *node,
+static Datum pg_attribute_always_inline
+_ExecSubPlan(SubPlanState *node,
 			ExprContext *econtext,
 			bool *isNull)
 {
@@ -92,6 +93,22 @@ ExecSubPlan(SubPlanState *node,
 	estate->es_direction = dir;
 
 	return retval;
+}
+
+Datum
+ExecSubPlan(SubPlanState *node,
+			ExprContext *econtext,
+			bool *isNull)
+{
+  Datum result;
+  TS_MARKER(nodeSubplan_ExecSubPlan_begin);
+
+  result = _ExecSubPlan(node, econtext, isNull);
+
+  TS_MARKER(nodeSubplan_ExecSubPlan_end);
+  TS_MARKER(nodeSubplan_ExecSubPlan_features);
+
+  return result;
 }
 
 /*

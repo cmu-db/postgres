@@ -38,6 +38,7 @@
 #include "lib/pairingheap.h"
 #include "miscadmin.h"
 #include "nodes/nodeFuncs.h"
+#include "tscout/marker.h"
 #include "utils/array.h"
 #include "utils/datum.h"
 #include "utils/lsyscache.h"
@@ -518,8 +519,8 @@ reorderqueue_pop(IndexScanState *node)
  *		ExecIndexScan(node)
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecIndexScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecIndexScan(PlanState *pstate)
 {
 	IndexScanState *node = castNode(IndexScanState, pstate);
 
@@ -537,6 +538,20 @@ ExecIndexScan(PlanState *pstate)
 		return ExecScan(&node->ss,
 						(ExecScanAccessMtd) IndexNext,
 						(ExecScanRecheckMtd) IndexRecheck);
+}
+
+static TupleTableSlot *
+ExecIndexScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeIndexscan_ExecIndexScan_begin);
+
+  result = _ExecIndexScan(pstate);
+
+  TS_MARKER(nodeIndexscan_ExecIndexScan_end);
+  TS_MARKER(nodeIndexscan_ExecIndexScan_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

@@ -48,6 +48,7 @@
 #include "rewrite/rewriteHandler.h"
 #include "storage/bufmgr.h"
 #include "storage/lmgr.h"
+#include "tscout/marker.h"
 #include "utils/builtins.h"
 #include "utils/datum.h"
 #include "utils/memutils.h"
@@ -2345,8 +2346,8 @@ ExecPrepareTupleRouting(ModifyTableState *mtstate,
  *		if needed.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecModifyTable(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecModifyTable(PlanState *pstate)
 {
 	ModifyTableState *node = castNode(ModifyTableState, pstate);
 	EState	   *estate = node->ps.state;
@@ -2643,6 +2644,20 @@ ExecModifyTable(PlanState *pstate)
 	node->mt_done = true;
 
 	return NULL;
+}
+
+static TupleTableSlot *
+ExecModifyTable(PlanState *pstate)
+{
+    TupleTableSlot *result = NULL;
+    TS_MARKER(nodeModifyTable_ExecModifyTable_begin);
+
+    result = _ExecModifyTable(pstate);
+
+    TS_MARKER(nodeModifyTable_ExecModifyTable_end);
+    TS_MARKER(nodeModifyTable_ExecModifyTable_features);
+
+    return result;
 }
 
 /*

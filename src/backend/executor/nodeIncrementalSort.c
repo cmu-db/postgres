@@ -82,6 +82,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeIncrementalSort.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/lsyscache.h"
 #include "utils/tuplesort.h"
 
@@ -492,8 +493,8 @@ switchToPresortedPrefixMode(PlanState *pstate)
  *		  -- the outer child is prepared to return the first tuple.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecIncrementalSort(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecIncrementalSort(PlanState *pstate)
 {
 	IncrementalSortState *node = castNode(IncrementalSortState, pstate);
 	EState	   *estate;
@@ -962,6 +963,20 @@ ExecIncrementalSort(PlanState *pstate)
 	(void) tuplesort_gettupleslot(read_sortstate, ScanDirectionIsForward(dir),
 								  false, slot, NULL);
 	return slot;
+}
+
+static TupleTableSlot *
+ExecIncrementalSort(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_begin);
+
+  result = _ExecIncrementalSort(pstate);
+
+  TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_end);
+  TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

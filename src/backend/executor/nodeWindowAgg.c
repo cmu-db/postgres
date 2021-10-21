@@ -44,6 +44,7 @@
 #include "optimizer/optimizer.h"
 #include "parser/parse_agg.h"
 #include "parser/parse_coerce.h"
+#include "tscout/marker.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
 #include "utils/datum.h"
@@ -2019,8 +2020,8 @@ update_grouptailpos(WindowAggState *winstate)
  *	returned rows is exactly the same as its outer subplan's result.
  * -----------------
  */
-static TupleTableSlot *
-ExecWindowAgg(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecWindowAgg(PlanState *pstate)
 {
 	WindowAggState *winstate = castNode(WindowAggState, pstate);
 	ExprContext *econtext;
@@ -2236,6 +2237,20 @@ ExecWindowAgg(PlanState *pstate)
 	econtext->ecxt_outertuple = winstate->ss.ss_ScanTupleSlot;
 
 	return ExecProject(winstate->ss.ps.ps_ProjInfo);
+}
+
+static TupleTableSlot *
+ExecWindowAgg(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeWindowAgg_ExecWindowAgg_begin);
+
+  result = _ExecWindowAgg(pstate);
+
+  TS_MARKER(nodeWindowAgg_ExecWindowAgg_end);
+  TS_MARKER(nodeWindowAgg_ExecWindowAgg_features);
+
+  return result;
 }
 
 /* -----------------

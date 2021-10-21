@@ -24,6 +24,7 @@
 #include "executor/executor.h"
 #include "executor/nodeMaterial.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 
 /* ----------------------------------------------------------------
  *		ExecMaterial
@@ -35,8 +36,8 @@
  *
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *			/* result tuple from subplan */
-ExecMaterial(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *			/* result tuple from subplan */
+_ExecMaterial(PlanState *pstate)
 {
 	MaterialState *node = castNode(MaterialState, pstate);
 	EState	   *estate;
@@ -154,6 +155,20 @@ ExecMaterial(PlanState *pstate)
 	 * Nothing left ...
 	 */
 	return ExecClearTuple(slot);
+}
+
+static TupleTableSlot *
+ExecMaterial(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeMaterial_ExecMaterial_begin);
+
+  result = _ExecMaterial(pstate);
+
+  TS_MARKER(nodeMaterial_ExecMaterial_end);
+  TS_MARKER(nodeMaterial_ExecMaterial_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

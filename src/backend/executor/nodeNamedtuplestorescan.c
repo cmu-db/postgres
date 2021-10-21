@@ -18,6 +18,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeNamedtuplestorescan.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/queryenvironment.h"
 
 static TupleTableSlot *NamedTuplestoreScanNext(NamedTuplestoreScanState *node);
@@ -64,14 +65,28 @@ NamedTuplestoreScanRecheck(NamedTuplestoreScanState *node, TupleTableSlot *slot)
  *		access method functions.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecNamedTuplestoreScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecNamedTuplestoreScan(PlanState *pstate)
 {
 	NamedTuplestoreScanState *node = castNode(NamedTuplestoreScanState, pstate);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) NamedTuplestoreScanNext,
 					(ExecScanRecheckMtd) NamedTuplestoreScanRecheck);
+}
+
+static TupleTableSlot *
+ExecNamedTuplestoreScan(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeNamedtuplestorescan_ExecNamedTuplestoreScan_begin);
+
+  result = _ExecNamedTuplestoreScan(pstate);
+
+  TS_MARKER(nodeNamedtuplestorescan_ExecNamedTuplestoreScan_end);
+  TS_MARKER(nodeNamedtuplestorescan_ExecNamedTuplestoreScan_features);
+
+  return result;
 }
 
 

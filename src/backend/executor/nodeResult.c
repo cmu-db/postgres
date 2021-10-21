@@ -48,6 +48,7 @@
 #include "executor/executor.h"
 #include "executor/nodeResult.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 
 
@@ -64,8 +65,8 @@
  *		'nil' if the constant qualification is not satisfied.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecResult(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecResult(PlanState *pstate)
 {
 	ResultState *node = castNode(ResultState, pstate);
 	TupleTableSlot *outerTupleSlot;
@@ -137,6 +138,20 @@ ExecResult(PlanState *pstate)
 	}
 
 	return NULL;
+}
+
+static TupleTableSlot *
+ExecResult(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeResult_ExecResult_begin);
+
+  result = _ExecResult(pstate);
+
+  TS_MARKER(nodeResult_ExecResult_end);
+  TS_MARKER(nodeResult_ExecResult_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

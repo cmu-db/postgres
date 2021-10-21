@@ -40,6 +40,7 @@
 #include "miscadmin.h"
 #include "optimizer/optimizer.h"
 #include "pgstat.h"
+#include "tscout/marker.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 
@@ -138,8 +139,8 @@ ExecInitGather(Gather *node, EState *estate, int eflags)
  *		the next qualifying tuple.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecGather(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecGather(PlanState *pstate)
 {
 	GatherState *node = castNode(GatherState, pstate);
 	TupleTableSlot *slot;
@@ -237,6 +238,20 @@ ExecGather(PlanState *pstate)
 	 */
 	econtext->ecxt_outertuple = slot;
 	return ExecProject(node->ps.ps_ProjInfo);
+}
+
+static TupleTableSlot *
+ExecGather(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeGather_ExecGather_begin);
+
+  result = _ExecGather(pstate);
+
+  TS_MARKER(nodeGather_ExecGather_end);
+  TS_MARKER(nodeGather_ExecGather_features);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------

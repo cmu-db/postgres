@@ -256,6 +256,7 @@
 #include "optimizer/optimizer.h"
 #include "parser/parse_agg.h"
 #include "parser/parse_coerce.h"
+#include "tscout/marker.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
 #include "utils/datum.h"
@@ -2154,8 +2155,8 @@ lookup_hash_entries(AggState *aggstate)
  *	  stored in the expression context to be used when ExecProject evaluates
  *	  the result tuple.
  */
-static TupleTableSlot *
-ExecAgg(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecAgg(PlanState *pstate)
 {
 	AggState   *node = castNode(AggState, pstate);
 	TupleTableSlot *result = NULL;
@@ -2185,6 +2186,20 @@ ExecAgg(PlanState *pstate)
 	}
 
 	return NULL;
+}
+
+static TupleTableSlot *
+ExecAgg(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeAgg_ExecAgg_begin);
+
+  result = _ExecAgg(pstate);
+
+  TS_MARKER(nodeAgg_ExecAgg_end);
+  TS_MARKER(nodeAgg_ExecAgg_features);
+
+  return result;
 }
 
 /*

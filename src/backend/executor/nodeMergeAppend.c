@@ -43,6 +43,7 @@
 #include "executor/nodeMergeAppend.h"
 #include "lib/binaryheap.h"
 #include "miscadmin.h"
+#include "tscout/marker.h"
 
 /*
  * We have one slot for each item in the heap array.  We use SlotNumber
@@ -208,8 +209,8 @@ ExecInitMergeAppend(MergeAppend *node, EState *estate, int eflags)
  *		Handles iteration over multiple subplans.
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecMergeAppend(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+_ExecMergeAppend(PlanState *pstate)
 {
 	MergeAppendState *node = castNode(MergeAppendState, pstate);
 	TupleTableSlot *result;
@@ -276,6 +277,20 @@ ExecMergeAppend(PlanState *pstate)
 	}
 
 	return result;
+}
+
+static TupleTableSlot *
+ExecMergeAppend(PlanState *pstate)
+{
+  TupleTableSlot *result = NULL;
+  TS_MARKER(nodeMergeAppend_ExecMergeAppend_begin);
+
+  result = _ExecMergeAppend(pstate);
+
+  TS_MARKER(nodeMergeAppend_ExecMergeAppend_end);
+  TS_MARKER(nodeMergeAppend_ExecMergeAppend_features);
+
+  return result;
 }
 
 /*
