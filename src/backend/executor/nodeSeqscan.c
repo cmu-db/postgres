@@ -109,6 +109,8 @@ static pg_attribute_always_inline TupleTableSlot *
 _ExecSeqScan(PlanState *pstate)
 {
 	SeqScanState *node = castNode(SeqScanState, pstate);
+    RelFileNode *rfn = &node->ss.ss_currentRelation->rd_node;
+    printf("SeqScan - plannodeid: %d, type: %d, startup_cost: %f, total_cost: %f, plan_rows: %f, plan_width: %d, type: spcNode: %u, dbNode: %d, relNode: %u\n", pstate->plan->plan_node_id, pstate->plan->type, pstate->plan->startup_cost, pstate->plan->total_cost, pstate->plan->plan_rows, pstate->plan->plan_width, rfn->spcNode, rfn->dbNode, rfn->relNode);
 
 	return ExecScan(&node->ss,
 					(ExecScanAccessMtd) SeqNext,

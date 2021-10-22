@@ -152,6 +152,8 @@ standard_ExecutorStart(QueryDesc *queryDesc, int eflags)
 	/* sanity checks: queryDesc must not be started already */
 	Assert(queryDesc != NULL);
 	Assert(queryDesc->estate == NULL);
+	
+
 
 	/*
 	 * If the transaction is read-only, we need to check if any writes are
@@ -412,7 +414,9 @@ standard_ExecutorFinish(QueryDesc *queryDesc)
 
 	/* sanity checks */
 	Assert(queryDesc != NULL);
-
+	printf("standard_ExecutorFinish: queryDesc->plannedstmt->queryId %lu\n", queryDesc->plannedstmt->queryId);
+	printf("outnode: %s\n", nodeToString(queryDesc->plannedstmt));
+	
 	estate = queryDesc->estate;
 
 	Assert(estate != NULL);
