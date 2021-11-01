@@ -17,11 +17,10 @@ import clang_parser
 @unique
 class BPFType(str, Enum):
     """BPF only has signed and unsigned integers."""
-    # TODO(WAN): char/short/int/long, what's the u8/u16/u32/u64 equivalent?
-    i8 = "char"
-    i16 = "short"
-    i32 = "int"
-    i64 = "long"
+    i8 = "s8"
+    i16 = "s16"
+    i32 = "s32"
+    i64 = "s64"
     u8 = "u8"
     u16 = "u16"
     u32 = "u32"
