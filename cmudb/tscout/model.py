@@ -1,6 +1,8 @@
 """
 model.py
 
+Convert C types to BPF types.
+Define the Operating Units (OUs) and metrics to be collected.
 """
 
 from dataclasses import dataclass
