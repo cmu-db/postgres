@@ -19,6 +19,3 @@ BPF_PERF_ARRAY(ref_cpu_cycles, MAX_CPUS);
 
 // Each OU gets its own ou_id->metrics for incomplete data
 BPF_HASH(incomplete_metrics, u32, struct resource_metrics);
-
-// Each Collector gets its own perf output buffer to userspace for results
-BPF_PERF_OUTPUT(collector_results);
