@@ -106,217 +106,217 @@ feature_types : List[Feature]
     If you modify this list, you must change the markers in PostgreSQL source.
 """
 OU_DEFS = [
-    ("nodeAgg", "ExecAgg",
+    ("ExecAgg",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("AggState"),
          Feature("Plan")
      ]),
-    ("nodeAppend", "ExecAppend",
+    ("ExecAppend",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("AppendState"),
          Feature("Plan")
      ]),
-    ("nodeCtescan", "ExecCteScan",
+    ("ExecCteScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("CteScanState"),
          Feature("Plan")
      ]),
-    ("nodeCustom", "ExecCustomScan",
+    ("ExecCustomScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("CustomScanState"),
          Feature("Plan")
      ]),
-    ("nodeForeignscan", "ExecForeignScan",
+    ("ExecForeignScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("ForeignScanState"),
          Feature("Plan")
      ]),
-    ("nodeFunctionscan", "ExecFunctionScan",
+    ("ExecFunctionScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("FunctionScanState"),
          Feature("Plan")
      ]),
-    ("nodeGather", "ExecGather",
+    ("ExecGather",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("GatherState"),
          Feature("Plan")
      ]),
-    ("nodeGatherMerge", "ExecGatherMerge",
+    ("ExecGatherMerge",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("GatherMergeState"),
          Feature("Plan")
      ]),
-    ("nodeGroup", "ExecGroup",
+    ("ExecGroup",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("GroupState"),
          Feature("Plan")
      ]),
-    ("nodeHashjoin", "ExecHashJoinImpl",
+    ("ExecHashJoinImpl",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("HashJoinState"),
          Feature("Plan")
      ]),
-    ("nodeIncrementalSort", "ExecIncrementalSort",
+    ("ExecIncrementalSort",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("IncrementalSortState"),
          Feature("Plan")
      ]),
-    ("nodeIndexonlyscan", "ExecIndexOnlyScan",
+    ("ExecIndexOnlyScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("IndexOnlyScanState"),
          Feature("Plan")
      ]),
-    ("nodeIndexscan", "ExecIndexScan",
+    ("ExecIndexScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("IndexScanState"),
          Feature("Plan")
      ]),
-    ("nodeLimit", "ExecLimit",
+    ("ExecLimit",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("LimitState"),
          Feature("Plan")
      ]),
-    ("nodeLockRows", "ExecLockRows",
+    ("ExecLockRows",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("LockRowsState"),
          Feature("Plan")
      ]),
-    ("nodeMaterial", "ExecMaterial",
+    ("ExecMaterial",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("MaterialState"),
          Feature("Plan")
      ]),
-    ("nodeMergeAppend", "ExecMergeAppend",
+    ("ExecMergeAppend",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("MergeAppendState"),
          Feature("Plan")
      ]),
-    ("nodeMergejoin", "ExecMergeJoin",
+    ("ExecMergeJoin",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("MergeJoinState"),
          Feature("Plan")
      ]),
-    ("nodeModifyTable", "ExecModifyTable",
+    ("ExecModifyTable",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("ModifyTableState"),
          Feature("Plan")
      ]),
-    ("nodeNamedtuplestorescan", "ExecNamedTuplestoreScan",
+    ("ExecNamedTuplestoreScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("NamedTuplestoreScanState"),
          Feature("Plan")
      ]),
-    ("nodeNestloop", "ExecNestLoop",
+    ("ExecNestLoop",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("NestLoopState"),
          Feature("Plan")
      ]),
-    ("nodeProjectSet", "ExecProjectSet",
+    ("ExecProjectSet",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("ProjectSetState"),
          Feature("Plan")
      ]),
-    ("nodeRecursiveunion", "ExecRecursiveUnion",
+    ("ExecRecursiveUnion",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("RecursiveUnionState"),
          Feature("Plan")
      ]),
-    ("nodeResult", "ExecResult",
+    ("ExecResult",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("ResultState"),
          Feature("Plan")
      ]),
-    ("nodeSamplescan", "ExecSampleScan",
+    ("ExecSampleScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SampleScanState"),
          Feature("Plan")
      ]),
-    ("nodeSeqscan", "ExecSeqScan",
+    ("ExecSeqScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SeqScanState"),
          Feature("Plan")
      ]),
-    ("nodeSetOp", "ExecSetOp",
+    ("ExecSetOp",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SetOpState"),
          Feature("Plan")
      ]),
-    ("nodeSort", "ExecSort",
+    ("ExecSort",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SortState"),
          Feature("Plan")
      ]),
-    ("nodeSubplan", "ExecSubPlan",
+    ("ExecSubPlan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SubPlan"),
          Feature("Plan")
      ]),
-    ("nodeSubqueryscan", "ExecSubqueryScan",
+    ("ExecSubqueryScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SubqueryScanState"),
          Feature("Plan")
      ]),
-    ("nodeTableFuncscan", "ExecTableFuncScan",
+    ("ExecTableFuncScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("TableFuncScanState"),
          Feature("Plan")
      ]),
-    ("nodeTidscan", "ExecTidScan",
+    ("ExecTidScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("TidScanState"),
          Feature("Plan")
      ]),
-    ("nodeUnique", "ExecUnique",
+    ("ExecUnique",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("UniqueState"),
          Feature("Plan")
      ]),
-    ("nodeValuesscan", "ExecValuesScan",
+    ("ExecValuesScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("ValuesScanState"),
          Feature("Plan")
      ]),
-    ("nodeWindowAgg", "ExecWindowAgg",
+    ("ExecWindowAgg",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("WindowAggState"),
          Feature("Plan")
      ]),
-    ("nodeWorktablescan", "ExecWorkTableScan",
+    ("ExecWorkTableScan",
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("WorkTableScanState"),
@@ -378,14 +378,11 @@ class OperatingUnit:
 
     Parameters
     ----------
-    operator : str
-        The name of the PostgreSQL operator.
     function : str
         The name of the PostgreSQL function emitting the features.
     features_list : List[Feature]
         A list of features.
     """
-    operator: str  # TODO(Matt): remove?
     function: str
     features_list: List[Feature]
 
@@ -494,7 +491,7 @@ class Model:
     def __init__(self):
         nodes = clang_parser.ClangParser()
         operating_units = []
-        for operator, postgres_function, features in OU_DEFS:
+        for postgres_function, features in OU_DEFS:
             feature_list = []
             for feature in features:
                 # If an explicit list of BPF fields were specified,
@@ -518,7 +515,7 @@ class Model:
                                       readarg_p=True)
                 feature_list.append(new_feature)
 
-            new_ou = OperatingUnit(operator, postgres_function, feature_list)
+            new_ou = OperatingUnit(postgres_function, feature_list)
             operating_units.append(new_ou)
 
         self.operating_units = operating_units

@@ -117,8 +117,6 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     if socket_fd:
         cflags.append('-DCLIENT_SOCKET_FD={}'.format(socket_fd))
 
-    print(collector_c)
-
     collector_bpf = BPF(text=collector_c,
                         usdt_contexts=[collector_probes],
                         cflags=cflags)
@@ -254,8 +252,8 @@ if __name__ == '__main__':
 
     # Attach USDT probes to the target PID.
     tscout_probes = USDT(pid=int(pid))
-    for probe in ['postmaster_fork_backend', 'postmaster_fork_background',
-                  'postmaster_reap_backend', 'postmaster_reap_background']:
+    for probe in ['fork_backend', 'fork_background',
+                  'reap_backend', 'reap_background']:
         tscout_probes.enable_probe(probe=probe, fn_name=probe)
 
     # Load TScout program to monitor the Postmaster.
