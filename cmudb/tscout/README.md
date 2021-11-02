@@ -2,7 +2,7 @@
 
 ## Installation
 
-1. `sudo pip3 -r requirements.txt` -- the packages must be available to root's Python
+1. `sudo pip3 install -r requirements.txt` -- the packages must be available to root's Python
 
 ## System configuration
 
