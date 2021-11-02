@@ -131,13 +131,16 @@ _ExecForeignScan(PlanState *pstate)
 static TupleTableSlot *
 ExecForeignScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeForeignscan_ExecForeignScan_begin);
 
   result = _ExecForeignScan(pstate);
 
   TS_MARKER(nodeForeignscan_ExecForeignScan_end);
-  TS_MARKER(nodeForeignscan_ExecForeignScan_features);
+  TS_FEATURES_MARKER(nodeForeignscan_ExecForeignScan_features, castNode(ForeignScanState, pstate), pstate);
 
   return result;
 }

@@ -101,12 +101,14 @@ ExecSubPlan(SubPlanState *node,
 			bool *isNull)
 {
   Datum result;
+  TS_MARKER_SETUP();
+
   TS_MARKER(nodeSubplan_ExecSubPlan_begin);
 
   result = _ExecSubPlan(node, econtext, isNull);
 
   TS_MARKER(nodeSubplan_ExecSubPlan_end);
-  TS_MARKER(nodeSubplan_ExecSubPlan_features);
+  TS_FEATURES_MARKER(nodeSubplan_ExecSubPlan_features, castNode(SubPlanState, node), node->planstate);
 
   return result;
 }

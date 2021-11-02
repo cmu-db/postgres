@@ -386,13 +386,16 @@ _ExecAppend(PlanState *pstate)
 static TupleTableSlot *
 ExecAppend(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeAppend_ExecAppend_begin);
 
   result = _ExecAppend(pstate);
 
   TS_MARKER(nodeAppend_ExecAppend_end);
-  TS_MARKER(nodeAppend_ExecAppend_features);
+  TS_FEATURES_MARKER(nodeAppend_ExecAppend_features, castNode(AppendState, pstate), pstate);
 
   return result;
 }

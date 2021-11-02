@@ -106,13 +106,16 @@ _ExecTableFuncScan(PlanState *pstate)
 static TupleTableSlot *
 ExecTableFuncScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_begin);
 
   result = _ExecTableFuncScan(pstate);
 
   TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_end);
-  TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_features);
+  TS_FEATURES_MARKER(nodeTableFuncscan_ExecTableFuncScan_features, castNode(TableFuncScanState, pstate), pstate);
 
   return result;
 }

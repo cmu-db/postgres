@@ -441,13 +441,16 @@ _ExecTidScan(PlanState *pstate)
 static TupleTableSlot *
 ExecTidScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeTidscan_ExecTidScan_begin);
 
   result = _ExecTidScan(pstate);
 
   TS_MARKER(nodeTidscan_ExecTidScan_end);
-  TS_MARKER(nodeTidscan_ExecTidScan_features);
+  TS_FEATURES_MARKER(nodeTidscan_ExecTidScan_features, castNode(TidScanState, pstate), pstate);
 
   return result;
 }

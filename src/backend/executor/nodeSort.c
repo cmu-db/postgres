@@ -160,13 +160,16 @@ _ExecSort(PlanState *pstate)
 static TupleTableSlot *
 ExecSort(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeSort_ExecSort_begin);
 
   result = _ExecSort(pstate);
 
   TS_MARKER(nodeSort_ExecSort_end);
-  TS_MARKER(nodeSort_ExecSort_features);
+  TS_FEATURES_MARKER(nodeSort_ExecSort_features, castNode(SortState, pstate), pstate);
 
   return result;
 }

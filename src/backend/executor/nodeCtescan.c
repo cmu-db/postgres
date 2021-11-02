@@ -170,13 +170,16 @@ _ExecCteScan(PlanState *pstate)
 static TupleTableSlot *
 ExecCteScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeCtescan_ExecCteScan_begin);
 
   result = _ExecCteScan(pstate);
 
   TS_MARKER(nodeCtescan_ExecCteScan_end);
-  TS_MARKER(nodeCtescan_ExecCteScan_features);
+  TS_FEATURES_MARKER(nodeCtescan_ExecCteScan_features, castNode(CteScanState, pstate), pstate);
 
   return result;
 }

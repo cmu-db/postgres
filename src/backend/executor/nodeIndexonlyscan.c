@@ -323,13 +323,16 @@ _ExecIndexOnlyScan(PlanState *pstate)
 static TupleTableSlot *
 ExecIndexOnlyScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeIndexonlyscan_ExecIndexOnlyScan_begin);
 
   result = _ExecIndexOnlyScan(pstate);
 
   TS_MARKER(nodeIndexonlyscan_ExecIndexOnlyScan_end);
-  TS_MARKER(nodeIndexonlyscan_ExecIndexOnlyScan_features);
+  TS_FEATURES_MARKER(nodeIndexonlyscan_ExecIndexOnlyScan_features, castNode(IndexOnlyScanState, pstate), pstate);
 
   return result;
 }

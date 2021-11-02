@@ -118,13 +118,16 @@ _ExecSeqScan(PlanState *pstate)
 static TupleTableSlot *
 ExecSeqScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeSeqscan_ExecSeqScan_begin);
 
   result = _ExecSeqScan(pstate);
 
   TS_MARKER(nodeSeqscan_ExecSeqScan_end);
-  TS_MARKER(nodeSeqscan_ExecSeqScan_features);
+  TS_FEATURES_MARKER(nodeSeqscan_ExecSeqScan_features, castNode(SeqScanState, pstate), pstate);
 
   return result;
 }

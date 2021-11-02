@@ -1432,13 +1432,16 @@ _ExecMergeJoin(PlanState *pstate)
 static TupleTableSlot *
 ExecMergeJoin(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeMergejoin_ExecMergeJoin_begin);
 
   result = _ExecMergeJoin(pstate);
 
   TS_MARKER(nodeMergejoin_ExecMergeJoin_end);
-  TS_MARKER(nodeMergejoin_ExecMergeJoin_features);
+  TS_FEATURES_MARKER(nodeMergejoin_ExecMergeJoin_features, castNode(MergeJoinState, pstate), pstate);
 
   return result;
 }

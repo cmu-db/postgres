@@ -21,3 +21,22 @@
 
 // Test if previously-definied semaphore is in use
 #define TS_MARKER_IS_ENABLED(name) (FOLLY_SDT_SEMAPHORE(noisepage, name) > 0)
+
+// Define variables required by all of the markers. This avoids the C90 warnings.
+#define TS_MARKER_SETUP()                                                                       \
+  /* Features. */                                                                               \
+  uint64_t query_id;                                                                            \
+  /* The current node. */                                                                       \
+  void *cur_node;
+
+// Define common features.
+#define TS_FEATURES_MARKER(name, current_node, plan_state_ptr, ...)                             \
+  query_id = plan_state_ptr->state->es_plannedstmt->queryId;                                    \
+  cur_node = (void *) current_node;                                                             \
+  TS_MARKER(                                                                                    \
+    name,                                                                                       \
+    query_id,                                                                                   \
+    cur_node,                                                                                   \
+    plan_state_ptr->plan,                                                                       \
+    ##__VA_ARGS__                                                                               \
+  );

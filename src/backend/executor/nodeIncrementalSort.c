@@ -968,13 +968,16 @@ _ExecIncrementalSort(PlanState *pstate)
 static TupleTableSlot *
 ExecIncrementalSort(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_begin);
 
   result = _ExecIncrementalSort(pstate);
 
   TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_end);
-  TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_features);
+  TS_FEATURES_MARKER(nodeIncrementalSort_ExecIncrementalSort_features, castNode(IncrementalSortState, pstate), pstate);
 
   return result;
 }

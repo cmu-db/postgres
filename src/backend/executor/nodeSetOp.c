@@ -224,13 +224,16 @@ _ExecSetOp(PlanState *pstate)
 static TupleTableSlot *
 ExecSetOp(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeSetOp_ExecSetOp_begin);
 
   result = _ExecSetOp(pstate);
 
   TS_MARKER(nodeSetOp_ExecSetOp_end);
-  TS_MARKER(nodeSetOp_ExecSetOp_features);
+  TS_FEATURES_MARKER(nodeSetOp_ExecSetOp_features, castNode(SetOpState, pstate), pstate);
 
   return result;
 }

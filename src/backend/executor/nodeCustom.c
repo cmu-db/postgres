@@ -119,13 +119,16 @@ _ExecCustomScan(PlanState *pstate)
 static TupleTableSlot *
 ExecCustomScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeCustom_ExecCustomScan_begin);
 
   result = _ExecCustomScan(pstate);
 
   TS_MARKER(nodeCustom_ExecCustomScan_end);
-  TS_MARKER(nodeCustom_ExecCustomScan_features);
+  TS_FEATURES_MARKER(nodeCustom_ExecCustomScan_features, castNode(CustomScanState, pstate), pstate);
 
   return result;
 }

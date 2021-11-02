@@ -2242,13 +2242,16 @@ _ExecWindowAgg(PlanState *pstate)
 static TupleTableSlot *
 ExecWindowAgg(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeWindowAgg_ExecWindowAgg_begin);
 
   result = _ExecWindowAgg(pstate);
 
   TS_MARKER(nodeWindowAgg_ExecWindowAgg_end);
-  TS_MARKER(nodeWindowAgg_ExecWindowAgg_features);
+  TS_FEATURES_MARKER(nodeWindowAgg_ExecWindowAgg_features, castNode(WindowAggState, pstate), pstate);
 
   return result;
 }

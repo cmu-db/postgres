@@ -285,13 +285,16 @@ lnext:
 static TupleTableSlot *
 ExecLockRows(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeLockRows_ExecLockRows_begin);
 
   result = _ExecLockRows(pstate);
 
   TS_MARKER(nodeLockRows_ExecLockRows_end);
-  TS_MARKER(nodeLockRows_ExecLockRows_features);
+  TS_FEATURES_MARKER(nodeLockRows_ExecLockRows_features, castNode(LockRowsState, pstate), pstate);
 
   return result;
 }

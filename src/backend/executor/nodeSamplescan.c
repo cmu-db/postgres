@@ -92,13 +92,16 @@ _ExecSampleScan(PlanState *pstate)
 static TupleTableSlot *
 ExecSampleScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeSamplescan_ExecSampleScan_begin);
 
   result = _ExecSampleScan(pstate);
 
   TS_MARKER(nodeSamplescan_ExecSampleScan_end);
-  TS_MARKER(nodeSamplescan_ExecSampleScan_features);
+  TS_FEATURES_MARKER(nodeSamplescan_ExecSampleScan_features, castNode(SampleScanState, pstate), pstate);
 
   return result;
 }

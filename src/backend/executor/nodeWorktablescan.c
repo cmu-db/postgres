@@ -125,13 +125,16 @@ _ExecWorkTableScan(PlanState *pstate)
 static TupleTableSlot *
 ExecWorkTableScan(PlanState *pstate)
 {
-  TupleTableSlot *result = NULL;
+  TupleTableSlot *result;
+  TS_MARKER_SETUP();
+
+  result = NULL;
   TS_MARKER(nodeWorktablescan_ExecWorkTableScan_begin);
 
   result = _ExecWorkTableScan(pstate);
 
   TS_MARKER(nodeWorktablescan_ExecWorkTableScan_end);
-  TS_MARKER(nodeWorktablescan_ExecWorkTableScan_features);
+  TS_FEATURES_MARKER(nodeWorktablescan_ExecWorkTableScan_features, castNode(WorkTableScanState, pstate), pstate);
 
   return result;
 }

@@ -2649,13 +2649,16 @@ _ExecModifyTable(PlanState *pstate)
 static TupleTableSlot *
 ExecModifyTable(PlanState *pstate)
 {
-    TupleTableSlot *result = NULL;
+    TupleTableSlot *result;
+    TS_MARKER_SETUP();
+
+    result = NULL;
     TS_MARKER(nodeModifyTable_ExecModifyTable_begin);
 
     result = _ExecModifyTable(pstate);
 
     TS_MARKER(nodeModifyTable_ExecModifyTable_end);
-    TS_MARKER(nodeModifyTable_ExecModifyTable_features);
+    TS_FEATURES_MARKER(nodeModifyTable_ExecModifyTable_features, castNode(ModifyTableState, pstate), pstate);
 
     return result;
 }
