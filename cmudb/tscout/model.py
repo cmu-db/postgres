@@ -11,6 +11,7 @@ from enum import Enum, unique
 from typing import List, Mapping, Tuple
 
 import clang.cindex
+
 import clang_parser
 
 
@@ -325,20 +326,48 @@ OU_DEFS = [
 
 # The metrics to be defined for every OU.
 OU_METRICS = (
-    BPFVariable(BPFType.u64, "start_time"),
-    BPFVariable(BPFType.u64, "end_time"),
-    BPFVariable(BPFType.u8, "cpu_id"),
-    BPFVariable(BPFType.u64, "cpu_cycles"),
-    BPFVariable(BPFType.u64, "instructions"),
-    BPFVariable(BPFType.u64, "cache_references"),
-    BPFVariable(BPFType.u64, "cache_misses"),
-    BPFVariable(BPFType.u64, "ref_cpu_cycles"),
-    BPFVariable(BPFType.u64, "network_bytes_read"),
-    BPFVariable(BPFType.u64, "network_bytes_written"),
-    BPFVariable(BPFType.u64, "disk_bytes_read"),
-    BPFVariable(BPFType.u64, "disk_bytes_written"),
-    BPFVariable(BPFType.u64, "memory_bytes"),
-    BPFVariable(BPFType.u64, "elapsed_us")
+    BPFVariable(bpf_type=BPFType.u64,
+                name="start_time",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="end_time",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u8,
+                name="cpu_id",
+                c_type=clang.cindex.TypeKind.UCHAR),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="cpu_cycles",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="instructions",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="cache_references",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="cache_misses",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="ref_cpu_cycles",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="network_bytes_read",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="network_bytes_written",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="disk_bytes_read",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="disk_bytes_written",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="memory_bytes",
+                c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(bpf_type=BPFType.u64,
+                name="elapsed_us",
+                c_type=clang.cindex.TypeKind.ULONG)
 )
 
 

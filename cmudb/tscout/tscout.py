@@ -3,9 +3,10 @@ import multiprocessing as mp
 import sys
 from typing import List
 
-import model
 import setproctitle
 from bcc import BPF, USDT, PerfHWConfig, PerfType, utils
+
+import model
 
 # Set up the OUs and metrics to be collected.
 modeler = model.Model()
