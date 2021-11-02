@@ -67,9 +67,9 @@ class BPFVariable:
         """
         val = str(getattr(output_event, self.name))
         if self.c_type == clang.cindex.TypeKind.FLOAT:
-            return struct.unpack('f', struct.pack('l', val))
+            return struct.unpack('f', struct.pack('l', int(val)))
         elif self.c_type == clang.cindex.TypeKind.DOUBLE:
-            return struct.unpack('d', struct.pack('q', val))
+            return struct.unpack('d', struct.pack('q', int(val)))
         else:
             return val
 
