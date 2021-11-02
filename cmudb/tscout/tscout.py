@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import multiprocessing as mp
 import sys
-from typing import List, Tuple
+from typing import List
 
 import setproctitle
 from bcc import BPF, USDT, PerfHWConfig, PerfType, utils
