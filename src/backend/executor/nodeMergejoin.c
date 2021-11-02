@@ -96,7 +96,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeMergejoin.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
 
@@ -1429,22 +1429,7 @@ _ExecMergeJoin(PlanState *pstate)
 	}
 }
 
-static TupleTableSlot *
-ExecMergeJoin(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeMergejoin_ExecMergeJoin_begin);
-
-  result = _ExecMergeJoin(pstate);
-
-  TS_MARKER(nodeMergejoin_ExecMergeJoin_end);
-  TS_FEATURES_MARKER(nodeMergejoin_ExecMergeJoin_features, castNode(MergeJoinState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(MergeJoin)
 
 /* ----------------------------------------------------------------
  *		ExecInitMergeJoin

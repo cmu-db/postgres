@@ -40,7 +40,7 @@
 #include "miscadmin.h"
 #include "optimizer/optimizer.h"
 #include "pgstat.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 
@@ -240,22 +240,7 @@ _ExecGather(PlanState *pstate)
 	return ExecProject(node->ps.ps_ProjInfo);
 }
 
-static TupleTableSlot *
-ExecGather(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeGather_ExecGather_begin);
-
-  result = _ExecGather(pstate);
-
-  TS_MARKER(nodeGather_ExecGather_end);
-  TS_FEATURES_MARKER(nodeGather_ExecGather_features, castNode(GatherState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(Gather)
 
 /* ----------------------------------------------------------------
  *		ExecEndGather

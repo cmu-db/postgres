@@ -26,7 +26,7 @@
 #include "executor/nodeProjectSet.h"
 #include "miscadmin.h"
 #include "nodes/nodeFuncs.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 
 
@@ -117,22 +117,7 @@ _ExecProjectSet(PlanState *pstate)
 	return NULL;
 }
 
-static TupleTableSlot *
-ExecProjectSet(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeProjectSet_ExecProjectSet_begin);
-
-  result = _ExecProjectSet(pstate);
-
-  TS_MARKER(nodeProjectSet_ExecProjectSet_end);
-  TS_FEATURES_MARKER(nodeProjectSet_ExecProjectSet_features, castNode(ProjectSetState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(ProjectSet)
 
 /* ----------------------------------------------------------------
  *		ExecProjectSRF

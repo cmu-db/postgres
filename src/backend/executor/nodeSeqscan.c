@@ -31,7 +31,7 @@
 #include "access/tableam.h"
 #include "executor/execdebug.h"
 #include "executor/nodeSeqscan.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/rel.h"
 
 static TupleTableSlot *SeqNext(SeqScanState *node);
@@ -115,23 +115,7 @@ _ExecSeqScan(PlanState *pstate)
 					(ExecScanRecheckMtd) SeqRecheck);
 }
 
-static TupleTableSlot *
-ExecSeqScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeSeqscan_ExecSeqScan_begin);
-
-  result = _ExecSeqScan(pstate);
-
-  TS_MARKER(nodeSeqscan_ExecSeqScan_end);
-  TS_FEATURES_MARKER(nodeSeqscan_ExecSeqScan_features, castNode(SeqScanState, pstate), pstate);
-
-  return result;
-}
-
+TS_EXECUTOR_WRAPPER(SeqScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitSeqScan

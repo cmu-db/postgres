@@ -25,7 +25,7 @@
 #include "executor/nodeLimit.h"
 #include "miscadmin.h"
 #include "nodes/nodeFuncs.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 
 static void recompute_limits(LimitState *node);
 static int64 compute_tuples_needed(LimitState *node);
@@ -346,21 +346,7 @@ _ExecLimit(PlanState *pstate)
 	return slot;
 }
 
-static TupleTableSlot *			/* return: a tuple or NULL */
-ExecLimit(PlanState *pstate) {
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeLimit_ExecLimit_begin);
-
-  result = _ExecLimit(pstate);
-
-  TS_MARKER(nodeLimit_ExecLimit_end);
-  TS_FEATURES_MARKER(nodeLimit_ExecLimit_features, castNode(LimitState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(Limit)
 
 /*
  * Evaluate the limit/offset expressions --- done at startup or rescan.

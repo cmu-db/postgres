@@ -82,7 +82,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeIncrementalSort.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/lsyscache.h"
 #include "utils/tuplesort.h"
 
@@ -965,22 +965,7 @@ _ExecIncrementalSort(PlanState *pstate)
 	return slot;
 }
 
-static TupleTableSlot *
-ExecIncrementalSort(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_begin);
-
-  result = _ExecIncrementalSort(pstate);
-
-  TS_MARKER(nodeIncrementalSort_ExecIncrementalSort_end);
-  TS_FEATURES_MARKER(nodeIncrementalSort_ExecIncrementalSort_features, castNode(IncrementalSortState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(IncrementalSort)
 
 /* ----------------------------------------------------------------
  *		ExecInitIncrementalSort

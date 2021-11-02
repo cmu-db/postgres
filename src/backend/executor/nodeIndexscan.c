@@ -38,7 +38,7 @@
 #include "lib/pairingheap.h"
 #include "miscadmin.h"
 #include "nodes/nodeFuncs.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/array.h"
 #include "utils/datum.h"
 #include "utils/lsyscache.h"
@@ -540,22 +540,7 @@ _ExecIndexScan(PlanState *pstate)
 						(ExecScanRecheckMtd) IndexRecheck);
 }
 
-static TupleTableSlot *
-ExecIndexScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeIndexscan_ExecIndexScan_begin);
-
-  result = _ExecIndexScan(pstate);
-
-  TS_MARKER(nodeIndexscan_ExecIndexScan_end);
-  TS_FEATURES_MARKER(nodeIndexscan_ExecIndexScan_features, castNode(IndexScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(IndexScan)
 
 /* ----------------------------------------------------------------
  *		ExecReScanIndexScan(node)

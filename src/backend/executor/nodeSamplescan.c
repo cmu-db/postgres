@@ -23,7 +23,7 @@
 #include "pgstat.h"
 #include "storage/bufmgr.h"
 #include "storage/predicate.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/builtins.h"
 #include "utils/rel.h"
 
@@ -89,22 +89,7 @@ _ExecSampleScan(PlanState *pstate)
 					(ExecScanRecheckMtd) SampleRecheck);
 }
 
-static TupleTableSlot *
-ExecSampleScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeSamplescan_ExecSampleScan_begin);
-
-  result = _ExecSampleScan(pstate);
-
-  TS_MARKER(nodeSamplescan_ExecSampleScan_end);
-  TS_FEATURES_MARKER(nodeSamplescan_ExecSampleScan_features, castNode(SampleScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(SampleScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitSampleScan

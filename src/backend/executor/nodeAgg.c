@@ -256,7 +256,7 @@
 #include "optimizer/optimizer.h"
 #include "parser/parse_agg.h"
 #include "parser/parse_coerce.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
 #include "utils/datum.h"
@@ -2188,22 +2188,7 @@ _ExecAgg(PlanState *pstate)
 	return NULL;
 }
 
-static TupleTableSlot *
-ExecAgg(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeAgg_ExecAgg_begin);
-
-  result = _ExecAgg(pstate);
-
-  TS_MARKER(nodeAgg_ExecAgg_end);
-  TS_FEATURES_MARKER(nodeAgg_ExecAgg_features, castNode(AggState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(Agg)
 
 /*
  * ExecAgg for non-hashed case

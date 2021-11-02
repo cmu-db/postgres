@@ -317,12 +317,12 @@ class OperatingUnit:
     features_list : List[Feature]
         A list of features.
     """
-    operator: str
+    operator: str  # TODO(Matt): remove?
     function: str
     features_list: List[Feature]
 
     def name(self) -> str:
-        return self.operator + '_' + self.function
+        return self.function
 
     def begin_marker(self) -> str:
         return self.name() + '_begin'

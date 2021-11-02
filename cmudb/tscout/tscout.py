@@ -68,7 +68,7 @@ def generate_markers(operation, ou_index):
 
     # Replace OU-specific placeholders in C code.
     markers_c = markers_c.replace("SUBST_OU",
-                                  f'{operation.operator}_{operation.function}')
+                                  f'{operation.function}')
     markers_c = markers_c.replace("SUBST_READARGS",
                                   generate_readargs(operation.features_list))
     markers_c = markers_c.replace("SUBST_FEATURES",
@@ -116,6 +116,8 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     cflags = ['-DKBUILD_MODNAME="collector"']
     if socket_fd:
         cflags.append('-DCLIENT_SOCKET_FD={}'.format(socket_fd))
+
+    print(collector_c)
 
     collector_bpf = BPF(text=collector_c,
                         usdt_contexts=[collector_probes],

@@ -48,7 +48,7 @@
 #include "executor/executor.h"
 #include "executor/nodeResult.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 
 
@@ -140,22 +140,7 @@ _ExecResult(PlanState *pstate)
 	return NULL;
 }
 
-static TupleTableSlot *
-ExecResult(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeResult_ExecResult_begin);
-
-  result = _ExecResult(pstate);
-
-  TS_MARKER(nodeResult_ExecResult_end);
-  TS_FEATURES_MARKER(nodeResult_ExecResult_features, castNode(ResultState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(Result)
 
 /* ----------------------------------------------------------------
  *		ExecResultMarkPos

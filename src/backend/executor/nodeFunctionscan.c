@@ -26,7 +26,7 @@
 #include "executor/nodeFunctionscan.h"
 #include "funcapi.h"
 #include "nodes/nodeFuncs.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/builtins.h"
 #include "utils/memutils.h"
 
@@ -273,22 +273,7 @@ _ExecFunctionScan(PlanState *pstate)
 					(ExecScanRecheckMtd) FunctionRecheck);
 }
 
-static TupleTableSlot *
-ExecFunctionScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeFunctionscan_ExecFunctionScan_begin);
-
-  result = _ExecFunctionScan(pstate);
-
-  TS_MARKER(nodeFunctionscan_ExecFunctionScan_end);
-  TS_FEATURES_MARKER(nodeFunctionscan_ExecFunctionScan_features, castNode(FunctionScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(FunctionScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitFunctionScan

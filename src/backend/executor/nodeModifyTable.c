@@ -48,7 +48,7 @@
 #include "rewrite/rewriteHandler.h"
 #include "storage/bufmgr.h"
 #include "storage/lmgr.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/builtins.h"
 #include "utils/datum.h"
 #include "utils/memutils.h"
@@ -2646,22 +2646,7 @@ _ExecModifyTable(PlanState *pstate)
 	return NULL;
 }
 
-static TupleTableSlot *
-ExecModifyTable(PlanState *pstate)
-{
-    TupleTableSlot *result;
-    TS_MARKER_SETUP();
-
-    result = NULL;
-    TS_MARKER(nodeModifyTable_ExecModifyTable_begin);
-
-    result = _ExecModifyTable(pstate);
-
-    TS_MARKER(nodeModifyTable_ExecModifyTable_end);
-    TS_FEATURES_MARKER(nodeModifyTable_ExecModifyTable_features, castNode(ModifyTableState, pstate), pstate);
-
-    return result;
-}
+TS_EXECUTOR_WRAPPER(ModifyTable)
 
 /*
  * ExecLookupResultRelByOid

@@ -64,7 +64,7 @@
 #include "miscadmin.h"
 #include "pgstat.h"
 #include "storage/latch.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 
 /* Shared state for parallel-aware Append. */
 struct ParallelAppendState
@@ -383,22 +383,7 @@ _ExecAppend(PlanState *pstate)
 			return ExecClearTuple(node->ps.ps_ResultTupleSlot);
 	}
 }
-static TupleTableSlot *
-ExecAppend(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeAppend_ExecAppend_begin);
-
-  result = _ExecAppend(pstate);
-
-  TS_MARKER(nodeAppend_ExecAppend_end);
-  TS_FEATURES_MARKER(nodeAppend_ExecAppend_features, castNode(AppendState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(Append)
 
 /* ----------------------------------------------------------------
  *		ExecEndAppend

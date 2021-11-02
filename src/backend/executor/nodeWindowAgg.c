@@ -44,7 +44,7 @@
 #include "optimizer/optimizer.h"
 #include "parser/parse_agg.h"
 #include "parser/parse_coerce.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
 #include "utils/datum.h"
@@ -2239,22 +2239,7 @@ _ExecWindowAgg(PlanState *pstate)
 	return ExecProject(winstate->ss.ps.ps_ProjInfo);
 }
 
-static TupleTableSlot *
-ExecWindowAgg(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeWindowAgg_ExecWindowAgg_begin);
-
-  result = _ExecWindowAgg(pstate);
-
-  TS_MARKER(nodeWindowAgg_ExecWindowAgg_end);
-  TS_FEATURES_MARKER(nodeWindowAgg_ExecWindowAgg_features, castNode(WindowAggState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(WindowAgg)
 
 /* -----------------
  * ExecInitWindowAgg

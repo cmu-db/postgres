@@ -24,7 +24,7 @@
 #include "lib/binaryheap.h"
 #include "miscadmin.h"
 #include "optimizer/optimizer.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 
@@ -280,22 +280,7 @@ _ExecGatherMerge(PlanState *pstate)
 	return ExecProject(node->ps.ps_ProjInfo);
 }
 
-static TupleTableSlot *
-ExecGatherMerge(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeGatherMerge_ExecGatherMerge_begin);
-
-  result = _ExecGatherMerge(pstate);
-
-  TS_MARKER(nodeGatherMerge_ExecGatherMerge_end);
-  TS_FEATURES_MARKER(nodeGatherMerge_ExecGatherMerge_features, castNode(GatherMergeState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(GatherMerge)
 
 /* ----------------------------------------------------------------
  *		ExecEndGatherMerge

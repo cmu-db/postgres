@@ -21,7 +21,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeRecursiveunion.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 
 
@@ -160,22 +160,7 @@ _ExecRecursiveUnion(PlanState *pstate)
 	return NULL;
 }
 
-static TupleTableSlot *
-ExecRecursiveUnion(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeRecursiveunion_ExecRecursiveUnion_begin);
-
-  result = _ExecRecursiveUnion(pstate);
-
-  TS_MARKER(nodeRecursiveunion_ExecRecursiveUnion_end);
-  TS_FEATURES_MARKER(nodeRecursiveunion_ExecRecursiveUnion_features, castNode(RecursiveUnionState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(RecursiveUnion)
 
 /* ----------------------------------------------------------------
  *		ExecInitRecursiveUnion

@@ -25,7 +25,7 @@
 #include "executor/executor.h"
 #include "executor/nodeForeignscan.h"
 #include "foreign/fdwapi.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 
@@ -128,22 +128,7 @@ _ExecForeignScan(PlanState *pstate)
 					(ExecScanRecheckMtd) ForeignRecheck);
 }
 
-static TupleTableSlot *
-ExecForeignScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeForeignscan_ExecForeignScan_begin);
-
-  result = _ExecForeignScan(pstate);
-
-  TS_MARKER(nodeForeignscan_ExecForeignScan_end);
-  TS_FEATURES_MARKER(nodeForeignscan_ExecForeignScan_features, castNode(ForeignScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(ForeignScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitForeignScan

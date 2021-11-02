@@ -48,7 +48,7 @@
 #include "executor/executor.h"
 #include "executor/nodeSetOp.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 
 
@@ -221,22 +221,7 @@ _ExecSetOp(PlanState *pstate)
 		return setop_retrieve_direct(node);
 }
 
-static TupleTableSlot *
-ExecSetOp(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeSetOp_ExecSetOp_begin);
-
-  result = _ExecSetOp(pstate);
-
-  TS_MARKER(nodeSetOp_ExecSetOp_end);
-  TS_FEATURES_MARKER(nodeSetOp_ExecSetOp_features, castNode(SetOpState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(SetOp)
 
 /*
  * ExecSetOp for non-hashed case

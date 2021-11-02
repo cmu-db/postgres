@@ -18,7 +18,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeNamedtuplestorescan.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/queryenvironment.h"
 
 static TupleTableSlot *NamedTuplestoreScanNext(NamedTuplestoreScanState *node);
@@ -75,23 +75,7 @@ _ExecNamedTuplestoreScan(PlanState *pstate)
 					(ExecScanRecheckMtd) NamedTuplestoreScanRecheck);
 }
 
-static TupleTableSlot *
-ExecNamedTuplestoreScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeNamedtuplestorescan_ExecNamedTuplestoreScan_begin);
-
-  result = _ExecNamedTuplestoreScan(pstate);
-
-  TS_MARKER(nodeNamedtuplestorescan_ExecNamedTuplestoreScan_end);
-  TS_FEATURES_MARKER(nodeNamedtuplestorescan_ExecNamedTuplestoreScan_features, castNode(NamedTuplestoreScanState, pstate), pstate);
-
-  return result;
-}
-
+TS_EXECUTOR_WRAPPER(NamedTuplestoreScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitNamedTuplestoreScan

@@ -579,15 +579,17 @@ _ExecHashJoinImpl(PlanState *pstate, bool parallel)
 static pg_attribute_always_inline TupleTableSlot *
 ExecHashJoinImpl(PlanState *pstate, bool parallel) {
   TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeHashjoin_ExecHashJoinImpl_begin);
+  TS_MARKER(ExecHashJoinImpl_begin);
 
   result = _ExecHashJoinImpl(pstate, parallel);
 
-  TS_MARKER(nodeHashjoin_ExecHashJoinImpl_end);
-  TS_FEATURES_MARKER(nodeHashjoin_ExecHashJoinImpl_features, castNode(HashJoinState, pstate), pstate);
+  TS_MARKER(ExecHashJoinImpl_end);
+  TS_MARKER(
+	ExecHashJoinImpl_features,
+    pstate->state->es_plannedstmt->queryId,
+    castNode(HashJoinState, pstate),
+    pstate->plan
+  );
 
   return result;
 }

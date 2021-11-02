@@ -29,7 +29,7 @@
 
 #include "executor/execdebug.h"
 #include "executor/nodeSubqueryscan.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 
 static TupleTableSlot *SubqueryNext(SubqueryScanState *node);
 
@@ -90,22 +90,7 @@ _ExecSubqueryScan(PlanState *pstate)
 					(ExecScanRecheckMtd) SubqueryRecheck);
 }
 
-static TupleTableSlot *
-ExecSubqueryScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeSubqueryscan_ExecSubqueryScan_begin);
-
-  result = _ExecSubqueryScan(pstate);
-
-  TS_MARKER(nodeSubqueryscan_ExecSubqueryScan_end);
-  TS_FEATURES_MARKER(nodeSubqueryscan_ExecSubqueryScan_features, castNode(SubqueryScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(SubqueryScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitSubqueryScan

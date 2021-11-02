@@ -18,7 +18,7 @@
 #include "nodes/extensible.h"
 #include "nodes/plannodes.h"
 #include "parser/parsetree.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/hsearch.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
@@ -116,22 +116,7 @@ _ExecCustomScan(PlanState *pstate)
 	return node->methods->ExecCustomScan(node);
 }
 
-static TupleTableSlot *
-ExecCustomScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeCustom_ExecCustomScan_begin);
-
-  result = _ExecCustomScan(pstate);
-
-  TS_MARKER(nodeCustom_ExecCustomScan_end);
-  TS_FEATURES_MARKER(nodeCustom_ExecCustomScan_features, castNode(CustomScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(CustomScan)
 
 void
 ExecEndCustomScan(CustomScanState *node)

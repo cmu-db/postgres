@@ -27,7 +27,7 @@
 #include "executor/nodeValuesscan.h"
 #include "jit/jit.h"
 #include "optimizer/clauses.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/expandeddatum.h"
 
 
@@ -204,22 +204,7 @@ _ExecValuesScan(PlanState *pstate)
 					(ExecScanRecheckMtd) ValuesRecheck);
 }
 
-static TupleTableSlot *
-ExecValuesScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeValuesscan_ExecValuesScan_begin);
-
-  result = _ExecValuesScan(pstate);
-
-  TS_MARKER(nodeValuesscan_ExecValuesScan_end);
-  TS_FEATURES_MARKER(nodeValuesscan_ExecValuesScan_features, castNode(ValuesScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(ValuesScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitValuesScan

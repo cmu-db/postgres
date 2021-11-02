@@ -27,7 +27,7 @@
 #include "executor/tablefunc.h"
 #include "miscadmin.h"
 #include "nodes/execnodes.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/builtins.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
@@ -103,22 +103,7 @@ _ExecTableFuncScan(PlanState *pstate)
 					(ExecScanRecheckMtd) TableFuncRecheck);
 }
 
-static TupleTableSlot *
-ExecTableFuncScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_begin);
-
-  result = _ExecTableFuncScan(pstate);
-
-  TS_MARKER(nodeTableFuncscan_ExecTableFuncScan_end);
-  TS_FEATURES_MARKER(nodeTableFuncscan_ExecTableFuncScan_features, castNode(TableFuncScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(TableFuncScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitTableFuncscan

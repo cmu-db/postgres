@@ -41,7 +41,7 @@
 #include "miscadmin.h"
 #include "storage/bufmgr.h"
 #include "storage/predicate.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 
@@ -320,22 +320,7 @@ _ExecIndexOnlyScan(PlanState *pstate)
 					(ExecScanRecheckMtd) IndexOnlyRecheck);
 }
 
-static TupleTableSlot *
-ExecIndexOnlyScan(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeIndexonlyscan_ExecIndexOnlyScan_begin);
-
-  result = _ExecIndexOnlyScan(pstate);
-
-  TS_MARKER(nodeIndexonlyscan_ExecIndexOnlyScan_end);
-  TS_FEATURES_MARKER(nodeIndexonlyscan_ExecIndexOnlyScan_features, castNode(IndexOnlyScanState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(IndexOnlyScan)
 
 /* ----------------------------------------------------------------
  *		ExecReScanIndexOnlyScan(node)

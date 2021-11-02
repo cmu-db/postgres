@@ -24,7 +24,7 @@
 #include "executor/execdebug.h"
 #include "executor/nodeNestloop.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 
 
@@ -256,22 +256,7 @@ _ExecNestLoop(PlanState *pstate)
 	}
 }
 
-static TupleTableSlot *
-ExecNestLoop(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeNestloop_ExecNestLoop_begin);
-
-  result = _ExecNestLoop(pstate);
-
-  TS_MARKER(nodeNestloop_ExecNestLoop_end);
-  TS_FEATURES_MARKER(nodeNestloop_ExecNestLoop_features, castNode(NestLoopState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(NestLoop)
 
 /* ----------------------------------------------------------------
  *		ExecInitNestLoop

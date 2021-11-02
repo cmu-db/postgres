@@ -36,7 +36,7 @@
 #include "executor/executor.h"
 #include "executor/nodeUnique.h"
 #include "miscadmin.h"
-#include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 
 
@@ -105,22 +105,7 @@ _ExecUnique(PlanState *pstate)
 	return ExecCopySlot(resultTupleSlot, slot);
 }
 
-static TupleTableSlot *
-ExecUnique(PlanState *pstate)
-{
-  TupleTableSlot *result;
-  TS_MARKER_SETUP();
-
-  result = NULL;
-  TS_MARKER(nodeUnique_ExecUnique_begin);
-
-  result = _ExecUnique(pstate);
-
-  TS_MARKER(nodeUnique_ExecUnique_end);
-  TS_FEATURES_MARKER(nodeUnique_ExecUnique_features, castNode(UniqueState, pstate), pstate);
-
-  return result;
-}
+TS_EXECUTOR_WRAPPER(Unique)
 
 /* ----------------------------------------------------------------
  *		ExecInitUnique
