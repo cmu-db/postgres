@@ -13,7 +13,7 @@ import clang.cindex
 # Expected path of this file: "postgres/cmudb/tscout/"
 
 # Path to the Postgres root.
-CLANG_POSTGRES_PATH = r'../../../postgres'
+CLANG_POSTGRES_PATH = r'../../'
 # Path to the execnodes.h file.
 CLANG_EXECNODES_H = f'{CLANG_POSTGRES_PATH}/src/include/nodes/execnodes.h'
 # The arguments that Clang uses to parse header files.
