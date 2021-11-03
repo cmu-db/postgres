@@ -2156,7 +2156,7 @@ lookup_hash_entries(AggState *aggstate)
  *	  the result tuple.
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecAgg(PlanState *pstate)
+WrappedExecAgg(PlanState *pstate)
 {
 	AggState   *node = castNode(AggState, pstate);
 	TupleTableSlot *result = NULL;

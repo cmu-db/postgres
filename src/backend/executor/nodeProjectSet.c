@@ -41,7 +41,7 @@ static TupleTableSlot *ExecProjectSRF(ProjectSetState *node, bool continuing);
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecProjectSet(PlanState *pstate)
+WrappedExecProjectSet(PlanState *pstate)
 {
 	ProjectSetState *node = castNode(ProjectSetState, pstate);
 	TupleTableSlot *outerTupleSlot;

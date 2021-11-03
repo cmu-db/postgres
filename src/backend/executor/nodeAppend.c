@@ -295,7 +295,7 @@ ExecInitAppend(Append *node, EState *estate, int eflags)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecAppend(PlanState *pstate)
+WrappedExecAppend(PlanState *pstate)
 {
 	AppendState *node = castNode(AppendState, pstate);
 	TupleTableSlot *result;

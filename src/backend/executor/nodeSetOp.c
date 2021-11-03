@@ -188,7 +188,7 @@ set_output_count(SetOpState *setopstate, SetOpStatePerGroup pergroup)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
-_ExecSetOp(PlanState *pstate)
+WrappedExecSetOp(PlanState *pstate)
 {
 	SetOpState *node = castNode(SetOpState, pstate);
 	SetOp	   *plannode = (SetOp *) node->ps.plan;

@@ -45,7 +45,7 @@
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
-_ExecUnique(PlanState *pstate)
+WrappedExecUnique(PlanState *pstate)
 {
 	UniqueState *node = castNode(UniqueState, pstate);
 	ExprContext *econtext = node->ps.ps_ExprContext;

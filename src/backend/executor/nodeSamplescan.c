@@ -80,7 +80,7 @@ SampleRecheck(SampleScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecSampleScan(PlanState *pstate)
+WrappedExecSampleScan(PlanState *pstate)
 {
 	SampleScanState *node = castNode(SampleScanState, pstate);
 

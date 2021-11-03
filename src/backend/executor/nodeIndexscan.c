@@ -520,7 +520,7 @@ reorderqueue_pop(IndexScanState *node)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecIndexScan(PlanState *pstate)
+WrappedExecIndexScan(PlanState *pstate)
 {
 	IndexScanState *node = castNode(IndexScanState, pstate);
 

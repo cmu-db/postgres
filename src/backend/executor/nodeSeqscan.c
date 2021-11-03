@@ -106,7 +106,7 @@ SeqRecheck(SeqScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecSeqScan(PlanState *pstate)
+WrappedExecSeqScan(PlanState *pstate)
 {
 	SeqScanState *node = castNode(SeqScanState, pstate);
 

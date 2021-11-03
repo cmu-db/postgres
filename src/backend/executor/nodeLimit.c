@@ -39,7 +39,7 @@ static int64 compute_tuples_needed(LimitState *node);
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
-_ExecLimit(PlanState *pstate)
+WrappedExecLimit(PlanState *pstate)
 {
 	LimitState *node = castNode(LimitState, pstate);
 	ExprContext *econtext = node->ps.ps_ExprContext;

@@ -37,7 +37,7 @@
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *			/* result tuple from subplan */
-_ExecMaterial(PlanState *pstate)
+WrappedExecMaterial(PlanState *pstate)
 {
 	MaterialState *node = castNode(MaterialState, pstate);
 	EState	   *estate;

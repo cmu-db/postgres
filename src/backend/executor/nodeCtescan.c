@@ -158,7 +158,7 @@ CteScanRecheck(CteScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecCteScan(PlanState *pstate)
+WrappedExecCteScan(PlanState *pstate)
 {
 	CteScanState *node = castNode(CteScanState, pstate);
 

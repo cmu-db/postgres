@@ -186,7 +186,7 @@ ExecInitGatherMerge(GatherMerge *node, EState *estate, int eflags)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecGatherMerge(PlanState *pstate)
+WrappedExecGatherMerge(PlanState *pstate)
 {
 	GatherMergeState *node = castNode(GatherMergeState, pstate);
 	TupleTableSlot *slot;

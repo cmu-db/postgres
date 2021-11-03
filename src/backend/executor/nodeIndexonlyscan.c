@@ -305,7 +305,7 @@ IndexOnlyRecheck(IndexOnlyScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecIndexOnlyScan(PlanState *pstate)
+WrappedExecIndexOnlyScan(PlanState *pstate)
 {
 	IndexOnlyScanState *node = castNode(IndexOnlyScanState, pstate);
 

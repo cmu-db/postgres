@@ -494,7 +494,7 @@ switchToPresortedPrefixMode(PlanState *pstate)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecIncrementalSort(PlanState *pstate)
+WrappedExecIncrementalSort(PlanState *pstate)
 {
 	IncrementalSortState *node = castNode(IncrementalSortState, pstate);
 	EState	   *estate;

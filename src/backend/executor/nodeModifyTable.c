@@ -2347,7 +2347,7 @@ ExecPrepareTupleRouting(ModifyTableState *mtstate,
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecModifyTable(PlanState *pstate)
+WrappedExecModifyTable(PlanState *pstate)
 {
 	ModifyTableState *node = castNode(ModifyTableState, pstate);
 	EState	   *estate = node->ps.state;

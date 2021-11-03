@@ -429,7 +429,7 @@ TidRecheck(TidScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecTidScan(PlanState *pstate)
+WrappedExecTidScan(PlanState *pstate)
 {
 	TidScanState *node = castNode(TidScanState, pstate);
 

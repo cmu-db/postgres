@@ -210,7 +210,7 @@ ExecInitMergeAppend(MergeAppend *node, EState *estate, int eflags)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecMergeAppend(PlanState *pstate)
+WrappedExecMergeAppend(PlanState *pstate)
 {
 	MergeAppendState *node = castNode(MergeAppendState, pstate);
 	TupleTableSlot *result;

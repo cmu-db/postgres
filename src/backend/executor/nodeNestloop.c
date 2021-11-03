@@ -59,7 +59,7 @@
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecNestLoop(PlanState *pstate)
+WrappedExecNestLoop(PlanState *pstate)
 {
 	NestLoopState *node = castNode(NestLoopState, pstate);
 	NestLoop   *nl;

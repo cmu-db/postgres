@@ -2021,7 +2021,7 @@ update_grouptailpos(WindowAggState *winstate)
  * -----------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecWindowAgg(PlanState *pstate)
+WrappedExecWindowAgg(PlanState *pstate)
 {
 	WindowAggState *winstate = castNode(WindowAggState, pstate);
 	ExprContext *econtext;

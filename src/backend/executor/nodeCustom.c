@@ -106,7 +106,7 @@ ExecInitCustomScan(CustomScan *cscan, EState *estate, int eflags)
 }
 
 static pg_attribute_always_inline TupleTableSlot *
-_ExecCustomScan(PlanState *pstate)
+WrappedExecCustomScan(PlanState *pstate)
 {
 	CustomScanState *node = castNode(CustomScanState, pstate);
 

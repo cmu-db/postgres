@@ -66,7 +66,7 @@ NamedTuplestoreScanRecheck(NamedTuplestoreScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecNamedTuplestoreScan(PlanState *pstate)
+WrappedExecNamedTuplestoreScan(PlanState *pstate)
 {
 	NamedTuplestoreScanState *node = castNode(NamedTuplestoreScanState, pstate);
 

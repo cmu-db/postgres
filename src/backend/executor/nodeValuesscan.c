@@ -195,7 +195,7 @@ ValuesRecheck(ValuesScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecValuesScan(PlanState *pstate)
+WrappedExecValuesScan(PlanState *pstate)
 {
 	ValuesScanState *node = castNode(ValuesScanState, pstate);
 

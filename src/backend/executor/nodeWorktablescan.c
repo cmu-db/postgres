@@ -79,7 +79,7 @@ WorkTableScanRecheck(WorkTableScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecWorkTableScan(PlanState *pstate)
+WrappedExecWorkTableScan(PlanState *pstate)
 {
 	WorkTableScanState *node = castNode(WorkTableScanState, pstate);
 

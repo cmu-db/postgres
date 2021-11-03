@@ -38,7 +38,7 @@
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecSort(PlanState *pstate)
+WrappedExecSort(PlanState *pstate)
 {
 	SortState  *node = castNode(SortState, pstate);
 	EState	   *estate;

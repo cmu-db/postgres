@@ -35,7 +35,7 @@
  *		Return one tuple for each group of matching input tuples.
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecGroup(PlanState *pstate)
+WrappedExecGroup(PlanState *pstate)
 {
 	GroupState *node = castNode(GroupState, pstate);
 	ExprContext *econtext;

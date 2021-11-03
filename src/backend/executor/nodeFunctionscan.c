@@ -264,7 +264,7 @@ FunctionRecheck(FunctionScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecFunctionScan(PlanState *pstate)
+WrappedExecFunctionScan(PlanState *pstate)
 {
 	FunctionScanState *node = castNode(FunctionScanState, pstate);
 

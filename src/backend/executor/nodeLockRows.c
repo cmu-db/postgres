@@ -36,7 +36,7 @@
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *			/* return: a tuple or NULL */
-_ExecLockRows(PlanState *pstate)
+WrappedExecLockRows(PlanState *pstate)
 {
 	LockRowsState *node = castNode(LockRowsState, pstate);
 	TupleTableSlot *slot;

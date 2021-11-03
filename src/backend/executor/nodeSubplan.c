@@ -60,7 +60,7 @@ static bool slotNoNulls(TupleTableSlot *slot);
  * ----------------------------------------------------------------
  */
 static Datum pg_attribute_always_inline
-_ExecSubPlan(SubPlanState *node,
+WrappedExecSubPlan(SubPlanState *node,
 			ExprContext *econtext,
 			bool *isNull)
 {
@@ -95,6 +95,10 @@ _ExecSubPlan(SubPlanState *node,
 	return retval;
 }
 
+/*
+ * The result type here is Datum instead of TupleTableSlot * like most executors, so we can't use the macro in
+ * tscout/executors.h and instead just reproduce the behavior. If tscout/executors.h changes, change this too.
+ */
 Datum
 ExecSubPlan(SubPlanState *node,
 			ExprContext *econtext,
@@ -103,7 +107,7 @@ ExecSubPlan(SubPlanState *node,
   Datum result;
   TS_MARKER(ExecSubPlan_begin);
 
-  result = _ExecSubPlan(node, econtext, isNull);
+  result = WrappedExecSubPlan(node, econtext, isNull);
 
   TS_MARKER(ExecSubPlan_end);
   TS_MARKER(

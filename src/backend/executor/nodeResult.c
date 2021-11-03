@@ -66,7 +66,7 @@
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecResult(PlanState *pstate)
+WrappedExecResult(PlanState *pstate)
 {
 	ResultState *node = castNode(ResultState, pstate);
 	TupleTableSlot *outerTupleSlot;

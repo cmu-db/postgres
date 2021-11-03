@@ -140,7 +140,7 @@ ExecInitGather(Gather *node, EState *estate, int eflags)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecGather(PlanState *pstate)
+WrappedExecGather(PlanState *pstate)
 {
 	GatherState *node = castNode(GatherState, pstate);
 	TupleTableSlot *slot;

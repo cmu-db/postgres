@@ -598,7 +598,7 @@ ExecMergeTupleDump(MergeJoinState *mergestate)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecMergeJoin(PlanState *pstate)
+WrappedExecMergeJoin(PlanState *pstate)
 {
 	MergeJoinState *node = castNode(MergeJoinState, pstate);
 	ExprState  *joinqual;

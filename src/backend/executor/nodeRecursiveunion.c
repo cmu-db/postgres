@@ -73,7 +73,7 @@ build_hash_table(RecursiveUnionState *rustate)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecRecursiveUnion(PlanState *pstate)
+WrappedExecRecursiveUnion(PlanState *pstate)
 {
 	RecursiveUnionState *node = castNode(RecursiveUnionState, pstate);
 	PlanState  *outerPlan = outerPlanState(node);

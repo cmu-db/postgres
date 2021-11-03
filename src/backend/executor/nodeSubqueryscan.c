@@ -81,7 +81,7 @@ SubqueryRecheck(SubqueryScanState *node, TupleTableSlot *slot)
  * ----------------------------------------------------------------
  */
 static pg_attribute_always_inline TupleTableSlot *
-_ExecSubqueryScan(PlanState *pstate)
+WrappedExecSubqueryScan(PlanState *pstate)
 {
 	SubqueryScanState *node = castNode(SubqueryScanState, pstate);
 
