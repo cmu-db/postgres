@@ -66,13 +66,12 @@ class BPFVariable:
         val : str
             The serialized value of this variable.
         """
-        val = str(getattr(output_event, self.name))
         if self.c_type == clang.cindex.TypeKind.FLOAT:
-            return str(struct.unpack('f', int(val).to_bytes(4, byteorder=sys.byteorder))[0])
+            return str(struct.unpack('f', getattr(output_event, self.name).to_bytes(4, byteorder=sys.byteorder))[0])
         elif self.c_type == clang.cindex.TypeKind.DOUBLE:
-            return str(struct.unpack('d', int(val).to_bytes(8, byteorder=sys.byteorder))[0])
+            return str(struct.unpack('d', getattr(output_event, self.name).to_bytes(8, byteorder=sys.byteorder))[0])
         else:
-            return val
+            return str(getattr(output_event, self.name))
 
 
 @dataclass
