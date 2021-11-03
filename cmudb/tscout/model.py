@@ -6,6 +6,7 @@ Define the Operating Units (OUs) and metrics to be collected.
 """
 
 import struct
+import sys
 from dataclasses import dataclass
 from enum import Enum, unique
 from typing import List, Mapping, Tuple
@@ -67,9 +68,9 @@ class BPFVariable:
         """
         val = str(getattr(output_event, self.name))
         if self.c_type == clang.cindex.TypeKind.FLOAT:
-            return str(struct.unpack('f', struct.pack('l', int(val)))[0])
+            return str(struct.unpack('f', int(val).to_bytes(4, byteorder=sys.byteorder))[0])
         elif self.c_type == clang.cindex.TypeKind.DOUBLE:
-            return str(struct.unpack('d', struct.pack('q', int(val)))[0])
+            return str(struct.unpack('d', int(val).to_bytes(8, byteorder=sys.byteorder))[0])
         else:
             return val
 
