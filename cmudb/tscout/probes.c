@@ -20,27 +20,27 @@ static bool cpu_start(struct resource_metrics *const metrics) {
   struct bpf_perf_event_value perf_event_value = {};
 
   if (cpu_cycles.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   metrics->cpu_cycles = NormalizedPerfEventValue(&perf_event_value);
 
   if (instructions.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   metrics->instructions = NormalizedPerfEventValue(&perf_event_value);
 
   if (cache_references.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   metrics->cache_references = NormalizedPerfEventValue(&perf_event_value);
 
   if (cache_misses.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   metrics->cache_misses = NormalizedPerfEventValue(&perf_event_value);
 
   if (ref_cpu_cycles.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   metrics->ref_cpu_cycles = NormalizedPerfEventValue(&perf_event_value);
 
@@ -54,7 +54,7 @@ static void disk_start(struct resource_metrics *const metrics, const struct task
 }
 
 static void net_start(struct resource_metrics *const metrics, const struct task_struct *const p,
-					  const int socket_fd_k) {
+                      const int socket_fd_k) {
   const struct tcp_sock *const tcp_socket = GetTCPSocketFromFD(p, socket_fd_k);
   metrics->network_bytes_read = tcp_socket->copied_seq;  // don't want bytes_received, want unread
   metrics->network_bytes_written = tcp_socket->bytes_sent;
@@ -66,47 +66,47 @@ static bool cpu_end(struct resource_metrics *const metrics) {
   struct bpf_perf_event_value perf_event_value = {};
 
   if (cpu_cycles.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   u64 end_value = NormalizedPerfEventValue(&perf_event_value);
   if (metrics->cpu_cycles > end_value) {
-	return false;
+    return false;
   }
   metrics->cpu_cycles = end_value - metrics->cpu_cycles;
 
   if (instructions.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   end_value = NormalizedPerfEventValue(&perf_event_value);
   if (metrics->instructions > end_value) {
-	return false;
+    return false;
   }
   metrics->instructions = end_value - metrics->instructions;
 
   if (cache_references.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   end_value = NormalizedPerfEventValue(&perf_event_value);
   if (metrics->cache_references > end_value) {
-	return false;
+    return false;
   }
   metrics->cache_references = end_value - metrics->cache_references;
 
   if (cache_misses.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   end_value = NormalizedPerfEventValue(&perf_event_value);
   if (metrics->cache_misses > end_value) {
-	return false;
+    return false;
   }
   metrics->cache_misses = end_value - metrics->cache_misses;
 
   if (ref_cpu_cycles.perf_counter_value(cpu_k, &perf_event_value, sizeof(perf_event_value)) < 0) {
-	return false;
+    return false;
   }
   end_value = NormalizedPerfEventValue(&perf_event_value);
   if (metrics->ref_cpu_cycles > end_value) {
-	return false;
+    return false;
   }
   metrics->ref_cpu_cycles = end_value - metrics->ref_cpu_cycles;
 
@@ -124,6 +124,6 @@ static void disk_end(struct resource_metrics *const metrics, const struct task_s
 static void net_end(struct resource_metrics *const metrics, const struct task_struct *const p, const int socket_fd_k) {
   const struct tcp_sock *const tcp_socket = GetTCPSocketFromFD(p, socket_fd_k);
   metrics->network_bytes_read =
-	  tcp_socket->copied_seq - metrics->network_bytes_read;  // don't want bytes_received, want unread
+      tcp_socket->copied_seq - metrics->network_bytes_read;  // don't want bytes_received, want unread
   metrics->network_bytes_written = tcp_socket->bytes_sent - metrics->network_bytes_written;
 }

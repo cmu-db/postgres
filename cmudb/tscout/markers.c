@@ -41,6 +41,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   }
 
   if (metrics->end_time != 0) {
+    // Arrived at the END marker out of order.
     incomplete_metrics.delete(&ou_k);
     return;
   }
@@ -78,7 +79,8 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   struct resource_metrics *metrics = NULL;
   u32 ou_k = SUBST_INDEX;
   metrics = incomplete_metrics.lookup(&ou_k);
-  if (metrics == NULL) {
+  if (metrics == NULL || metrics->end_time == 0) {
+    // Arrived at the FEATURES marker out of order.
     return;
   }
 
