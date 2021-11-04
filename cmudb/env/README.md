@@ -9,7 +9,7 @@ The `env` folder is for all files that relate to setting up a development or CI 
 3. Once the Docker containers are started up, you can connect to them from the host with `psql -h localhost -U noisepage -p 15721`.
     - The existing docker-compose configuration binds 15721 to the primary (and if relevant, 15722 to the replica).
 
-- You can connect to running instances with `docker exec --interactive --tty INSTANCE_NAME /bin/bash`.
+- You can connect to running instances with `sudo docker exec --interactive --tty INSTANCE_NAME /bin/bash`.
 - You can check and modify the docker-compose yml files for passwords, ports, etc.
 - You must rebuild the Docker image every time there are changes in your source tree.
 
