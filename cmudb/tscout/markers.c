@@ -28,21 +28,27 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
 
   // Store the start metrics in the subsystem map, waiting for end
   u32 ou_k = SUBST_INDEX;
-  incomplete_metrics.update(&ou_k, &metrics);
+  s32 plan_node_id;
+  bpf_usdt_readarg(1, ctx, &plan_node_id);
+  u64 key = incomplete_metrics_key(ou_k, plan_node_id);
+  incomplete_metrics.update(&key, &metrics);
 }
 
 void SUBST_OU_end(struct pt_regs *ctx) {
   // Retrieve start metrics
   struct resource_metrics *metrics = NULL;
   u32 ou_k = SUBST_INDEX;
-  metrics = incomplete_metrics.lookup(&ou_k);
+  s32 plan_node_id;
+  bpf_usdt_readarg(1, ctx, &plan_node_id);
+  u64 key = incomplete_metrics_key(ou_k, plan_node_id);
+  metrics = incomplete_metrics.lookup(&key);
   if (metrics == NULL) {
     return;
   }
 
   if (metrics->end_time != 0) {
     // Arrived at the END marker out of order.
-    incomplete_metrics.delete(&ou_k);
+    incomplete_metrics.delete(&key);
     return;
   }
 
@@ -52,7 +58,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
 
   // Probe for CPU counters
   if (!cpu_end(metrics)) {
-    incomplete_metrics.delete(&ou_k);
+    incomplete_metrics.delete(&key);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -62,7 +68,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
 #endif
 
   // Store the completed metrics in the subsystem map, waiting for features
-  incomplete_metrics.update(&ou_k, metrics);
+  incomplete_metrics.update(&key, metrics);
 }
 
 // A BPF array is defined because the OU output struct is typically larger
@@ -78,7 +84,10 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   // Retrieve completed metrics
   struct resource_metrics *metrics = NULL;
   u32 ou_k = SUBST_INDEX;
-  metrics = incomplete_metrics.lookup(&ou_k);
+  s32 plan_node_id;
+  bpf_usdt_readarg(1, ctx, &plan_node_id);
+  u64 key = incomplete_metrics_key(ou_k, plan_node_id);
+  metrics = incomplete_metrics.lookup(&key);
   if (metrics == NULL || metrics->end_time == 0) {
     // Arrived at the FEATURES marker out of order.
     return;
@@ -102,7 +111,7 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   SUBST_READARGS
 
   // This enforces the state machine of begin -> end -> features.
-  incomplete_metrics.delete(&ou_k);
+  incomplete_metrics.delete(&key);
   // The SUBST_OU_output_arr does not need to be deleted because it is memset to 0 every time.
 
   // Send output struct to userspace via subsystem's perf ring buffer

@@ -96,26 +96,22 @@ WrappedExecSubPlan(SubPlanState *node,
 }
 
 /*
- * The result type here is Datum instead of TupleTableSlot * like most executors, so we can't use the macro in
- * tscout/executors.h and instead just reproduce the behavior. If tscout/executors.h changes, change this too.
+ * The result type here is Datum instead of TupleTableSlot * like most
+ * executors, so we can't use the macro in tscout/executors.h and instead just
+ * reproduce the behavior. If tscout/executors.h changes, change this too.
  */
-Datum
-ExecSubPlan(SubPlanState *node,
-			ExprContext *econtext,
-			bool *isNull)
-{
+Datum pg_attribute_always_inline ExecSubPlan(SubPlanState *node,
+                                             ExprContext *econtext,
+                                             bool *isNull) {
   Datum result;
-  TS_MARKER(ExecSubPlan_begin);
+  TS_MARKER(ExecSubPlan_begin, node->planstate->plan->plan_node_id);
 
   result = WrappedExecSubPlan(node, econtext, isNull);
 
-  TS_MARKER(ExecSubPlan_end);
-  TS_MARKER(
-	ExecSubPlan_features,
-	node->planstate->state->es_plannedstmt->queryId,
-    castNode(SubPlanState, node),
-	node->planstate->plan
-  );
+  TS_MARKER(ExecSubPlan_end, node->planstate->plan->plan_node_id);
+  TS_MARKER(ExecSubPlan_features, node->planstate->plan->plan_node_id,
+            node->planstate->state->es_plannedstmt->queryId,
+            castNode(SubPlanState, node), node->planstate->plan);
 
   return result;
 }

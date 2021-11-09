@@ -17,5 +17,8 @@ BPF_PERF_ARRAY(cache_references, MAX_CPUS);
 BPF_PERF_ARRAY(cache_misses, MAX_CPUS);
 BPF_PERF_ARRAY(ref_cpu_cycles, MAX_CPUS);
 
-// Each OU gets its own ou_id->metrics for incomplete data
-BPF_HASH(incomplete_metrics, u32, struct resource_metrics);
+// Each OU gets its own ou_id->metrics for incomplete data.
+BPF_HASH(incomplete_metrics, u64, struct resource_metrics);
+
+// We expect `plan_node_id` to be unique within the call stack, even if OUs are recursive.
+static u64 incomplete_metrics_key(const u32 ou, const s32 plan_node_id) { return ((u64)ou) << 32 | plan_node_id; }

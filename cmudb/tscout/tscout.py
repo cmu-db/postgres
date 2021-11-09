@@ -40,11 +40,12 @@ def generate_readargs(feature_list):
         bpf_usdt_readarg() and bpf_usdt_readarg_p() invocations.
     """
     code = []
+    non_feature_usdt_args = 1  # Currently just plan_node_id. If any other non-feature args are added, increment this.
     for idx, feature in enumerate(feature_list, 1):
         first_member = feature.bpf_tuple[0].name
         if feature.readarg_p:
             readarg_p = ['  bpf_usdt_readarg_p(',
-                         f'{idx}, ',
+                         f'{idx + non_feature_usdt_args}, ',
                          'ctx, ',
                          f'&(output->{first_member}), ',
                          f'sizeof(struct DECL_{feature.name})',
@@ -52,7 +53,7 @@ def generate_readargs(feature_list):
             code.append(''.join(readarg_p))
         else:
             readarg = ['  bpf_usdt_readarg(',
-                       f'{idx}, ',
+                       f'{idx + non_feature_usdt_args}, ',
                        'ctx, ',
                        f'&(output->{first_member})',
                        ');\n']
@@ -164,7 +165,7 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
                          for metric in metrics),
                 '\n'
             ])
-            ou_processor_queues[raw_data.ou_index].put(training_data)
+            ou_processor_queues[raw_data.ou_index].put(training_data)  # TODO(Matt): maybe put_nowait?
             # heavy_hitter_update(raw_data.ou_index)
 
         return collector_event
@@ -273,7 +274,7 @@ if __name__ == '__main__':
 
         # Create a Processor for each OU
         for ou in operating_units:
-            # TODO(Matt): bound this queue size?
+            # TODO(Matt): maybe bound this queue size?
             #  may not work reliably with a poison pill for shutdown
             ou_processor_queue = mp.Queue()
             ou_processor_queues.append(ou_processor_queue)
@@ -281,6 +282,7 @@ if __name__ == '__main__':
                                       args=(ou, ou_processor_queue,))
             ou_processor.start()
             ou_processors.append(ou_processor)
+
 
         def create_collector(child_pid, socket_fd):
             print(f"Postmaster forked PID {child_pid}, "
@@ -295,6 +297,7 @@ if __name__ == '__main__':
             collector_process.start()
             collector_processes[child_pid] = collector_process
 
+
         def destroy_collector(collector_process, child_pid):
             print(f"Postmaster reaped PID {child_pid}, "
                   f"destroying its Collector.")
@@ -302,6 +305,7 @@ if __name__ == '__main__':
             collector_process.join()
             del collector_flags[child_pid]
             del collector_processes[child_pid]
+
 
         def postmaster_event(cpu, data, size):
             output_event = tscout_bpf["postmaster_events"].event(data)
@@ -317,6 +321,7 @@ if __name__ == '__main__':
             else:
                 print("Unknown event type from Postmaster.")
                 raise KeyboardInterrupt
+
 
         tscout_bpf["postmaster_events"].open_perf_buffer(
             callback=postmaster_event, lost_cb=lost_something)
