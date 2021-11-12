@@ -260,7 +260,7 @@ OU_DEFS = [
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SeqScanState"),
-         Feature("Plan")
+         Feature("Scan")
      ]),
     ("ExecSetOp",
      [
@@ -272,7 +272,7 @@ OU_DEFS = [
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("SortState"),
-         Feature("Plan")
+         Feature("Sort")
      ]),
     ("ExecSubPlan",
      [
