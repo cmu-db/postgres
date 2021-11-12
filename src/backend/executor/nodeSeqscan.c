@@ -115,15 +115,7 @@ WrappedExecSeqScan(PlanState *pstate)
 					(ExecScanRecheckMtd) SeqRecheck);
 }
 
-static TupleTableSlot *ExecSeqScan(PlanState *pstate) {
-  TupleTableSlot *result;
-  TS_MARKER(ExecSeqScan_begin, pstate->plan->plan_node_id);
-
-  result = WrappedExecSeqScan(pstate);
-
-  TS_MARKER(ExecSeqScan_end, pstate->plan->plan_node_id);
-  return result;
-}
+TS_EXECUTOR_WRAPPER(SeqScan)
 
 /* ----------------------------------------------------------------
  *		ExecInitSeqScan
