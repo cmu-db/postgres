@@ -182,7 +182,7 @@ OU_DEFS = [
      [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("IndexScanState"),
-         Feature("Plan")
+         Feature("IndexScan")
      ]),
     ("ExecLimit",
      [
