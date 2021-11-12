@@ -237,6 +237,9 @@ ExecInitSort(Sort *node, EState *estate, int eflags)
 void
 ExecEndSort(SortState *node)
 {
+        TS_MARKER(ExecSort_features, node->ss.ps.plan->plan_node_id,
+            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+
 	SO1_printf("ExecEndSort: %s\n",
 			   "shutting down sort node");
 

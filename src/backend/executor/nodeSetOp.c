@@ -585,6 +585,9 @@ ExecInitSetOp(SetOp *node, EState *estate, int eflags)
 void
 ExecEndSetOp(SetOpState *node)
 {
+        TS_MARKER(ExecSetOp_features, node->ps.plan->plan_node_id,
+            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+
 	/* clean up tuple table */
 	ExecClearTuple(node->ps.ps_ResultTupleSlot);
 

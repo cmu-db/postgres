@@ -323,6 +323,9 @@ ExecInitProjectSet(ProjectSet *node, EState *estate, int eflags)
 void
 ExecEndProjectSet(ProjectSetState *node)
 {
+        TS_MARKER(ExecProjectSet_features, node->ps.plan->plan_node_id,
+            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+
 	/*
 	 * Free the exprcontext
 	 */

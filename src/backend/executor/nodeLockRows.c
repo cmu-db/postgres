@@ -388,6 +388,9 @@ ExecInitLockRows(LockRows *node, EState *estate, int eflags)
 void
 ExecEndLockRows(LockRowsState *node)
 {
+        TS_MARKER(ExecLockRows_features, node->ps.plan->plan_node_id,
+            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+
 	/* We may have shut down EPQ already, but no harm in another call */
 	EvalPlanQualEnd(&node->lr_epqstate);
 	ExecEndNode(outerPlanState(node));

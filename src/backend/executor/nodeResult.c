@@ -243,6 +243,9 @@ ExecInitResult(Result *node, EState *estate, int eflags)
 void
 ExecEndResult(ResultState *node)
 {
+        TS_MARKER(ExecResult_features, node->ps.plan->plan_node_id,
+            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+
 	/*
 	 * Free the exprcontext
 	 */

@@ -1634,6 +1634,9 @@ ExecInitMergeJoin(MergeJoin *node, EState *estate, int eflags)
 void
 ExecEndMergeJoin(MergeJoinState *node)
 {
+        TS_MARKER(ExecMergeJoin_features, node->js.ps.plan->plan_node_id,
+            node->js.ps.state->es_plannedstmt->queryId, node, node->js.ps.plan);
+
 	MJ1_printf("ExecEndMergeJoin: %s\n",
 			   "ending node processing");
 
