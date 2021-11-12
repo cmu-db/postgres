@@ -778,7 +778,7 @@ void
 ExecEndHashJoin(HashJoinState *node)
 {
 
-  TS_MARKER(ExecHashJoinImpl_features, node->js.ps.plan->plan_node_id,
+        TS_MARKER(ExecHashJoinImpl_features, node->js.ps.plan->plan_node_id,
             node->js.ps.state->es_plannedstmt->queryId, node, node->js.ps.plan);
 
         /*
