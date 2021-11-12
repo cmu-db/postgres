@@ -7,7 +7,7 @@
 #include <uapi/linux/ptrace.h>
 
 struct resource_metrics {
-  METRICS
+  SUBST_METRICS;
 };
 
 // Each Collector needs a handle to read perf counters
@@ -18,7 +18,14 @@ BPF_PERF_ARRAY(cache_misses, MAX_CPUS);
 BPF_PERF_ARRAY(ref_cpu_cycles, MAX_CPUS);
 
 // Each OU gets its own ou_id,plan_node_id->metrics for incomplete data.
-BPF_HASH(incomplete_metrics, u64, struct resource_metrics);
+BPF_HASH(complete_metrics, u64, struct resource_metrics, 32);  // TODO(Matt: Think about this size more
+BPF_HASH(running_metrics, u64, struct resource_metrics, 32);   // TODO(Matt: Think about this size more
 
 // We expect `plan_node_id` to be unique within the call stack, even if OUs are recursive.
-static u64 incomplete_metrics_key(const u32 ou, const s32 plan_node_id) { return ((u64)ou) << 32 | plan_node_id; }
+static u64 ou_key(const u32 ou, const s32 ou_instance) { return ((u64)ou) << 32 | ou_instance; }
+
+static void metrics_accumulate(struct resource_metrics *const lhs, const struct resource_metrics *const rhs) {
+  // never overwrite start_time or cpu_id
+  lhs->end_time = rhs->end_time;  // always overwrite end_time
+  SUBST_ACCUMULATE;
+}

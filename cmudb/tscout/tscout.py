@@ -101,7 +101,14 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     # Replace remaining placeholders in C code.
     defs = ['{} {}'.format(metric.bpf_type, metric.name) for metric in metrics]
     metrics_struct = ';\n'.join(defs) + ';'
-    collector_c = collector_c.replace("METRICS", metrics_struct)
+    collector_c = collector_c.replace("SUBST_METRICS", metrics_struct)
+
+    accumulate = ['lhs->{} += rhs->{}'.format(metric.name, metric.name) for metric in metrics if
+                  metric.name not in ('start_time', 'end_time', 'cpu_id')]  # don't accumulate these 3 metrics
+    metrics_accumulate = ';\n'.join(accumulate) + ';'
+    print(metrics_accumulate)
+    collector_c = collector_c.replace("SUBST_ACCUMULATE", metrics_accumulate)
+
     num_cpus = len(utils.get_online_cpus())
     collector_c = collector_c.replace("MAX_CPUS", str(num_cpus))
 

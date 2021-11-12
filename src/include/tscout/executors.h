@@ -17,13 +17,6 @@
 #define TS_EXECUTOR_WRAPPER(node_type)                                         \
   static TupleTableSlot *Exec##node_type(PlanState *pstate) {                  \
     TupleTableSlot *result;                                                    \
-    TS_MARKER(Exec##node_type##_begin, pstate->plan->plan_node_id);            \
-                                                                               \
     result = WrappedExec##node_type(pstate);                                   \
-                                                                               \
-    TS_MARKER(Exec##node_type##_end, pstate->plan->plan_node_id);              \
-    TS_MARKER(Exec##node_type##_features, pstate->plan->plan_node_id,          \
-              pstate->state->es_plannedstmt->queryId,                          \
-              castNode(node_type##State, pstate), pstate->plan);               \
     return result;                                                             \
   }

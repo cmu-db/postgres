@@ -115,7 +115,15 @@ WrappedExecSeqScan(PlanState *pstate)
 					(ExecScanRecheckMtd) SeqRecheck);
 }
 
-TS_EXECUTOR_WRAPPER(SeqScan)
+static TupleTableSlot *ExecSeqScan(PlanState *pstate) {
+  TupleTableSlot *result;
+  TS_MARKER(ExecSeqScan_begin, pstate->plan->plan_node_id);
+
+  result = WrappedExecSeqScan(pstate);
+
+  TS_MARKER(ExecSeqScan_end, pstate->plan->plan_node_id);
+  return result;
+}
 
 /* ----------------------------------------------------------------
  *		ExecInitSeqScan
@@ -186,6 +194,9 @@ void
 ExecEndSeqScan(SeqScanState *node)
 {
 	TableScanDesc scanDesc;
+
+        TS_MARKER(ExecSeqScan_features, node->ss.ps.plan->plan_node_id,
+                  node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
 
 	/*
 	 * get information from node

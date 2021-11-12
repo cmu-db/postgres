@@ -1,12 +1,12 @@
 // SUBST_OU is replaced by the subsystem's name
 struct SUBST_OU_features {
-  SUBST_FEATURES  // Replaced by a list of the features for this subsystem
+  SUBST_FEATURES;  // Replaced by a list of the features for this subsystem
 };
 
 struct SUBST_OU_output {
   u32 ou_index;
-  SUBST_FEATURES  // Replaced by a list of the features for this subsystem
-      METRICS     // Replaced by the list of metrics
+  SUBST_FEATURES;  // Replaced by a list of the features for this subsystem
+  SUBST_METRICS;   // Replaced by the list of metrics
 };
 
 void SUBST_OU_begin(struct pt_regs *ctx) {
@@ -29,8 +29,8 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
   // Store the start metrics in the subsystem map, waiting for end
   s32 plan_node_id;
   bpf_usdt_readarg(1, ctx, &plan_node_id);
-  u64 key = incomplete_metrics_key(SUBST_INDEX, plan_node_id);
-  incomplete_metrics.update(&key, &metrics);
+  u64 key = ou_key(SUBST_INDEX, plan_node_id);
+  running_metrics.update(&key, &metrics);
 }
 
 void SUBST_OU_end(struct pt_regs *ctx) {
@@ -38,15 +38,15 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   struct resource_metrics *metrics = NULL;
   s32 plan_node_id;
   bpf_usdt_readarg(1, ctx, &plan_node_id);
-  u64 key = incomplete_metrics_key(SUBST_INDEX, plan_node_id);
-  metrics = incomplete_metrics.lookup(&key);
+  u64 key = ou_key(SUBST_INDEX, plan_node_id);
+  metrics = running_metrics.lookup(&key);
   if (metrics == NULL) {
     return;
   }
 
   if (metrics->end_time != 0) {
     // Arrived at the END marker out of order.
-    incomplete_metrics.delete(&key);
+    running_metrics.delete(&key);
     return;
   }
 
@@ -56,7 +56,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
 
   // Probe for CPU counters
   if (!cpu_end(metrics)) {
-    incomplete_metrics.delete(&key);
+    running_metrics.delete(&key);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -66,7 +66,19 @@ void SUBST_OU_end(struct pt_regs *ctx) {
 #endif
 
   // Store the completed metrics in the subsystem map, waiting for features
-  incomplete_metrics.update(&key, metrics);
+  struct resource_metrics *accumulated_metrics = NULL;
+  accumulated_metrics = complete_metrics.lookup(&key);
+  if (accumulated_metrics == NULL) {
+    // They don't exist yet, but that's okay, this could be the first tuple. Just drop in the this END instance's
+    // metrics as the complete ones.
+    complete_metrics.update(&key, metrics);
+  } else {
+    // We have accumulated metrics already. Let's add them.
+    metrics_accumulate(accumulated_metrics, metrics);
+  }
+
+  running_metrics.delete(&key);
+  //  complete_metrics.update(&key, metrics); //TODO(Matt): shouldn't be necessary
 }
 
 // A BPF array is defined because the OU output struct is typically larger
@@ -83,8 +95,8 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   struct resource_metrics *metrics = NULL;
   s32 plan_node_id;
   bpf_usdt_readarg(1, ctx, &plan_node_id);
-  u64 key = incomplete_metrics_key(SUBST_INDEX, plan_node_id);
-  metrics = incomplete_metrics.lookup(&key);
+  u64 key = ou_key(SUBST_INDEX, plan_node_id);
+  metrics = complete_metrics.lookup(&key);
   if (metrics == NULL || metrics->end_time == 0) {
     // Arrived at the FEATURES marker out of order.
     return;
@@ -108,7 +120,7 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   SUBST_READARGS
 
   // This enforces the state machine of begin -> end -> features.
-  incomplete_metrics.delete(&key);
+  complete_metrics.delete(&key);
   // The SUBST_OU_output_arr does not need to be deleted because it is memset to 0 every time.
 
   // Send output struct to userspace via subsystem's perf ring buffer
