@@ -69,7 +69,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   struct resource_metrics *accumulated_metrics = NULL;
   accumulated_metrics = complete_metrics.lookup(&key);
   if (accumulated_metrics == NULL) {
-    // They don't exist yet, but that's okay, this could be the first tuple. Just drop in the this END instance's
+    // They don't exist yet, but that's okay, this could be the first tuple. Just drop in the END instance's
     // metrics as the complete ones.
     complete_metrics.update(&key, metrics);
   } else {
@@ -78,7 +78,6 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   }
 
   running_metrics.delete(&key);
-  //  complete_metrics.update(&key, metrics); //TODO(Matt): shouldn't be necessary
 }
 
 // A BPF array is defined because the OU output struct is typically larger
