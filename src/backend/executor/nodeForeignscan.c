@@ -292,6 +292,9 @@ ExecEndForeignScan(ForeignScanState *node)
 	ForeignScan *plan = (ForeignScan *) node->ss.ps.plan;
 	EState	   *estate = node->ss.ps.state;
 
+        TS_MARKER(ExecForeignScan_features, node->ss.ps.plan->plan_node_id,
+                  node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+
 	/* Let the FDW shut down */
 	if (plan->operation != CMD_SELECT)
 	{

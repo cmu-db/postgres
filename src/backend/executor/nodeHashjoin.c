@@ -584,9 +584,6 @@ ExecHashJoinImpl(PlanState *pstate, bool parallel) {
   result = WrappedExecHashJoinImpl(pstate, parallel);
 
   TS_MARKER(ExecHashJoinImpl_end, pstate->plan->plan_node_id);
-  TS_MARKER(ExecHashJoinImpl_features, pstate->plan->plan_node_id,
-            pstate->state->es_plannedstmt->queryId,
-            castNode(HashJoinState, pstate), pstate->plan);
 
   return result;
 }
@@ -780,7 +777,11 @@ ExecInitHashJoin(HashJoin *node, EState *estate, int eflags)
 void
 ExecEndHashJoin(HashJoinState *node)
 {
-	/*
+
+        TS_MARKER(ExecHashJoinImpl_features, node->js.ps.plan->plan_node_id,
+            node->js.ps.state->es_plannedstmt->queryId, node, node->js.ps.plan);
+
+        /*
 	 * Free hash table
 	 */
 	if (node->hj_HashTable)

@@ -22,8 +22,5 @@
     result = WrappedExec##node_type(pstate);                                   \
                                                                                \
     TS_MARKER(Exec##node_type##_end, pstate->plan->plan_node_id);              \
-    TS_MARKER(Exec##node_type##_features, pstate->plan->plan_node_id,          \
-              pstate->state->es_plannedstmt->queryId,                          \
-              castNode(node_type##State, pstate), pstate->plan);               \
     return result;                                                             \
   }

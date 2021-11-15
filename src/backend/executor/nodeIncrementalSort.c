@@ -1078,6 +1078,8 @@ ExecInitIncrementalSort(IncrementalSort *node, EState *estate, int eflags)
 void
 ExecEndIncrementalSort(IncrementalSortState *node)
 {
+        TS_MARKER(ExecIncrementalSort_features, node->ss.ps.plan->plan_node_id,
+            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
 	SO_printf("ExecEndIncrementalSort: shutting down sort node\n");
 
 	/* clean out the scan tuple */

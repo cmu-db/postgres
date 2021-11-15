@@ -374,6 +374,9 @@ ExecEndIndexOnlyScan(IndexOnlyScanState *node)
 	Relation	indexRelationDesc;
 	IndexScanDesc indexScanDesc;
 
+        TS_MARKER(ExecIndexOnlyScan_features, node->ss.ps.plan->plan_node_id,
+            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+
 	/*
 	 * extract information from the node
 	 */

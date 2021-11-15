@@ -291,6 +291,8 @@ TS_EXECUTOR_WRAPPER(GatherMerge)
 void
 ExecEndGatherMerge(GatherMergeState *node)
 {
+        TS_MARKER(ExecGatherMerge_features, node->ps.plan->plan_node_id,
+            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
 	ExecEndNode(outerPlanState(node));	/* let children clean up first */
 	ExecShutdownGatherMerge(node);
 	ExecFreeExprContext(&node->ps);

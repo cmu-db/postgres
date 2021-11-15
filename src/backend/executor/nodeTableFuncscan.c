@@ -216,6 +216,8 @@ ExecInitTableFuncScan(TableFuncScan *node, EState *estate, int eflags)
 void
 ExecEndTableFuncScan(TableFuncScanState *node)
 {
+      TS_MARKER(ExecTableFuncScan_features, node->ss.ps.plan->plan_node_id,
+            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
 	/*
 	 * Free the exprcontext
 	 */

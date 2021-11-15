@@ -231,6 +231,9 @@ ExecEndGroup(GroupState *node)
 {
 	PlanState  *outerPlan;
 
+        TS_MARKER(ExecGroup_features, node->ss.ps.plan->plan_node_id,
+            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+
 	ExecFreeExprContext(&node->ss.ps);
 
 	/* clean up tuple table */

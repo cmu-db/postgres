@@ -3173,6 +3173,9 @@ ExecEndModifyTable(ModifyTableState *node)
 {
 	int			i;
 
+        TS_MARKER(ExecModifyTable_features, node->ps.plan->plan_node_id,
+            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+
 	/*
 	 * Allow any FDWs to shut down
 	 */

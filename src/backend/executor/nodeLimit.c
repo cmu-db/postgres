@@ -360,6 +360,9 @@ recompute_limits(LimitState *node)
 	Datum		val;
 	bool		isNull;
 
+        TS_MARKER(ExecLimit_features, node->ps.plan->plan_node_id,
+                  node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+
 	if (node->limitOffset)
 	{
 		val = ExecEvalExprSwitchContext(node->limitOffset,
