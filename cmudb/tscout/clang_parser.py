@@ -82,10 +82,10 @@ class ClangParser:
             for node in translation_units[-1].cursor.get_children():
                 if node.kind in [clang.cindex.CursorKind.CLASS_DECL,
                                  clang.cindex.CursorKind.STRUCT_DECL,
-                                 clang.cindex.CursorKind.TYPEDEF_DECL,  # Fixes definition of instr_time
+                                 clang.cindex.CursorKind.TYPEDEF_DECL,  # Fixes definition of instr_time in instr_time.h
                                  clang.cindex.CursorKind.UNION_DECL] \
-                        and node.is_definition() \
-                        and node.spelling not in classes:
+                        and node.spelling not in classes \
+                        and node.is_definition():  # Fixes forward declarations clobbering definitions
                     classes[node.spelling] = node
 
         # To construct the field map, we will construct the following objects:
