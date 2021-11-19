@@ -23,6 +23,7 @@
 #include "nodes/plannodes.h"
 #include "nodes/tidbitmap.h"
 #include "partitioning/partdefs.h"
+#include "postgres.h"
 #include "storage/condition_variable.h"
 #include "utils/hsearch.h"
 #include "utils/queryenvironment.h"

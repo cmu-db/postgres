@@ -13,50 +13,18 @@ import clang.cindex
 # Expected path of this file: "postgres/cmudb/tscout/"
 
 # Path to the Postgres root.
-POSTGRES_PATH = r'../..'
-# Path to the Postgres files to parse.
-POSTGRES_FILES = (
-    f'{POSTGRES_PATH}/src/include/nodes/execnodes.h',
-)
+CLANG_POSTGRES_PATH = r'../../'
+# Path to the execnodes.h file.
+CLANG_EXECNODES_H = f'{CLANG_POSTGRES_PATH}/src/include/nodes/execnodes.h'
 # The arguments that Clang uses to parse header files.
 CLANG_ARGS = [
     '-std=c17',
-    f'-I{POSTGRES_PATH}/src/include',
+    f'-I{CLANG_POSTGRES_PATH}/src/include',
     '-I/usr/lib/gcc/x86_64-linux-gnu/9/include',
     '-I/usr/local/include',
     '-I/usr/include/x86_64-linux-gnu',
     '-I/usr/include',
 ]
-
-
-def convert_define_to_arg(input_define):
-    """
-    Convert from a #define to a command line arg.
-
-    Parameters
-    ----------
-    input_define : str
-        String in the format of "#define variable value".
-
-    Returns
-    -------
-    output_str : str
-        String in the format of "-Dvariable=value".
-    """
-    var_and_value = input_define.rstrip()[len('#define '):]
-    separator = var_and_value.find(' ')
-    var = var_and_value[:separator]
-    value = var_and_value[separator + 1:]
-    return f'-D{var}={value}'
-
-
-# Grab the results of ./configure to make sure that we're passing the same
-# preprocessor #defines to libclang as when compiling Postgres.
-# #defines can affect struct sizing depending on machine environment.
-with open(f'{POSTGRES_PATH}/config.log') as config_file:
-    for config_line in config_file:
-        if config_line.startswith('#define '):
-            CLANG_ARGS.append(convert_define_to_arg(config_line))
 
 
 @dataclass
@@ -81,42 +49,13 @@ class ClangParser:
     """
 
     def __init__(self):
-        indexes: List[clang.cindex.Index] = []
-        translation_units: List[clang.cindex.TranslationUnit] = []
-        classes: Mapping[str, clang.cindex.Cursor] = {}
-
-        # Parse each postgres file's definitions into the classes map.
-        # classes is a map to handle potential duplicate definitions
-        # from parsing multiple translation units.
-        for postgres_file in POSTGRES_FILES:
-            # Parse the translation unit.
-            index = clang.cindex.Index.create()
-            tu = index.parse(postgres_file, args=CLANG_ARGS)
-
-            # Keep the index and translation unit alive for the rest of init.
-            indexes.append(index)
-            translation_units.append(tu)
-
-            # Add all relevant definitions to the classes map.
-            for node in tu.cursor.get_children():
-                kind_ok = node.kind in [
-                    clang.cindex.CursorKind.CLASS_DECL,
-                    clang.cindex.CursorKind.STRUCT_DECL,
-                    # Fixes instr_time def in instr_time.h.
-                    clang.cindex.CursorKind.TYPEDEF_DECL,
-                    clang.cindex.CursorKind.UNION_DECL,
-                ]
-
-                is_new = node.spelling not in classes
-                # Fix forward declarations clobbering definitions.
-                is_real_def = node.is_definition()
-
-                if kind_ok and is_new and is_real_def:
-                    classes[node.spelling] = node
+        # Parse the translation unit.
+        index = clang.cindex.Index.create()
+        translation_unit = index.parse(CLANG_EXECNODES_H, args=CLANG_ARGS)
 
         # To construct the field map, we will construct the following objects:
         # 1. _classes
-        #       Extract a list of all classes in the translation units.
+        #       Extract a list of all classes in the translation unit.
         # 2. _bases
         #       Extract a mapping from class name to all base classes.
         # 3. _fields
@@ -128,7 +67,12 @@ class ClangParser:
         #       _fields with base classes expanded and record types expanded.
 
         # _classes : list of all classes in the translation unit
-        self._classes: List[clang.cindex.Cursor] = classes.values()
+        self._classes: List[clang.cindex.Cursor] = [
+            node
+            for node in translation_unit.cursor.get_children()
+            if node.kind in [clang.cindex.CursorKind.CLASS_DECL,
+                             clang.cindex.CursorKind.STRUCT_DECL]
+        ]
         self._classes = sorted(self._classes, key=lambda node: node.spelling)
 
         # _bases : class name -> list of base classes for the class
