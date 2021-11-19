@@ -27,16 +27,27 @@ CLANG_ARGS = [
     '-I/usr/include/x86_64-linux-gnu',
     '-I/usr/include',
 ]
-# Grab the results of ./configure to make sure we're passing the same preprocessor defines to libclang as when
-# compiling Postgres. Preprocessor defines can affect the size of structs depending on machine environment.
+
+
+def convert_define_to_arg(input_define: str) -> str:
+    """
+    Convert from a #define to a command line arg.
+    :param input_define: string in the format '#define variable value'
+    :return: string in the format '-Dvariable=value'
+    """
+    var_and_value = input_define.rstrip()[len('#define '):]
+    separator = var_and_value.find(' ')
+    var = var_and_value[:separator]
+    value = var_and_value[separator + 1:]
+    return f'-D{var}={value}'
+
+
+# Grab the results of ./configure to make sure we're passing the same preprocessor #defines to libclang as when
+# compiling Postgres. Preprocessor #defines can affect the size of structs depending on machine environment.
 with open(f'{POSTGRES_PATH}/config.log') as config_file:
     for config_line in config_file:
-        if config_line.startswith('#define'):
-            var_and_value = config_line.rstrip()[len('#define '):]
-            first_space = var_and_value.find(' ')
-            var = var_and_value[:first_space]
-            value = var_and_value[first_space + 1:]
-            CLANG_ARGS.append(f'-D{var}={value}')
+        if config_line.startswith('#define '):
+            CLANG_ARGS.append(convert_define_to_arg(config_line))
 
 
 @dataclass
