@@ -13,18 +13,30 @@ import clang.cindex
 # Expected path of this file: "postgres/cmudb/tscout/"
 
 # Path to the Postgres root.
-CLANG_POSTGRES_PATH = r'../../'
-# Path to the execnodes.h file.
-CLANG_EXECNODES_H = f'{CLANG_POSTGRES_PATH}/src/include/nodes/execnodes.h'
+POSTGRES_PATH = r'../..'
+# Path to the Postgres files to parse.
+POSTGRES_FILES = (
+    f'{POSTGRES_PATH}/src/include/nodes/execnodes.h',
+)
 # The arguments that Clang uses to parse header files.
 CLANG_ARGS = [
     '-std=c17',
-    f'-I{CLANG_POSTGRES_PATH}/src/include',
+    f'-I{POSTGRES_PATH}/src/include',
     '-I/usr/lib/gcc/x86_64-linux-gnu/9/include',
     '-I/usr/local/include',
     '-I/usr/include/x86_64-linux-gnu',
     '-I/usr/include',
 ]
+# Grab the results of ./configure to make sure we're passing the same preprocessor defines to libclang as when
+# compiling Postgres. Preprocessor defines can affect the size of structs depending on machine environment.
+with open(f'{POSTGRES_PATH}/config.log') as config_file:
+    for config_line in config_file:
+        if config_line.startswith('#define'):
+            var_and_value = config_line.rstrip()[len('#define '):]
+            first_space = var_and_value.find(' ')
+            var = var_and_value[:first_space]
+            value = var_and_value[first_space + 1:]
+            CLANG_ARGS.append(f'-D{var}={value}')
 
 
 @dataclass
@@ -49,13 +61,25 @@ class ClangParser:
     """
 
     def __init__(self):
-        # Parse the translation unit.
-        index = clang.cindex.Index.create()
-        translation_unit = index.parse(CLANG_EXECNODES_H, args=CLANG_ARGS)
+        indexes = []
+        translation_units = []
+        classes = {}  # Handle duplicate definitions that might arise from parsing multiple translation units
+        for postgres_file in POSTGRES_FILES:
+            # Parse the translation unit.
+            indexes.append(clang.cindex.Index.create())
+            translation_units.append(indexes[-1].parse(postgres_file, args=CLANG_ARGS))
+            for node in translation_units[-1].cursor.get_children():
+                if node.kind in [clang.cindex.CursorKind.CLASS_DECL,
+                                 clang.cindex.CursorKind.STRUCT_DECL,
+                                 clang.cindex.CursorKind.TYPEDEF_DECL,
+                                 clang.cindex.CursorKind.UNION_DECL] \
+                        and node.is_definition() \
+                        and node.spelling not in classes:
+                    classes[node.spelling] = node
 
         # To construct the field map, we will construct the following objects:
         # 1. _classes
-        #       Extract a list of all classes in the translation unit.
+        #       Extract a list of all classes in the translation units.
         # 2. _bases
         #       Extract a mapping from class name to all base classes.
         # 3. _fields
@@ -67,12 +91,7 @@ class ClangParser:
         #       _fields with base classes expanded and record types expanded.
 
         # _classes : list of all classes in the translation unit
-        self._classes: List[clang.cindex.Cursor] = [
-            node
-            for node in translation_unit.cursor.get_children()
-            if node.kind in [clang.cindex.CursorKind.CLASS_DECL,
-                             clang.cindex.CursorKind.STRUCT_DECL]
-        ]
+        self._classes: List[clang.cindex.Cursor] = classes.values()
         self._classes = sorted(self._classes, key=lambda node: node.spelling)
 
         # _bases : class name -> list of base classes for the class
