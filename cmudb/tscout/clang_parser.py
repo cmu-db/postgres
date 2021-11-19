@@ -29,11 +29,19 @@ CLANG_ARGS = [
 ]
 
 
-def convert_define_to_arg(input_define: str) -> str:
+def convert_define_to_arg(input_define):
     """
     Convert from a #define to a command line arg.
-    :param input_define: string in the format '#define variable value'
-    :return: string in the format '-Dvariable=value'
+
+    Parameters
+    ----------
+    input_define : str
+        String in the format of "#define variable value".
+
+    Returns
+    -------
+    output_str : str
+        String in the format of "-Dvariable=value".
     """
     var_and_value = input_define.rstrip()[len('#define '):]
     separator = var_and_value.find(' ')
@@ -42,8 +50,9 @@ def convert_define_to_arg(input_define: str) -> str:
     return f'-D{var}={value}'
 
 
-# Grab the results of ./configure to make sure we're passing the same preprocessor #defines to libclang as when
-# compiling Postgres. Preprocessor #defines can affect the size of structs depending on machine environment.
+# Grab the results of ./configure to make sure that we're passing the same
+# preprocessor #defines to libclang as when compiling Postgres.
+# #defines can affect struct sizing depending on machine environment.
 with open(f'{POSTGRES_PATH}/config.log') as config_file:
     for config_line in config_file:
         if config_line.startswith('#define '):
@@ -72,20 +81,37 @@ class ClangParser:
     """
 
     def __init__(self):
-        indexes = []
-        translation_units = []
-        classes = {}  # Handle duplicate definitions that might arise from parsing multiple translation units
+        indexes: List[clang.cindex.Index] = []
+        translation_units: List[clang.cindex.TranslationUnit] = []
+        classes: Mapping[str, clang.cindex.Cursor] = {}
+
+        # Parse each postgres file's definitions into the classes map.
+        # classes is a map to handle potential duplicate definitions
+        # from parsing multiple translation units.
         for postgres_file in POSTGRES_FILES:
             # Parse the translation unit.
-            indexes.append(clang.cindex.Index.create())
-            translation_units.append(indexes[-1].parse(postgres_file, args=CLANG_ARGS))
-            for node in translation_units[-1].cursor.get_children():
-                if node.kind in [clang.cindex.CursorKind.CLASS_DECL,
-                                 clang.cindex.CursorKind.STRUCT_DECL,
-                                 clang.cindex.CursorKind.TYPEDEF_DECL,  # Fixes definition of instr_time in instr_time.h
-                                 clang.cindex.CursorKind.UNION_DECL] \
-                        and node.spelling not in classes \
-                        and node.is_definition():  # Fixes forward declarations clobbering definitions
+            index = clang.cindex.Index.create()
+            tu = index.parse(postgres_file, args=CLANG_ARGS)
+
+            # Keep the index and translation unit alive for the rest of init.
+            indexes.append(index)
+            translation_units.append(tu)
+
+            # Add all relevant definitions to the classes map.
+            for node in tu.cursor.get_children():
+                kind_ok = node.kind in [
+                    clang.cindex.CursorKind.CLASS_DECL,
+                    clang.cindex.CursorKind.STRUCT_DECL,
+                    # Fixes instr_time def in instr_time.h.
+                    clang.cindex.CursorKind.TYPEDEF_DECL,
+                    clang.cindex.CursorKind.UNION_DECL,
+                ]
+
+                is_new = node.spelling not in classes
+                # Fix forward declarations clobbering definitions.
+                is_real_def = node.is_definition()
+
+                if kind_ok and is_new and is_real_def:
                     classes[node.spelling] = node
 
         # To construct the field map, we will construct the following objects:
