@@ -108,10 +108,15 @@ class ClangParser:
                 ]
 
                 is_new = node.spelling not in classes
+                has_previous_typedef = not is_new and classes[
+                    node.spelling].kind == clang.cindex.CursorKind.TYPEDEF_DECL
+                override_previous_typedef = has_previous_typedef and node.kind != clang.cindex.CursorKind.TYPEDEF_DECL
+                if override_previous_typedef:
+                    print(node.spelling)
                 # Fix forward declarations clobbering definitions.
                 is_real_def = node.is_definition()
 
-                if kind_ok and is_new and is_real_def:
+                if kind_ok and (is_new or override_previous_typedef) and is_real_def:
                     classes[node.spelling] = node
 
         # To construct the field map, we will construct the following objects:
