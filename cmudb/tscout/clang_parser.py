@@ -102,6 +102,7 @@ class ClangParser:
                 kind_ok = node.kind in [
                     clang.cindex.CursorKind.CLASS_DECL,
                     clang.cindex.CursorKind.STRUCT_DECL,
+                    clang.cindex.CursorKind.UNION_DECL,
                 ]
 
                 is_new = node.spelling not in classes
@@ -143,7 +144,7 @@ class ClangParser:
             node.spelling: [
                 Field(
                     child.displayname,
-                    child.type.spelling,
+                    child.type.spelling if child.type.get_canonical().kind != clang.cindex.TypeKind.RECORD else child.type.get_canonical().get_declaration().spelling,
                     child.type.get_canonical().kind
                 )
                 for child in node.get_children()
