@@ -53,10 +53,10 @@ def convert_define_to_arg(input_define):
 # Grab the results of ./configure to make sure that we're passing the same
 # preprocessor #defines to libclang as when compiling Postgres.
 # #defines can affect struct sizing depending on machine environment.
-# with open(f'{POSTGRES_PATH}/config.log') as config_file:
-#     for config_line in config_file:
-#         if config_line.startswith('#define '):
-#             CLANG_ARGS.append(convert_define_to_arg(config_line))
+with open(f'{POSTGRES_PATH}/config.log') as config_file:
+    for config_line in config_file:
+        if config_line.startswith('#define '):
+            CLANG_ARGS.append(convert_define_to_arg(config_line))
 
 
 @dataclass
