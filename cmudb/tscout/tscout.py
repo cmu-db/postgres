@@ -79,8 +79,6 @@ def generate_markers(operation, ou_index):
     # Accumulate struct definitions.
     helper_struct_defs = {**helper_struct_defs, **operation.helper_structs()}
 
-    print(markers_c)
-
     return markers_c
 
 
