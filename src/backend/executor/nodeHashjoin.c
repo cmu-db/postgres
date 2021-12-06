@@ -779,7 +779,7 @@ ExecEndHashJoin(HashJoinState *node)
 {
 
         TS_MARKER(ExecHashJoinImpl_features, node->js.ps.plan->plan_node_id,
-            node->js.ps.state->es_plannedstmt->queryId, node, node->js.ps.plan);
+            node->js.ps.state->es_plannedstmt->queryId, node->js.ps.plan);
 
         /*
 	 * Free hash table

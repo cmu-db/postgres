@@ -171,7 +171,7 @@ void
 ExecEndSubqueryScan(SubqueryScanState *node)
 {
         TS_MARKER(ExecSubqueryScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
 
 	/*
 	 * Free the exprcontext

@@ -172,7 +172,7 @@ void
 ExecEndUnique(UniqueState *node)
 {
         TS_MARKER(ExecUnique_features, node->ps.plan->plan_node_id,
-            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+            node->ps.state->es_plannedstmt->queryId, node->ps.plan);
 
 	/* clean up tuple table */
 	ExecClearTuple(node->ps.ps_ResultTupleSlot);

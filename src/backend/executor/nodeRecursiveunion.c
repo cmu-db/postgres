@@ -275,7 +275,7 @@ void
 ExecEndRecursiveUnion(RecursiveUnionState *node)
 {
         TS_MARKER(ExecRecursiveUnion_features, node->ps.plan->plan_node_id,
-            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+            node->ps.state->es_plannedstmt->queryId, node->ps.plan);
 
 	/* Release tuplestores */
 	tuplestore_end(node->working_table);

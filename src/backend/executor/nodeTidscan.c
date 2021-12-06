@@ -471,7 +471,7 @@ void
 ExecEndTidScan(TidScanState *node)
 {
         TS_MARKER(ExecTidScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
 
 	if (node->ss.ss_currentScanDesc)
 		table_endscan(node->ss.ss_currentScanDesc);

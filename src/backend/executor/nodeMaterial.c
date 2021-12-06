@@ -243,7 +243,7 @@ void
 ExecEndMaterial(MaterialState *node)
 {
         TS_MARKER(ExecMaterial_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
 
 	/*
 	 * clean out the tuple table

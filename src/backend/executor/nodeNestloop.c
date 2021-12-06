@@ -365,7 +365,7 @@ void
 ExecEndNestLoop(NestLoopState *node)
 {
         TS_MARKER(ExecNestLoop_features, node->js.ps.plan->plan_node_id,
-            node->js.ps.state->es_plannedstmt->queryId, node, node->js.ps.plan);
+            node->js.ps.state->es_plannedstmt->queryId, node->js.ps.plan);
 
 	NL1_printf("ExecEndNestLoop: %s\n",
 			   "ending node processing");

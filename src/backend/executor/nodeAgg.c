@@ -4383,7 +4383,7 @@ ExecEndAgg(AggState *node)
 	int			setno;
 
         TS_MARKER(ExecAgg_features, node->ss.ps.plan->plan_node_id,
-                  node->ss.ps.state->es_plannedstmt->queryId, node, node->ss.ps.plan);
+                  node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
 
 	/*
 	 * When ending a parallel worker, copy the statistics gathered by the

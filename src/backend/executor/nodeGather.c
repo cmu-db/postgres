@@ -252,7 +252,7 @@ void
 ExecEndGather(GatherState *node)
 {
         TS_MARKER(ExecGather_features, node->ps.plan->plan_node_id,
-            node->ps.state->es_plannedstmt->queryId, node, node->ps.plan);
+            node->ps.state->es_plannedstmt->queryId, node->ps.plan);
 	ExecEndNode(outerPlanState(node));	/* let children clean up first */
 	ExecShutdownGather(node);
 	ExecFreeExprContext(&node->ps);
