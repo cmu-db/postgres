@@ -4,9 +4,12 @@ import sys
 from typing import List
 
 import setproctitle
+import logging
 from bcc import BPF, USDT, PerfHWConfig, PerfType, utils
 
 import model
+
+logger = logging.getLogger('tscout')
 
 # Set up the OUs and metrics to be collected.
 modeler = model.Model()
@@ -166,7 +169,7 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
             training_data = ''.join([
                 event_features,
                 ',',
-                ','.join(str(getattr(raw_data, metric.name))
+                ','.join(metric.serialize(raw_data)
                          for metric in metrics),
                 '\n'
             ])
@@ -182,7 +185,7 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
             callback=collector_event_builder(output_buffer),
             lost_cb=lost_collector_event)
 
-    print("Collector attached to PID {}.".format(pid))
+    logger.info("Collector attached to PID {}.".format(pid))
 
     # Poll on the Collector's output buffer until Collector is shut down.
     while collector_flags[pid]:
@@ -191,11 +194,11 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
             # since polling the output buffer blocks.
             collector_bpf.perf_buffer_poll(1000)
         except KeyboardInterrupt:
-            print("Collector for PID {} caught KeyboardInterrupt.".format(pid))
+            logger.info("Collector for PID {} caught KeyboardInterrupt.".format(pid))
         except Exception as e:
-            print("Collector for PID {} caught {}.".format(pid, e))
+            logger.warning("Collector for PID {} caught {}.".format(pid, e))
 
-    print("Collector for PID {} shut down.".format(pid))
+    logger.info("Collector for PID {} shut down.".format(pid))
 
 
 def lost_something(num_lost):
@@ -215,7 +218,7 @@ def processor(ou, buffered_strings):
     # Write the resource metrics columns for the CSV header.
     file.write(','.join(metric.name for metric in metrics) + '\n')
 
-    print("Processor started for {}.".format(ou.name()))
+    logger.info("Processor started for {}.".format(ou.name()))
 
     try:
         # Write serialized training data points from shared queue to file.
@@ -224,7 +227,7 @@ def processor(ou, buffered_strings):
             file.write(string)
 
     except KeyboardInterrupt:
-        print("Processor for {} caught KeyboardInterrupt.".format(ou.name()))
+        logger.info("Processor for {} caught KeyboardInterrupt.".format(ou.name()))
         while True:
             # TScout is shutting down.
             # Write any remaining training data points.
@@ -232,21 +235,21 @@ def processor(ou, buffered_strings):
             if string is None:
                 # Collectors have all shut down, and poison pill
                 # indicates there are no more training data points.
-                print(f"Processor for {ou.name()} received poison pill.")
+                logger.info(f"Processor for {ou.name()} received poison pill.")
                 break
             file.write(string)
     except Exception as e:
-        print("Processor for {} caught {}".format(ou.name(), e))
+        logger.warning("Processor for {} caught {}".format(ou.name(), e))
     finally:
         file.close()
-        print("Processor for {} shut down.".format(ou.name()))
+        logger.info("Processor for {} shut down.".format(ou.name()))
 
 
 if __name__ == '__main__':
     # Parse the command line args, in this case,
     # just the postmaster PID that we're attaching to.
     if len(sys.argv) < 2:
-        print("USAGE: tscout PID")
+        logger.error("USAGE: tscout PID")
         exit()
     pid = sys.argv[1]
 
@@ -290,8 +293,8 @@ if __name__ == '__main__':
 
 
         def create_collector(child_pid, socket_fd):
-            print(f"Postmaster forked PID {child_pid}, "
-                  f"creating its Collector.")
+            logger.info(f"Postmaster forked PID {child_pid}, "
+                        f"creating its Collector.")
             collector_flags[child_pid] = True
             collector_process = mp.Process(
                 target=collector,
@@ -304,8 +307,8 @@ if __name__ == '__main__':
 
 
         def destroy_collector(collector_process, child_pid):
-            print(f"Postmaster reaped PID {child_pid}, "
-                  f"destroying its Collector.")
+            logger.info(f"Postmaster reaped PID {child_pid}, "
+                        f"destroying its Collector.")
             collector_flags[child_pid] = False
             collector_process.join()
             del collector_flags[child_pid]
@@ -324,7 +327,7 @@ if __name__ == '__main__':
                 if collector_process:
                     destroy_collector(collector_process, child_pid)
             else:
-                print("Unknown event type from Postmaster.")
+                logger.error("Unknown event type from Postmaster.")
                 raise KeyboardInterrupt
 
 
@@ -340,7 +343,7 @@ if __name__ == '__main__':
             except KeyboardInterrupt:
                 keep_running = False
             except Exception as e:
-                print("TScout caught {}.".format(e))
+                logger.warning("TScout caught {}.".format(e))
 
         print("TScout shutting down.")
 
@@ -349,7 +352,7 @@ if __name__ == '__main__':
         for pid, process in collector_processes.items():
             collector_flags[pid] = False
             process.join()
-            print("Joined Collector for PID {}.".format(pid))
+            logger.info("Joined Collector for PID {}.".format(pid))
         print("TScout joined all Collectors.")
 
         # Shut down the Processor queues so that
@@ -365,6 +368,6 @@ if __name__ == '__main__':
         for ou_processor in ou_processors:
             ou_processor.join()
         print("TScout joined all Processors.")
-
+        print("TScout for PID {} shut down.".format(pid))
         # We're done.
         exit()

@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from typing import List, Mapping
 
 import clang.cindex
+import logging
+
+logger = logging.getLogger('tscout')
 
 # Expected path of this file: "postgres/cmudb/tscout/"
 
@@ -245,8 +248,8 @@ class ClangParser:
                 # However, this is not always possible,
                 # e.g., for non-PostgreSQL structs.
                 if field.pg_type not in rtti_map:
-                    print(f"No type info for {field.pg_type} "
-                          f"used in {class_name}.")
+                    logger.warning(f"No type info for {field.pg_type} "
+                                   f"used in {class_name}.")
                 else:
                     expanded_fields = self._construct_fully_expanded_fields(
                         field.pg_type,

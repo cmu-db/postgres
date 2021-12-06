@@ -5,6 +5,7 @@ Convert C types to BPF types.
 Define the Operating Units (OUs) and metrics to be collected.
 """
 
+import logging
 import struct
 import sys
 from dataclasses import dataclass
@@ -14,6 +15,8 @@ from typing import List, Mapping, Tuple
 import clang.cindex
 
 import clang_parser
+
+logger = logging.getLogger('tscout')
 
 
 @unique
@@ -27,6 +30,7 @@ class BPFType(str, Enum):
     u16 = "u16"
     u32 = "u32"
     u64 = "u64"
+    pointer = "void *"
 
 
 @dataclass
@@ -49,6 +53,7 @@ class BPFVariable:
         suppressed = [
             clang.cindex.TypeKind.POINTER,
             clang.cindex.TypeKind.FUNCTIONPROTO,
+            clang.cindex.TypeKind.INCOMPLETEARRAY,
         ]
         return self.c_type not in suppressed
 
@@ -448,8 +453,9 @@ class Model:
         clang.cindex.TypeKind.FLOAT: BPFType.u32,
         clang.cindex.TypeKind.DOUBLE: BPFType.u64,
         clang.cindex.TypeKind.ENUM: BPFType.i32,
-        clang.cindex.TypeKind.POINTER: BPFType.u64,
-        clang.cindex.TypeKind.FUNCTIONPROTO: BPFType.u64,
+        clang.cindex.TypeKind.POINTER: BPFType.pointer,
+        clang.cindex.TypeKind.FUNCTIONPROTO: BPFType.pointer,
+        clang.cindex.TypeKind.INCOMPLETEARRAY: BPFType.pointer,
     }
 
     def __init__(self):
@@ -465,15 +471,22 @@ class Model:
                     feature_list.append(feature)
                     continue
                 # Otherwise, convert the list of fields to BPF types.
-                bpf_fields = tuple([
-                    BPFVariable(
-                        bpf_type=Model.CLANG_TO_BPF[field.canonical_type_kind],
-                        name=field.name,
-                        c_type=field.canonical_type_kind,
-                    )
-                    for i, field in enumerate(nodes.field_map[feature.name])
-                ])
-
+                bpf_fields: List[BPFVariable] = []
+                for i, field in enumerate(nodes.field_map[feature.name]):
+                    try:
+                        bpf_fields.append(
+                            BPFVariable(
+                                bpf_type=Model.CLANG_TO_BPF[field.canonical_type_kind],
+                                name=field.name,
+                                c_type=field.canonical_type_kind,
+                            )
+                        )
+                    except KeyError as e:
+                        logger.critical(
+                            'No mapping from Clang to BPF for type {} for field {} in the struct {}.'.format(e,
+                                                                                                             field.name,
+                                                                                                             feature.name))
+                        exit()
                 new_feature = Feature(feature.name,
                                       bpf_tuple=bpf_fields,
                                       readarg_p=True)
