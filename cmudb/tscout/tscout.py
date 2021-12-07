@@ -13,7 +13,7 @@ import model
 
 
 @dataclass
-class Postgres:
+class PostgresInstance:
     def __init__(self, pid):
         self.postgres_pid = pid
         try:
@@ -287,16 +287,16 @@ if __name__ == '__main__':
         exit()
     pid = int(sys.argv[1])
 
-    thing = Postgres(pid)
+    postgres = PostgresInstance(pid)
 
-    setproctitle.setproctitle("{} TScout".format(pid))
+    setproctitle.setproctitle("{} TScout".format(postgres.postgres_pid))
 
     # Read the C code for TScout.
     with open('tscout.c', 'r') as tscout_file:
         tscout_c = tscout_file.read()
 
     # Attach USDT probes to the target PID.
-    tscout_probes = USDT(pid=int(pid))
+    tscout_probes = USDT(pid=postgres.postgres_pid)
     for probe in ['fork_backend', 'fork_background',
                   'reap_backend', 'reap_background']:
         tscout_probes.enable_probe(probe=probe, fn_name=probe)
@@ -370,7 +370,7 @@ if __name__ == '__main__':
         tscout_bpf["postmaster_events"].open_perf_buffer(
             callback=postmaster_event, lost_cb=lost_something)
 
-        print("TScout attached to PID {}.".format(pid))
+        print("TScout attached to PID {}.".format(postgres.postgres_pid))
 
         # Poll on TScout's output buffer until TScout is shut down.
         while keep_running:
@@ -404,6 +404,6 @@ if __name__ == '__main__':
         for ou_processor in ou_processors:
             ou_processor.join()
         print("TScout joined all Processors.")
-        print("TScout for PID {} shut down.".format(pid))
+        print("TScout for PID {} shut down.".format(postgres.postgres_pid))
         # We're done.
         exit()
