@@ -13,6 +13,8 @@ import model
 
 @dataclass
 class PostgresInstance:
+    """Finds and then stashes the PIDs for a postgres instance designated by the constructor's pid argument."""
+
     def __init__(self, pid):
 
         def cmd_in_cmdline(cmd, proc):
@@ -28,14 +30,16 @@ class PostgresInstance:
                     self.bgwriter_pid = child.pid
                 elif not self.walwriter_pid and cmd_in_cmdline('walwriter', child):
                     self.walwriter_pid = child.pid
-                elif self.checkpointer_pid and self.bgwriter_pid and self.walwriter_pid:
+                elif all(x is not None for x in [self.checkpointer_pid, self.bgwriter_pid, self.walwriter_pid]):
                     # We found all the children PIDs that we care about, so we're done.
                     return
         except psutil.NoSuchProcess as e:
             logger.error("Provided PID not found.")
             exit()
 
-        if not self.checkpointer_pid and not self.bgwriter_pid and not self.walwriter_pid:
+        if any(x is None for x in [self.checkpointer_pid, self.bgwriter_pid, self.walwriter_pid]):
+            # TODO(Matt): maybe get fancy with dataclasses.fields() so we don't have to keep adding to this if more
+            #  fields are added to the dataclass?
             logger.error("Did not find expected background workers for provided PID.")
             exit()
 
