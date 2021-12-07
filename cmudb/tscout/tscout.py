@@ -44,7 +44,7 @@ class PostgresInstance:
                 elif all(x is not None for x in [self.checkpointer_pid, self.bgwriter_pid, self.walwriter_pid]):
                     # We found all the children PIDs that we care about, so we're done.
                     return
-        except psutil.NoSuchProcess as e:
+        except psutil.NoSuchProcess:
             logger.error("Provided PID not found.")
             exit()
 
