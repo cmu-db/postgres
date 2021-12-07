@@ -3,11 +3,45 @@ import multiprocessing as mp
 import sys
 from typing import List
 
+from dataclasses import dataclass
+import psutil
 import setproctitle
 import logging
 from bcc import BPF, USDT, PerfHWConfig, PerfType, utils
 
 import model
+
+
+@dataclass
+class Postgres:
+    def __init__(self, pid):
+        self.postgres_pid = pid
+        try:
+            for child in psutil.Process(self.postgres_pid).children():
+                if not self.checkpointer_pid and any('checkpointer' in x for x in child.cmdline()):
+                    self.checkpointer_pid = child.pid
+                elif not self.bgwriter_pid and any('background' in x for x in child.cmdline()) and any(
+                        'writer' in x for x in child.cmdline()):
+                    self.bgwriter_pid = child.pid
+                elif not self.walwriter_pid and any('walwriter' in x for x in child.cmdline()):
+                    self.walwriter_pid = child.pid
+                elif self.checkpointer_pid and self.bgwriter_pid and self.walwriter_pid:
+                    # We found all of the children PIDs that we care about.
+                    return
+        except psutil.NoSuchProcess as e:
+            logger.error("Provided postgres PID not found.")
+            exit()
+
+        if not self.checkpointer_pid and not self.bgwriter_pid and not self.walwriter_pid:
+            # Iterated through all the children and didn't find all of the background worker PIDs.
+            logger.error("Did not find background workers for provided postgres PID.")
+            exit()
+
+    postgres_pid: int = None
+    checkpointer_pid: int = None
+    bgwriter_pid: int = None
+    walwriter_pid: int = None
+
 
 logger = logging.getLogger('tscout')
 
@@ -251,7 +285,9 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         logger.error("USAGE: tscout PID")
         exit()
-    pid = sys.argv[1]
+    pid = int(sys.argv[1])
+
+    thing = Postgres(pid)
 
     setproctitle.setproctitle("{} TScout".format(pid))
 
