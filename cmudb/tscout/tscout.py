@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import multiprocessing as mp
 import sys
-from typing import List
 
 from dataclasses import dataclass
 import psutil
