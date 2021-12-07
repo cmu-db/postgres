@@ -14,26 +14,29 @@ import model
 @dataclass
 class PostgresInstance:
     def __init__(self, pid):
+
+        def cmd_in_cmdline(cmd, proc):
+            return any(cmd in x for x in proc.cmdline())
+
         self.postgres_pid = pid
         try:
+            # Iterate through all the children for the given PID, and extract PIDs for expected background workers.
             for child in psutil.Process(self.postgres_pid).children():
-                if not self.checkpointer_pid and any('checkpointer' in x for x in child.cmdline()):
+                if not self.checkpointer_pid and cmd_in_cmdline('checkpointer', child):
                     self.checkpointer_pid = child.pid
-                elif not self.bgwriter_pid and any('background' in x for x in child.cmdline()) and any(
-                        'writer' in x for x in child.cmdline()):
+                elif not self.bgwriter_pid and cmd_in_cmdline('background', child) and cmd_in_cmdline('writer', child):
                     self.bgwriter_pid = child.pid
-                elif not self.walwriter_pid and any('walwriter' in x for x in child.cmdline()):
+                elif not self.walwriter_pid and cmd_in_cmdline('walwriter', child):
                     self.walwriter_pid = child.pid
                 elif self.checkpointer_pid and self.bgwriter_pid and self.walwriter_pid:
-                    # We found all of the children PIDs that we care about.
+                    # We found all the children PIDs that we care about, so we're done.
                     return
         except psutil.NoSuchProcess as e:
-            logger.error("Provided postgres PID not found.")
+            logger.error("Provided PID not found.")
             exit()
 
         if not self.checkpointer_pid and not self.bgwriter_pid and not self.walwriter_pid:
-            # Iterated through all the children and didn't find all of the background worker PIDs.
-            logger.error("Did not find background workers for provided postgres PID.")
+            logger.error("Did not find expected background workers for provided PID.")
             exit()
 
     postgres_pid: int = None
