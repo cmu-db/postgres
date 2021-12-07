@@ -18,6 +18,17 @@ class PostgresInstance:
     def __init__(self, pid):
 
         def cmd_in_cmdline(cmd, proc):
+            """
+
+            Parameters
+            ----------
+            cmd: str
+            proc: psutil.Process
+
+            Returns
+            -------
+            True if the provided command was in the provided Process' command line args.
+            """
             return any(cmd in x for x in proc.cmdline())
 
         self.postgres_pid = pid
