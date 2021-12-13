@@ -27,18 +27,18 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
   metrics.start_time = (bpf_ktime_get_ns() >> 10);
 
   // Store the start metrics in the subsystem map, waiting for end
-  s32 plan_node_id;
-  bpf_usdt_readarg(1, ctx, &plan_node_id);
-  u64 key = ou_key(SUBST_INDEX, plan_node_id);
+  s32 ou_instance;
+  bpf_usdt_readarg(1, ctx, &ou_instance);
+  u64 key = ou_key(SUBST_INDEX, ou_instance);
   running_metrics.update(&key, &metrics);
 }
 
 void SUBST_OU_end(struct pt_regs *ctx) {
   // Retrieve start metrics
   struct resource_metrics *metrics = NULL;
-  s32 plan_node_id;
-  bpf_usdt_readarg(1, ctx, &plan_node_id);
-  u64 key = ou_key(SUBST_INDEX, plan_node_id);
+  s32 ou_instance;
+  bpf_usdt_readarg(1, ctx, &ou_instance);
+  u64 key = ou_key(SUBST_INDEX, ou_instance);
   metrics = running_metrics.lookup(&key);
   if (metrics == NULL) {
     return;
@@ -92,9 +92,9 @@ BPF_PERF_OUTPUT(collector_results_SUBST_INDEX);
 void SUBST_OU_features(struct pt_regs *ctx) {
   // Retrieve completed metrics
   struct resource_metrics *metrics = NULL;
-  s32 plan_node_id;
-  bpf_usdt_readarg(1, ctx, &plan_node_id);
-  u64 key = ou_key(SUBST_INDEX, plan_node_id);
+  s32 ou_instance;
+  bpf_usdt_readarg(2, ctx, &ou_instance);
+  u64 key = ou_key(SUBST_INDEX, ou_instance);
   metrics = complete_metrics.lookup(&key);
   if (metrics == NULL || metrics->end_time == 0) {
     // Arrived at the FEATURES marker out of order.
