@@ -108,7 +108,7 @@ Datum pg_attribute_always_inline ExecSubPlan(SubPlanState *node,
 
   result = WrappedExecSubPlan(node, econtext, isNull);
 
-  TS_MARKER(ExecSubPlan_end, node->planstate->plan->plan_node_id);
+  TS_MARKER(ExecSubPlan_end, true, node->planstate->plan->plan_node_id);
   // TODO(Matt): Can't actually find a better place for this FEATURES Marker
   TS_MARKER(ExecSubPlan_features, node->planstate->plan->plan_node_id,
             node->planstate->state->es_plannedstmt->queryId,

@@ -21,6 +21,7 @@
                                                                                \
     result = WrappedExec##node_type(pstate);                                   \
                                                                                \
-    TS_MARKER(Exec##node_type##_end, pstate->plan->plan_node_id);              \
+    TS_MARKER(Exec##node_type##_end, TupIsNull(result),                        \
+              pstate->plan->plan_node_id);                                     \
     return result;                                                             \
   }

@@ -583,7 +583,8 @@ ExecHashJoinImpl(PlanState *pstate, bool parallel) {
 
   result = WrappedExecHashJoinImpl(pstate, parallel);
 
-  TS_MARKER(ExecHashJoinImpl_end, pstate->plan->plan_node_id);
+  TS_MARKER(ExecHashJoinImpl_end, TupIsNull(result),
+            pstate->plan->plan_node_id);
 
   return result;
 }
