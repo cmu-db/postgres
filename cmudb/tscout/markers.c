@@ -9,13 +9,13 @@ struct SUBST_OU_output {
   SUBST_METRICS;   // Replaced by the list of metrics
 };
 
-// Stores a snapshot of the metrics at START Marker, waiting to hit an END Marker
+// Stores features for a training data point, waiting for BEGIN, END, and FLUSH.
 BPF_HASH(SUBST_OU_complete_features, s32, struct SUBST_OU_features, 32);  // TODO(Matt): Think about this size more
 // We can't assume that a features struct will fit on the stack, so we allocate an array of size 1 to use as scratch.
 BPF_ARRAY(SUBST_OU_features_arr, struct SUBST_OU_features, 1);
 
-// Reset the state of this OU instance. This is a general purpose function to call if the Marker state machine falls
-// apart.
+// Reset the state of this OU instance. This is a general purpose function to call if the Marker state machine won't
+// yield a valid data point.
 static void SUBST_OU_reset(s32 ou_instance) {
   u64 key = ou_key(SUBST_INDEX, ou_instance);
   SUBST_OU_complete_features.delete(&ou_instance);
@@ -46,7 +46,7 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
   // Collect a start time after probes are complete, converting from nanoseconds to microseconds
   metrics.start_time = (bpf_ktime_get_ns() >> 10);
 
-  // Store the start metrics in the subsystem map, waiting for end
+  // Store the start metrics in the map, waiting for END.
   running_metrics.update(&key, &metrics);
 }
 
@@ -117,10 +117,8 @@ void SUBST_OU_features(struct pt_regs *ctx) {
 
 // We can't assume that an output struct will fit on the stack, so we allocate an array of size 1 to use as scratch.
 BPF_ARRAY(SUBST_OU_output_arr, struct SUBST_OU_output, 1);
-// A BPF perf output buffer is defined per OU because the labels being
-// emitted are different for each OU. Using only one perf output
-// buffer resulted in using the labels of the last perf_submit caller in the
-// source code, which was incorrect.
+// A BPF perf output buffer is defined per OU because the labels being emitted are different for each OU. We can't mix
+// the structs being passed through this buffer, and since each OU is different we need unique buffer.
 BPF_PERF_OUTPUT(collector_results_SUBST_INDEX);
 
 void SUBST_OU_flush(struct pt_regs *ctx) {
