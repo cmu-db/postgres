@@ -13,15 +13,25 @@ struct SUBST_OU_output {
 BPF_HASH(SUBST_OU_complete_features, s32, struct SUBST_OU_features, 32);  // TODO(Matt): Think about this size more
 BPF_ARRAY(SUBST_OU_features_arr, struct SUBST_OU_features, 1);
 
+static void SUBST_OU_reset(s32 ou_instance) {
+  u64 key = ou_key(SUBST_INDEX, ou_instance);
+  SUBST_OU_complete_features.delete(&ou_instance);
+  complete_metrics.delete(&key);
+  running_metrics.delete(&key);
+}
+
 void SUBST_OU_begin(struct pt_regs *ctx) {
   // TODO(Matt): Check running_features (NULL) or running_metrics (non-NULL) to see if our state machine is busted.
+  s32 ou_instance;
+  bpf_usdt_readarg(1, ctx, &ou_instance);
+  u64 key = ou_key(SUBST_INDEX, ou_instance);
 
   // Zero initialize start metrics
   struct resource_metrics metrics = {};
 
   // Probe for CPU counters
   if (!cpu_start(&metrics)) {
-    // TODO(Matt): delete features and complete metrics too because this data point is toast?
+    SUBST_OU_reset(ou_instance);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -34,9 +44,6 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
   metrics.start_time = (bpf_ktime_get_ns() >> 10);
 
   // Store the start metrics in the subsystem map, waiting for end
-  s32 ou_instance;
-  bpf_usdt_readarg(1, ctx, &ou_instance);
-  u64 key = ou_key(SUBST_INDEX, ou_instance);
   running_metrics.update(&key, &metrics);
 }
 
@@ -57,14 +64,13 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   u64 key = ou_key(SUBST_INDEX, ou_instance);
   metrics = running_metrics.lookup(&key);
   if (metrics == NULL) {
-    // TODO(Matt): delete features and complete metrics too because this data point is toast?
+    SUBST_OU_reset(ou_instance);
     return;
   }
 
   if (metrics->end_time != 0) {
     // Arrived at the END marker out of order.
-    running_metrics.delete(&key);
-    // TODO(Matt): delete features and complete metrics too because this data point is toast?
+    SUBST_OU_reset(ou_instance);
     return;
   }
 
@@ -74,8 +80,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
 
   // Probe for CPU counters
   if (!cpu_end(metrics)) {
-    running_metrics.delete(&key);
-    // TODO(Matt): delete features and complete metrics too because this data point is toast?
+    SUBST_OU_reset(ou_instance);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -125,7 +130,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
     struct SUBST_OU_features *features = NULL;
     features = SUBST_OU_complete_features.lookup(&ou_instance);
     if (features == NULL) {
-      // TODO(Matt): we have no features. This data point is toast.
+      SUBST_OU_reset(ou_instance);
       return;
     }
 
