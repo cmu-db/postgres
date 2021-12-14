@@ -16,10 +16,7 @@ BPF_ARRAY(SUBST_OU_features_arr, struct SUBST_OU_features, 1);
 
 // Reset the state of this OU instance. This is a general purpose function to call if the Marker state machine falls
 // apart.
-static void SUBST_OU_reset(s32 ou_instance, bool error) {
-  if (error) {
-    bpf_trace_printk("Invalid control flow. OU index: %d, OU instance %d\n", SUBST_INDEX, ou_instance);
-  }
+static void SUBST_OU_reset(s32 ou_instance) {
   u64 key = ou_key(SUBST_INDEX, ou_instance);
   SUBST_OU_complete_features.delete(&ou_instance);
   complete_metrics.delete(&key);
