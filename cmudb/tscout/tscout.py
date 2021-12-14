@@ -217,7 +217,8 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
         def collector_event(cpu, data, size):
             raw_data = collector_bpf[output_buffer].event(data)
             operating_unit = operating_units[raw_data.ou_index]
-            event_features = operating_unit.serialize_features(raw_data)
+            event_features = operating_unit.serialize_features(
+                raw_data)  # TODO(Matt): consider moving serialization to CSV string to Processor
             training_data = ''.join([
                 event_features,
                 ',',
