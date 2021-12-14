@@ -21,6 +21,7 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
 
   // Probe for CPU counters
   if (!cpu_start(&metrics)) {
+    // TODO(Matt): delete features and complete metrics too because this data point is toast?
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -145,29 +146,22 @@ void SUBST_OU_end(struct pt_regs *ctx) {
 }
 
 void SUBST_OU_features(struct pt_regs *ctx) {
-  // Retrieve completed metrics
-  struct resource_metrics *metrics = NULL;
-  s32 ou_instance;
-  bpf_usdt_readarg(1, ctx, &ou_instance);
-  u64 key = ou_key(SUBST_INDEX, ou_instance);
-  metrics = complete_metrics.lookup(&key);
-  if (metrics == NULL || metrics->end_time == 0) {
-    // Arrived at the FEATURES marker out of order.
-    return;
-  }
+  // TODO(Matt): Check complete_metrics (non-NULL) or running_metrics (non-NULL) to see if our state machine is busted.
 
   // Zero initialize output struct for features and metrics
   int idx = 0;
-  struct SUBST_OU_features *features = SUBST_OU_complete_features.lookup(&idx);
+  struct SUBST_OU_features *features = SUBST_OU_features_arr.lookup(&idx);
   if (features == NULL) {
     // This should never happen and should be considered a fatal error.
     return;
   }
-  memset(output, 0, sizeof(struct SUBST_OU_features));
-
+  memset(features, 0, sizeof(struct SUBST_OU_features));
 
   // Copy features from USDT arg (pointer to features struct in NoisePage) to output struct
   SUBST_READARGS
 
-
+  // Store the start metrics in the subsystem map, waiting for end
+  s32 ou_instance;
+  bpf_usdt_readarg(1, ctx, &ou_instance);
+  running_metrics.update(&ou_instance, features);
 }
