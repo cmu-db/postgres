@@ -126,6 +126,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
     features = SUBST_OU_complete_features.lookup(&ou_instance);
     if (features == NULL) {
       // TODO(Matt): we have no features. This data point is toast.
+      return;
     }
 
     // Copy completed features to output struct
@@ -163,5 +164,5 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   // Store the start metrics in the subsystem map, waiting for end
   s32 ou_instance;
   bpf_usdt_readarg(1, ctx, &ou_instance);
-  running_metrics.update(&ou_instance, features);
+  SUBST_OU_complete_features.update(&ou_instance, features);
 }
