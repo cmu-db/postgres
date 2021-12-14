@@ -360,8 +360,7 @@ recompute_limits(LimitState *node)
 	Datum		val;
 	bool		isNull;
 
-        TS_MARKER(ExecLimit_features, node->ps.plan->plan_node_id,
-                  node->ps.state->es_plannedstmt->queryId, node->ps.plan);
+        TS_MARKER(ExecLimit_flush, node->ps.plan->plan_node_id);
 
 	if (node->limitOffset)
 	{
@@ -455,6 +454,9 @@ ExecInitLimit(Limit *node, EState *estate, int eflags)
 {
 	LimitState *limitstate;
 	Plan	   *outerPlan;
+
+        TS_MARKER(ExecLimit_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));

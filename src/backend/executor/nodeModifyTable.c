@@ -2720,6 +2720,9 @@ ExecInitModifyTable(ModifyTable *node, EState *estate, int eflags)
 	int			i;
 	Relation	rel;
 
+        TS_MARKER(ExecModifyTable_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
 
@@ -3173,8 +3176,7 @@ ExecEndModifyTable(ModifyTableState *node)
 {
 	int			i;
 
-        TS_MARKER(ExecModifyTable_features, node->ps.plan->plan_node_id,
-            node->ps.state->es_plannedstmt->queryId, node->ps.plan);
+        TS_MARKER(ExecModifyTable_flush, node->ps.plan->plan_node_id);
 
 	/*
 	 * Allow any FDWs to shut down

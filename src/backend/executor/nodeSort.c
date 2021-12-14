@@ -171,6 +171,9 @@ ExecInitSort(Sort *node, EState *estate, int eflags)
 {
 	SortState  *sortstate;
 
+        TS_MARKER(ExecSort_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	SO1_printf("ExecInitSort: %s\n",
 			   "initializing sort node");
 
@@ -237,8 +240,7 @@ ExecInitSort(Sort *node, EState *estate, int eflags)
 void
 ExecEndSort(SortState *node)
 {
-        TS_MARKER(ExecSort_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecSort_flush, node->ss.ps.plan->plan_node_id);
 
 	SO1_printf("ExecEndSort: %s\n",
 			   "shutting down sort node");

@@ -87,6 +87,9 @@ ExecInitNamedTuplestoreScan(NamedTuplestoreScan *node, EState *estate, int eflag
 	NamedTuplestoreScanState *scanstate;
 	EphemeralNamedRelation enr;
 
+        TS_MARKER(ExecNamedTuplestoreScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
 
@@ -166,8 +169,7 @@ ExecInitNamedTuplestoreScan(NamedTuplestoreScan *node, EState *estate, int eflag
 void
 ExecEndNamedTuplestoreScan(NamedTuplestoreScanState *node)
 {
-        TS_MARKER(ExecNamedTuplestoreScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecNamedTuplestoreScan_flush, node->ss.ps.plan->plan_node_id);
 
 	/*
 	 * Free exprcontext

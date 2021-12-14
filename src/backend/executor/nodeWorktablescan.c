@@ -133,6 +133,9 @@ ExecInitWorkTableScan(WorkTableScan *node, EState *estate, int eflags)
 {
 	WorkTableScanState *scanstate;
 
+        TS_MARKER(ExecWorkTableScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
 
@@ -192,8 +195,7 @@ ExecInitWorkTableScan(WorkTableScan *node, EState *estate, int eflags)
 void
 ExecEndWorkTableScan(WorkTableScanState *node)
 {
-        TS_MARKER(ExecWorkTableScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecWorkTableScan_flush, node->ss.ps.plan->plan_node_id);
 	/*
 	 * Free exprcontext
 	 */

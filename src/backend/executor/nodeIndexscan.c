@@ -788,8 +788,7 @@ ExecEndIndexScan(IndexScanState *node)
 	Relation	indexRelationDesc;
 	IndexScanDesc indexScanDesc;
 
-        TS_MARKER(ExecIndexScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecIndexScan_flush, node->ss.ps.plan->plan_node_id);
 
 	/*
 	 * extract information from the node
@@ -908,6 +907,9 @@ ExecInitIndexScan(IndexScan *node, EState *estate, int eflags)
 	IndexScanState *indexstate;
 	Relation	currentRelation;
 	LOCKMODE	lockmode;
+
+        TS_MARKER(ExecIndexScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
 
 	/*
 	 * create state structure

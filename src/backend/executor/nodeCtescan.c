@@ -179,6 +179,9 @@ ExecInitCteScan(CteScan *node, EState *estate, int eflags)
 	CteScanState *scanstate;
 	ParamExecData *prmdata;
 
+        TS_MARKER(ExecCteScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
 
@@ -290,8 +293,7 @@ void
 ExecEndCteScan(CteScanState *node)
 {
 
-        TS_MARKER(ExecCteScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecCteScan_flush, node->ss.ps.plan->plan_node_id);
 
 	/*
 	 * Free exprcontext

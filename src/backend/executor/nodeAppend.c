@@ -119,6 +119,9 @@ ExecInitAppend(Append *node, EState *estate, int eflags)
 	int			i,
 				j;
 
+        TS_MARKER(ExecAppend_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
 
@@ -400,8 +403,7 @@ ExecEndAppend(AppendState *node)
 	int			nplans;
 	int			i;
 
-        TS_MARKER(ExecAppend_features, node->ps.plan->plan_node_id,
-            node->ps.state->es_plannedstmt->queryId, node->ps.plan);
+        TS_MARKER(ExecAppend_flush, node->ps.plan->plan_node_id);
 
 	/*
 	 * get information from the node

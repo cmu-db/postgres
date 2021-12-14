@@ -117,6 +117,9 @@ ExecInitTableFuncScan(TableFuncScan *node, EState *estate, int eflags)
 	TupleDesc	tupdesc;
 	int			i;
 
+        TS_MARKER(ExecTableFuncScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
 
@@ -216,8 +219,7 @@ ExecInitTableFuncScan(TableFuncScan *node, EState *estate, int eflags)
 void
 ExecEndTableFuncScan(TableFuncScanState *node)
 {
-      TS_MARKER(ExecTableFuncScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+      TS_MARKER(ExecTableFuncScan_flush, node->ss.ps.plan->plan_node_id);
 	/*
 	 * Free the exprcontext
 	 */

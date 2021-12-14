@@ -72,6 +72,9 @@ ExecInitMergeAppend(MergeAppend *node, EState *estate, int eflags)
 	int			i,
 				j;
 
+        TS_MARKER(ExecMergeAppend_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
 
@@ -338,8 +341,7 @@ ExecEndMergeAppend(MergeAppendState *node)
 	int			nplans;
 	int			i;
 
-        TS_MARKER(ExecMergeAppend_features, node->ps.plan->plan_node_id,
-                  node->ps.state->es_plannedstmt->queryId, node->ps.plan);
+        TS_MARKER(ExecMergeAppend_flush, node->ps.plan->plan_node_id);
 
 	/*
 	 * get information from the node

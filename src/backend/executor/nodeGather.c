@@ -62,6 +62,9 @@ ExecInitGather(Gather *node, EState *estate, int eflags)
 	Plan	   *outerNode;
 	TupleDesc	tupDesc;
 
+        TS_MARKER(ExecGather_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* Gather node doesn't have innerPlan node. */
 	Assert(innerPlan(node) == NULL);
 
@@ -251,8 +254,7 @@ TS_EXECUTOR_WRAPPER(Gather)
 void
 ExecEndGather(GatherState *node)
 {
-        TS_MARKER(ExecGather_features, node->ps.plan->plan_node_id,
-            node->ps.state->es_plannedstmt->queryId, node->ps.plan);
+        TS_MARKER(ExecGather_flush, node->ps.plan->plan_node_id);
 	ExecEndNode(outerPlanState(node));	/* let children clean up first */
 	ExecShutdownGather(node);
 	ExecFreeExprContext(&node->ps);

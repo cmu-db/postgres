@@ -143,6 +143,9 @@ ExecInitForeignScan(ForeignScan *node, EState *estate, int eflags)
 	Index		tlistvarno;
 	FdwRoutine *fdwroutine;
 
+        TS_MARKER(ExecForeignScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
 
@@ -292,8 +295,7 @@ ExecEndForeignScan(ForeignScanState *node)
 	ForeignScan *plan = (ForeignScan *) node->ss.ps.plan;
 	EState	   *estate = node->ss.ps.state;
 
-        TS_MARKER(ExecForeignScan_features, node->ss.ps.plan->plan_node_id,
-                  node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecForeignScan_flush, node->ss.ps.plan->plan_node_id);
 
 	/* Let the FDW shut down */
 	if (plan->operation != CMD_SELECT)

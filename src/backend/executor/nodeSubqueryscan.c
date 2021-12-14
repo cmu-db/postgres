@@ -101,6 +101,9 @@ ExecInitSubqueryScan(SubqueryScan *node, EState *estate, int eflags)
 {
 	SubqueryScanState *subquerystate;
 
+        TS_MARKER(ExecSubqueryScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
 
@@ -170,8 +173,7 @@ ExecInitSubqueryScan(SubqueryScan *node, EState *estate, int eflags)
 void
 ExecEndSubqueryScan(SubqueryScanState *node)
 {
-        TS_MARKER(ExecSubqueryScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecSubqueryScan_flush, node->ss.ps.plan->plan_node_id);
 
 	/*
 	 * Free the exprcontext

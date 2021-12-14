@@ -185,6 +185,9 @@ ExecInitResult(Result *node, EState *estate, int eflags)
 {
 	ResultState *resstate;
 
+        TS_MARKER(ExecResult_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_MARK | EXEC_FLAG_BACKWARD)) ||
 		   outerPlan(node) != NULL);
@@ -243,8 +246,7 @@ ExecInitResult(Result *node, EState *estate, int eflags)
 void
 ExecEndResult(ResultState *node)
 {
-        TS_MARKER(ExecResult_features, node->ps.plan->plan_node_id,
-            node->ps.state->es_plannedstmt->queryId, node->ps.plan);
+        TS_MARKER(ExecResult_flush, node->ps.plan->plan_node_id);
 
 	/*
 	 * Free the exprcontext

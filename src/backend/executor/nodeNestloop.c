@@ -267,6 +267,9 @@ ExecInitNestLoop(NestLoop *node, EState *estate, int eflags)
 {
 	NestLoopState *nlstate;
 
+        TS_MARKER(ExecNestLoop_features, node->join.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
 
@@ -364,8 +367,7 @@ ExecInitNestLoop(NestLoop *node, EState *estate, int eflags)
 void
 ExecEndNestLoop(NestLoopState *node)
 {
-        TS_MARKER(ExecNestLoop_features, node->js.ps.plan->plan_node_id,
-            node->js.ps.state->es_plannedstmt->queryId, node->js.ps.plan);
+        TS_MARKER(ExecNestLoop_flush, node->js.ps.plan->plan_node_id);
 
 	NL1_printf("ExecEndNestLoop: %s\n",
 			   "ending node processing");

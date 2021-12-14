@@ -34,6 +34,9 @@ ExecInitCustomScan(CustomScan *cscan, EState *estate, int eflags)
 	Index		scanrelid = cscan->scan.scanrelid;
 	Index		tlistvarno;
 
+        TS_MARKER(ExecCustomScan_features, cscan->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, cscan);
+
 	/*
 	 * Allocate the CustomScanState object.  We let the custom scan provider
 	 * do the palloc, in case it wants to make a larger object that embeds
@@ -121,9 +124,7 @@ TS_EXECUTOR_WRAPPER(CustomScan)
 void
 ExecEndCustomScan(CustomScanState *node)
 {
-
-        TS_MARKER(ExecCustomScan_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecCustomScan_flush, node->ss.ps.plan->plan_node_id);
 
 	Assert(node->methods->EndCustomScan != NULL);
 	node->methods->EndCustomScan(node);

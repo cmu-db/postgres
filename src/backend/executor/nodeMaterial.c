@@ -169,6 +169,9 @@ ExecInitMaterial(Material *node, EState *estate, int eflags)
 	MaterialState *matstate;
 	Plan	   *outerPlan;
 
+        TS_MARKER(ExecMaterial_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
+
 	/*
 	 * create state structure
 	 */
@@ -242,8 +245,7 @@ ExecInitMaterial(Material *node, EState *estate, int eflags)
 void
 ExecEndMaterial(MaterialState *node)
 {
-        TS_MARKER(ExecMaterial_features, node->ss.ps.plan->plan_node_id,
-            node->ss.ps.state->es_plannedstmt->queryId, node->ss.ps.plan);
+        TS_MARKER(ExecMaterial_flush, node->ss.ps.plan->plan_node_id);
 
 	/*
 	 * clean out the tuple table
