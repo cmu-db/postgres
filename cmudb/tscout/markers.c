@@ -22,7 +22,7 @@ static void SUBST_OU_reset(s32 ou_instance) {
 
 void SUBST_OU_begin(struct pt_regs *ctx) {
   // TODO(Matt): Check running_features (NULL) or running_metrics (non-NULL) to see if our state machine is busted.
-  s32 ou_instance;
+  s32 ou_instance = 0;
   bpf_usdt_readarg(1, ctx, &ou_instance);
   u64 key = ou_key(SUBST_INDEX, ou_instance);
 
@@ -49,10 +49,11 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
 
 void SUBST_OU_end(struct pt_regs *ctx) {
   // Retrieve start metrics
-  struct resource_metrics *metrics = NULL;
-  s32 ou_instance;
+  s32 ou_instance = 0;
   bpf_usdt_readarg(1, ctx, &ou_instance);
   u64 key = ou_key(SUBST_INDEX, ou_instance);
+
+  struct resource_metrics *metrics = NULL;
   metrics = running_metrics.lookup(&key);
   if (metrics == NULL) {
     SUBST_OU_reset(ou_instance);
@@ -111,7 +112,7 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   SUBST_READARGS
 
   // Store the start metrics in the subsystem map, waiting for end
-  s32 ou_instance;
+  s32 ou_instance = 0;
   bpf_usdt_readarg(1, ctx, &ou_instance);
   SUBST_OU_complete_features.update(&ou_instance, features);
 }
@@ -126,7 +127,7 @@ BPF_ARRAY(SUBST_OU_output_arr, struct SUBST_OU_output, 1);
 BPF_PERF_OUTPUT(collector_results_SUBST_INDEX);
 
 void SUBST_OU_flush(struct pt_regs *ctx) {
-  s32 ou_instance;
+  s32 ou_instance = 0;
   bpf_usdt_readarg(1, ctx, &ou_instance);
   u64 key = ou_key(SUBST_INDEX, ou_instance);
 
