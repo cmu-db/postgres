@@ -16,8 +16,10 @@ BPF_ARRAY(SUBST_OU_features_arr, struct SUBST_OU_features, 1);
 
 // Reset the state of this OU instance. This is a general purpose function to call if the Marker state machine falls
 // apart.
-static void SUBST_OU_reset(s32 ou_instance) {
-  bpf_trace_printk("Invalid control flow. OU index: %d, OU instance %d", SUBST_INDEX, ou_instance);
+static void SUBST_OU_reset(s32 ou_instance, bool error) {
+  if (error) {
+    bpf_trace_printk("Invalid control flow. OU index: %d, OU instance %d\n", SUBST_INDEX, ou_instance);
+  }
   u64 key = ou_key(SUBST_INDEX, ou_instance);
   SUBST_OU_complete_features.delete(&ou_instance);
   complete_metrics.delete(&key);
@@ -35,7 +37,7 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
   // Probe for CPU counters
   if (!cpu_start(&metrics)) {
     // This shouldn't happen, but best to handle failing to read PMC registers here and toss the data point.
-    SUBST_OU_reset(ou_instance);
+    SUBST_OU_reset(ou_instance, true);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -60,7 +62,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   struct resource_metrics *metrics = NULL;
   metrics = running_metrics.lookup(&key);
   if (metrics == NULL) {
-    SUBST_OU_reset(ou_instance);
+    SUBST_OU_reset(ou_instance, true);
     return;
   }
 
@@ -74,7 +76,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   // Probe for CPU counters
   if (!cpu_end(metrics)) {
     // This shouldn't happen, but best to handle failing to read PMC registers here and toss the data point.
-    SUBST_OU_reset(ou_instance);
+    SUBST_OU_reset(ou_instance, true);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -134,7 +136,7 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
   features = SUBST_OU_complete_features.lookup(&ou_instance);
   if (features == NULL) {
     // We don't have any features for this data point.
-    SUBST_OU_reset(ou_instance);
+    SUBST_OU_reset(ou_instance, true);
     return;
   }
 
@@ -142,7 +144,7 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
   flush_metrics = complete_metrics.lookup(&key);
   if (flush_metrics == NULL) {
     // We don't have any metrics for this data point.
-    SUBST_OU_reset(ou_instance);
+    SUBST_OU_reset(ou_instance, true);
     return;
   }
 
@@ -167,5 +169,5 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
 
   // Send output struct to userspace via subsystem's perf ring buffer.
   collector_results_SUBST_INDEX.perf_submit(ctx, output, sizeof(struct SUBST_OU_output));
-  SUBST_OU_reset(ou_instance);
+  SUBST_OU_reset(ou_instance, false);
 }
