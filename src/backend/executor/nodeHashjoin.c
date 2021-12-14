@@ -583,8 +583,7 @@ ExecHashJoinImpl(PlanState *pstate, bool parallel) {
 
   result = WrappedExecHashJoinImpl(pstate, parallel);
 
-  TS_MARKER(ExecHashJoinImpl_end, TupIsNull(result),
-            pstate->plan->plan_node_id);
+  TS_MARKER(ExecHashJoinImpl_end, pstate->plan->plan_node_id);
 
   return result;
 }
@@ -636,6 +635,9 @@ ExecInitHashJoin(HashJoin *node, EState *estate, int eflags)
 	TupleDesc	outerDesc,
 				innerDesc;
 	const TupleTableSlotOps *ops;
+
+        TS_MARKER(ExecHashJoinImpl_features, node->join.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -778,9 +780,7 @@ ExecInitHashJoin(HashJoin *node, EState *estate, int eflags)
 void
 ExecEndHashJoin(HashJoinState *node)
 {
-
-        TS_MARKER(ExecHashJoinImpl_features, node->js.ps.plan->plan_node_id,
-            node->js.ps.state->es_plannedstmt->queryId, node->js.ps.plan);
+        TS_MARKER(ExecHashJoinImpl_flush, node->js.ps.plan->plan_node_id);
 
         /*
 	 * Free hash table
