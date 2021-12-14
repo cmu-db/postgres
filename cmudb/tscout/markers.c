@@ -34,7 +34,7 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
   // Probe for CPU counters
   if (!cpu_start(&metrics)) {
     // This shouldn't happen, but best to handle failing to read PMC registers here and toss the data point.
-    SUBST_OU_reset(ou_instance, true);
+    SUBST_OU_reset(ou_instance);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -59,7 +59,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   struct resource_metrics *metrics = NULL;
   metrics = running_metrics.lookup(&key);
   if (metrics == NULL) {
-    SUBST_OU_reset(ou_instance, true);
+    SUBST_OU_reset(ou_instance);
     return;
   }
 
@@ -73,7 +73,7 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   // Probe for CPU counters
   if (!cpu_end(metrics)) {
     // This shouldn't happen, but best to handle failing to read PMC registers here and toss the data point.
-    SUBST_OU_reset(ou_instance, true);
+    SUBST_OU_reset(ou_instance);
     return;
   }
   struct task_struct *p = (struct task_struct *)bpf_get_current_task();
@@ -133,7 +133,7 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
   features = SUBST_OU_complete_features.lookup(&ou_instance);
   if (features == NULL) {
     // We don't have any features for this data point.
-    SUBST_OU_reset(ou_instance, true);
+    SUBST_OU_reset(ou_instance);
     return;
   }
 
@@ -141,7 +141,7 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
   flush_metrics = complete_metrics.lookup(&key);
   if (flush_metrics == NULL) {
     // We don't have any metrics for this data point.
-    SUBST_OU_reset(ou_instance, true);
+    SUBST_OU_reset(ou_instance);
     return;
   }
 
@@ -166,5 +166,5 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
 
   // Send output struct to userspace via subsystem's perf ring buffer.
   collector_results_SUBST_INDEX.perf_submit(ctx, output, sizeof(struct SUBST_OU_output));
-  SUBST_OU_reset(ou_instance, false);
+  SUBST_OU_reset(ou_instance);
 }
