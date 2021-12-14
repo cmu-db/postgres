@@ -236,11 +236,11 @@ OU_DEFS = [
     #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
     #      Feature("SampleScan")
     #  ]),
-    # ("ExecSeqScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Scan")
-    #  ]),
+    ("ExecSeqScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Scan")
+     ]),
     # ("ExecSetOp",
     #  [
     #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),

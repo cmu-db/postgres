@@ -140,12 +140,11 @@ void SUBST_OU_end(struct pt_regs *ctx) {
     // Copy completed metrics to output struct
     __builtin_memcpy(&(output->SUBST_FIRST_METRIC), flush_metrics, sizeof(struct resource_metrics));
 
-    // This enforces the state machine of begin -> end -> features.
-    complete_metrics.delete(&key);
     // The SUBST_OU_output_arr does not need to be deleted because it is memset to 0 every time.
 
     // Send output struct to userspace via subsystem's perf ring buffer
     collector_results_SUBST_INDEX.perf_submit(ctx, output, sizeof(struct SUBST_OU_output));
+    SUBST_OU_reset(ou_instance);
   }
 
   running_metrics.delete(&key);
