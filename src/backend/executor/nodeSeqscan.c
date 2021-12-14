@@ -190,6 +190,8 @@ ExecEndSeqScan(SeqScanState *node)
 {
 	TableScanDesc scanDesc;
 
+        TS_MARKER(ExecSeqScan_flush, node->ss.ps.plan->plan_node_id);
+
 	/*
 	 * get information from node
 	 */

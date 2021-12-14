@@ -47,20 +47,11 @@ void SUBST_OU_begin(struct pt_regs *ctx) {
   running_metrics.update(&key, &metrics);
 }
 
-// A BPF array is defined because the OU output struct is typically larger
-// than the 512 byte stack limit imposed by BPF.
-BPF_ARRAY(SUBST_OU_output_arr, struct SUBST_OU_output, 1);
-// A BPF perf output buffer is defined per OU because the labels being
-// emitted are different for each OU. Previously, using only one perf output
-// buffer resulted in using the labels of the last perf_submit caller in the
-// source code, which was incorrect.
-BPF_PERF_OUTPUT(collector_results_SUBST_INDEX);
-
 void SUBST_OU_end(struct pt_regs *ctx) {
   // Retrieve start metrics
   struct resource_metrics *metrics = NULL;
   s32 ou_instance;
-  bpf_usdt_readarg(2, ctx, &ou_instance);
+  bpf_usdt_readarg(1, ctx, &ou_instance);
   u64 key = ou_key(SUBST_INDEX, ou_instance);
   metrics = running_metrics.lookup(&key);
   if (metrics == NULL) {
@@ -89,62 +80,16 @@ void SUBST_OU_end(struct pt_regs *ctx) {
   net_end(metrics, p, CLIENT_SOCKET_FD);
 #endif
 
-  // Find out if we should flush, and if we have previously stored metrics for this OU invocation to accumulate.
-  bool flush;
-  bpf_usdt_readarg(1, ctx, &flush);
+  // Store the completed metrics in the subsystem map, waiting for features
   struct resource_metrics *accumulated_metrics = NULL;
   accumulated_metrics = complete_metrics.lookup(&key);
-
-  struct resource_metrics *flush_metrics = NULL;
-  if (accumulated_metrics != NULL) {
-    // We have accumulated metrics already. Let's add this data point to the previous metrics.
-    metrics_accumulate(accumulated_metrics, metrics);
-    // If we flush, it'll be the accumulated metrics.
-    flush_metrics = accumulated_metrics;
+  if (accumulated_metrics == NULL) {
+    // They don't exist yet, but that's okay, this could be the first tuple. Just drop in the END instance's
+    // metrics as the complete ones.
+    complete_metrics.update(&key, metrics);
   } else {
-    if (!flush) {
-      // Only store completed metrics for a future accumulation if we're not flushing, otherwise it's wasted work.
-      complete_metrics.update(&key, metrics);
-    }
-    // If we flush, we'll use the now-complete running metrics from this invocation.
-    flush_metrics = metrics;
-  }
-
-  if (flush) {
-    // Look up complete_features.
-    // memcpy features into output_arr
-    // memcpy flush_pointer into output_arr
-    // Zero initialize output struct for features and metrics
-    int idx = 0;
-    struct SUBST_OU_output *output = SUBST_OU_output_arr.lookup(&idx);
-    if (output == NULL) {
-      // This should never happen and should be considered a fatal error.
-      return;
-    }
-    memset(output, 0, sizeof(struct SUBST_OU_output));
-
-    // Set the index of this SUBST_OU.
-    output->ou_index = SUBST_INDEX;
-
-    // Retrieve the features
-    struct SUBST_OU_features *features = NULL;
-    features = SUBST_OU_complete_features.lookup(&ou_instance);
-    if (features == NULL) {
-      SUBST_OU_reset(ou_instance);
-      return;
-    }
-
-    // Copy completed features to output struct
-    __builtin_memcpy(&(output->SUBST_FIRST_FEATURE), features, sizeof(struct SUBST_OU_features));
-
-    // Copy completed metrics to output struct
-    __builtin_memcpy(&(output->SUBST_FIRST_METRIC), flush_metrics, sizeof(struct resource_metrics));
-
-    // The SUBST_OU_output_arr does not need to be deleted because it is memset to 0 every time.
-
-    // Send output struct to userspace via subsystem's perf ring buffer
-    collector_results_SUBST_INDEX.perf_submit(ctx, output, sizeof(struct SUBST_OU_output));
-    SUBST_OU_reset(ou_instance);
+    // We have accumulated metrics already. Let's add them.
+    metrics_accumulate(accumulated_metrics, metrics);
   }
 
   running_metrics.delete(&key);
@@ -169,4 +114,61 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   s32 ou_instance;
   bpf_usdt_readarg(1, ctx, &ou_instance);
   SUBST_OU_complete_features.update(&ou_instance, features);
+}
+
+// A BPF array is defined because the OU output struct is typically larger
+// than the 512 byte stack limit imposed by BPF.
+BPF_ARRAY(SUBST_OU_output_arr, struct SUBST_OU_output, 1);
+// A BPF perf output buffer is defined per OU because the labels being
+// emitted are different for each OU. Previously, using only one perf output
+// buffer resulted in using the labels of the last perf_submit caller in the
+// source code, which was incorrect.
+BPF_PERF_OUTPUT(collector_results_SUBST_INDEX);
+
+void SUBST_OU_flush(struct pt_regs *ctx) {
+  s32 ou_instance;
+  bpf_usdt_readarg(1, ctx, &ou_instance);
+  u64 key = ou_key(SUBST_INDEX, ou_instance);
+
+  struct resource_metrics *flush_metrics = NULL;
+  flush_metrics = complete_metrics.lookup(&key);
+  if (flush_metrics == NULL) {
+    SUBST_OU_reset(ou_instance);
+    return;
+  }
+
+  // Look up complete_features.
+  // memcpy features into output_arr
+  // memcpy flush_pointer into output_arr
+  // Zero initialize output struct for features and metrics
+  int idx = 0;
+  struct SUBST_OU_output *output = SUBST_OU_output_arr.lookup(&idx);
+  if (output == NULL) {
+    // This should never happen and should be considered a fatal error.
+    return;
+  }
+  memset(output, 0, sizeof(struct SUBST_OU_output));
+
+  // Set the index of this SUBST_OU.
+  output->ou_index = SUBST_INDEX;
+
+  // Retrieve the features
+  struct SUBST_OU_features *features = NULL;
+  features = SUBST_OU_complete_features.lookup(&ou_instance);
+  if (features == NULL) {
+    SUBST_OU_reset(ou_instance);
+    return;
+  }
+
+  // Copy completed features to output struct
+  __builtin_memcpy(&(output->SUBST_FIRST_FEATURE), features, sizeof(struct SUBST_OU_features));
+
+  // Copy completed metrics to output struct
+  __builtin_memcpy(&(output->SUBST_FIRST_METRIC), flush_metrics, sizeof(struct resource_metrics));
+
+  // The SUBST_OU_output_arr does not need to be deleted because it is memset to 0 every time.
+
+  // Send output struct to userspace via subsystem's perf ring buffer
+  collector_results_SUBST_INDEX.perf_submit(ctx, output, sizeof(struct SUBST_OU_output));
+  SUBST_OU_reset(ou_instance);
 }

@@ -367,6 +367,9 @@ class OperatingUnit:
     def features_marker(self) -> str:
         return self.name() + '_features'
 
+    def flush_marker(self) -> str:
+        return self.name() + '_flush'
+
     def features_struct(self) -> str:
         """
         Returns

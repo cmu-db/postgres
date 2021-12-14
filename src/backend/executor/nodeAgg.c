@@ -4385,6 +4385,8 @@ ExecEndAgg(AggState *node)
 	int			numGroupingSets = Max(node->maxsets, 1);
 	int			setno;
 
+        TS_MARKER(ExecAgg_flush, node->ss.ps.plan->plan_node_id);
+
 	/*
 	 * When ending a parallel worker, copy the statistics gathered by the
 	 * worker back into shared memory so that it can be picked up by the main
