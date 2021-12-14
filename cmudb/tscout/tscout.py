@@ -101,7 +101,7 @@ def generate_readargs(feature_list):
             readarg_p = ['  bpf_usdt_readarg_p(',
                          f'{idx + non_feature_usdt_args}, ',
                          'ctx, ',
-                         f'&(output->{first_member}), ',
+                         f'&(features->{first_member}), ',
                          f'sizeof(struct DECL_{feature.name})',
                          ');\n']
             code.append(''.join(readarg_p))
@@ -109,7 +109,7 @@ def generate_readargs(feature_list):
             readarg = ['  bpf_usdt_readarg(',
                        f'{idx + non_feature_usdt_args}, ',
                        'ctx, ',
-                       f'&(output->{first_member})',
+                       f'&(features->{first_member})',
                        ');\n']
             code.append(''.join(readarg))
     return ''.join(code)
@@ -160,9 +160,14 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
                   metric.name not in ('start_time', 'end_time', 'cpu_id')]  # don't accumulate these 3 metrics
     metrics_accumulate = ';\n'.join(accumulate) + ';'
     collector_c = collector_c.replace("SUBST_ACCUMULATE", metrics_accumulate)
+    collector_c = collector_c.replace("SUBST_FIRST_FEATURE", ou.features_list[0].bpf_tuple[0].name)
+    collector_c = collector_c.replace("SUBST_FIRST_METRIC", metrics[0].name)
 
     num_cpus = len(utils.get_online_cpus())
     collector_c = collector_c.replace("MAX_CPUS", str(num_cpus))
+
+    print(collector_c)
+    exit()
 
     # Attach USDT probes to the target PID.
     collector_probes = USDT(pid=pid)
