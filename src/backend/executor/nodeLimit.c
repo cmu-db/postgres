@@ -360,8 +360,6 @@ recompute_limits(LimitState *node)
 	Datum		val;
 	bool		isNull;
 
-        TS_MARKER(ExecLimit_flush, node->ps.plan->plan_node_id);
-
 	if (node->limitOffset)
 	{
 		val = ExecEvalExprSwitchContext(node->limitOffset,
@@ -542,6 +540,8 @@ ExecInitLimit(Limit *node, EState *estate, int eflags)
 void
 ExecEndLimit(LimitState *node)
 {
+        TS_MARKER(ExecLimit_flush, node->ps.plan->plan_node_id);
+
 	ExecFreeExprContext(&node->ps);
 	ExecEndNode(outerPlanState(node));
 }
