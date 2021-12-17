@@ -39,6 +39,9 @@ class BPFVariable:
     c_type: clang.cindex.TypeKind
     alignment: int = None
 
+    def alignment_string(self):
+        return ' __attribute__ ((aligned ({})))'.format(self.alignment) if self.alignment is not None else ''
+
     def should_output(self):
         """
         Return whether this variable should be included in Processor output.
@@ -395,15 +398,10 @@ class OperatingUnit:
             if feature.readarg_p:
                 # This Feature is actually a struct struct that readarg_p will memcpy from user-space.
                 assert (len(feature.bpf_tuple) >= 1), 'We should have some fields in this struct.'
-                # Add all of the struct's fields, sticking the original struct's alignment value on the first attribute.
-                for i, column in enumerate(feature.bpf_tuple):
-                    alignment_string = ''
-                    if i == 0:
-                        assert (column.alignment is not None), \
-                            'This is the first field of a struct, so we should have the alignment.'
-                        alignment_string = ' __attribute__ ((aligned ({})))'.format(column.alignment)
+                # Add all the struct's fields, sticking the original struct's alignment value on the first attribute.
+                for column in feature.bpf_tuple:
                     struct_def = struct_def + (
-                        '{} {}{};\n'.format(CLANG_TO_BPF[column.c_type], column.name, alignment_string))
+                        '{} {}{};\n'.format(CLANG_TO_BPF[column.c_type], column.name, column.alignment_string()))
             else:
                 # It's a single stack-allocated argument that we can read directly.
                 assert (len(feature.bpf_tuple) == 1), 'How can something not using readarg_p have multiple fields?'
@@ -453,13 +451,8 @@ class OperatingUnit:
         for feature in self.features_list:
             if feature.readarg_p:
                 decl = [f'struct DECL_{feature.name}', '{']
-                for i, column in enumerate(feature.bpf_tuple):
-                    alignment_string = ''
-                    if i == 0:
-                        assert (column.alignment is not None), \
-                            'This is the first field of a struct, so we should have the alignment.'
-                        alignment_string = ' __attribute__ ((aligned ({})))'.format(column.alignment)
-                    decl.append(f'{CLANG_TO_BPF[column.c_type]} {column.name}{alignment_string};')
+                for column in feature.bpf_tuple:
+                    decl.append(f'{CLANG_TO_BPF[column.c_type]} {column.name}{column.alignment_string()};')
                 decl.append('};')
                 decls[feature.name] = '\n'.join(decl)
         return decls
