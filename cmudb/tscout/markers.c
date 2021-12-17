@@ -6,7 +6,7 @@ struct SUBST_OU_features {
 struct SUBST_OU_output {
   SUBST_FEATURES;  // Replaced by a list of the features for this subsystem
   SUBST_METRICS;   // Replaced by the list of metrics
-  u32 ou_index;    // TODO(Matt): DOCUMENT THIS IN THE PADDING ASSUMPTION
+  u32 ou_index;
 };
 
 // Stores features for a training data point, waiting for BEGIN, END, and FLUSH.
