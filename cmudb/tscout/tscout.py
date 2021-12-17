@@ -130,6 +130,9 @@ def generate_markers(operation, ou_index):
                                   operation.features_struct())
     markers_c = markers_c.replace("SUBST_INDEX",
                                   str(ou_index))
+    markers_c = markers_c.replace("SUBST_FIRST_FEATURE",
+                                  operation.features_list[0].bpf_tuple[0].name)
+
     # Accumulate struct definitions.
     helper_struct_defs = {**helper_struct_defs, **operation.helper_structs()}
 
@@ -160,7 +163,6 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
                   metric.name not in ('start_time', 'end_time', 'cpu_id')]  # don't accumulate these 3 metrics
     metrics_accumulate = ';\n'.join(accumulate) + ';'
     collector_c = collector_c.replace("SUBST_ACCUMULATE", metrics_accumulate)
-    collector_c = collector_c.replace("SUBST_FIRST_FEATURE", ou.features_list[0].bpf_tuple[0].name)
     collector_c = collector_c.replace("SUBST_FIRST_METRIC", metrics[0].name)
 
     num_cpus = len(utils.get_online_cpus())
