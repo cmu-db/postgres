@@ -118,181 +118,181 @@ OU_DEFS = [
          Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
          Feature("Agg")
      ]),
-    # ("ExecAppend",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Append")
-    #  ]),
-    # ("ExecCteScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("CteScan")
-    #  ]),
-    # ("ExecCustomScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("CustomScan")
-    #  ]),
-    # ("ExecForeignScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("ForeignScan")
-    #  ]),
-    # ("ExecFunctionScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("FunctionScan")
-    #  ]),
-    # ("ExecGather",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Gather")
-    #  ]),
-    # ("ExecGatherMerge",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("GatherMerge")
-    #  ]),
-    # ("ExecGroup",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Group")
-    #  ]),
-    # ("ExecHashJoinImpl",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("HashJoin")
-    #  ]),
-    # ("ExecIncrementalSort",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("IncrementalSort")
-    #  ]),
-    # ("ExecIndexOnlyScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("IndexOnlyScan")
-    #  ]),
-    # ("ExecIndexScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("IndexScan")
-    #  ]),
-    # ("ExecLimit",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Limit")
-    #  ]),
-    # ("ExecLockRows",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("LockRows")
-    #  ]),
-    # ("ExecMaterial",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Material")
-    #  ]),
-    # ("ExecMergeAppend",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("MergeAppend")
-    #  ]),
-    # ("ExecMergeJoin",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("MergeJoin")
-    #  ]),
-    # ("ExecModifyTable",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("ModifyTable")
-    #  ]),
-    # ("ExecNamedTuplestoreScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("NamedTuplestoreScan")
-    #  ]),
-    # ("ExecNestLoop",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("NestLoop")
-    #  ]),
-    # ("ExecProjectSet",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("ProjectSet")
-    #  ]),
-    # ("ExecRecursiveUnion",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("RecursiveUnion")
-    #  ]),
-    # ("ExecResult",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Result")
-    #  ]),
-    # ("ExecSampleScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("SampleScan")
-    #  ]),
-    # ("ExecSeqScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Scan")
-    #  ]),
-    # ("ExecSetOp",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("SetOp")
-    #  ]),
-    # ("ExecSort",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Sort")
-    #  ]),
-    # ("ExecSubPlan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Plan")
-    #  ]),
-    # ("ExecSubqueryScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("SubqueryScan")
-    #  ]),
-    # ("ExecTableFuncScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("TableFuncScan")
-    #  ]),
-    # ("ExecTidScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("TidScan")
-    #  ]),
-    # ("ExecUnique",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("Unique")
-    #  ]),
-    # ("ExecValuesScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("ValuesScan")
-    #  ]),
-    # ("ExecWindowAgg",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("WindowAgg")
-    #  ]),
-    # ("ExecWorkTableScan",
-    #  [
-    #      Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-    #      Feature("WorkTableScan")
-    #  ]),
+    ("ExecAppend",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Append")
+     ]),
+    ("ExecCteScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("CteScan")
+     ]),
+    ("ExecCustomScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("CustomScan")
+     ]),
+    ("ExecForeignScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("ForeignScan")
+     ]),
+    ("ExecFunctionScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("FunctionScan")
+     ]),
+    ("ExecGather",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Gather")
+     ]),
+    ("ExecGatherMerge",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("GatherMerge")
+     ]),
+    ("ExecGroup",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Group")
+     ]),
+    ("ExecHashJoinImpl",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("HashJoin")
+     ]),
+    ("ExecIncrementalSort",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("IncrementalSort")
+     ]),
+    ("ExecIndexOnlyScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("IndexOnlyScan")
+     ]),
+    ("ExecIndexScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("IndexScan")
+     ]),
+    ("ExecLimit",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Limit")
+     ]),
+    ("ExecLockRows",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("LockRows")
+     ]),
+    ("ExecMaterial",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Material")
+     ]),
+    ("ExecMergeAppend",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("MergeAppend")
+     ]),
+    ("ExecMergeJoin",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("MergeJoin")
+     ]),
+    ("ExecModifyTable",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("ModifyTable")
+     ]),
+    ("ExecNamedTuplestoreScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("NamedTuplestoreScan")
+     ]),
+    ("ExecNestLoop",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("NestLoop")
+     ]),
+    ("ExecProjectSet",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("ProjectSet")
+     ]),
+    ("ExecRecursiveUnion",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("RecursiveUnion")
+     ]),
+    ("ExecResult",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Result")
+     ]),
+    ("ExecSampleScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("SampleScan")
+     ]),
+    ("ExecSeqScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Scan")
+     ]),
+    ("ExecSetOp",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("SetOp")
+     ]),
+    ("ExecSort",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Sort")
+     ]),
+    ("ExecSubPlan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Plan")
+     ]),
+    ("ExecSubqueryScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("SubqueryScan")
+     ]),
+    ("ExecTableFuncScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("TableFuncScan")
+     ]),
+    ("ExecTidScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("TidScan")
+     ]),
+    ("ExecUnique",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("Unique")
+     ]),
+    ("ExecValuesScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("ValuesScan")
+     ]),
+    ("ExecWindowAgg",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("WindowAgg")
+     ]),
+    ("ExecWorkTableScan",
+     [
+         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
+         Feature("WorkTableScan")
+     ]),
 ]
 
 # The metrics to be defined for every OU.
