@@ -77,15 +77,7 @@ class BPFVariable:
         elif self.c_type == clang.cindex.TypeKind.DOUBLE:
             return str(struct.unpack('d', getattr(output_event, self.name).to_bytes(8, byteorder=sys.byteorder))[0])
         else:
-            print(dir(output_event))
-            string_value = None
-            try:
-                string_value = str(getattr(output_event, self.name))
-            except AttributeError as e:
-                print(self.name)
-                print(output_event)
-                exit()
-            return
+            return str(getattr(output_event, self.name))
 
 
 @dataclass
