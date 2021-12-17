@@ -35,10 +35,9 @@ class BPFType(str, Enum):
 
 @dataclass
 class BPFVariable:
-    """A BPF variable has a type and a name."""
-    bpf_type: BPFType
     name: str
     c_type: clang.cindex.TypeKind
+    alignment: int = None
 
     def should_output(self):
         """
@@ -80,6 +79,31 @@ class BPFVariable:
             return str(getattr(output_event, self.name))
 
 
+# Map from Clang type kinds to BPF types.
+CLANG_TO_BPF = {
+    clang.cindex.TypeKind.BOOL: BPFType.u8,
+    clang.cindex.TypeKind.CHAR_U: BPFType.u8,
+    clang.cindex.TypeKind.UCHAR: BPFType.u8,
+    clang.cindex.TypeKind.USHORT: BPFType.u16,
+    clang.cindex.TypeKind.UINT: BPFType.u32,
+    clang.cindex.TypeKind.ULONG: BPFType.u64,
+    clang.cindex.TypeKind.ULONGLONG: BPFType.u64,
+    clang.cindex.TypeKind.CHAR_S: BPFType.i8,
+    clang.cindex.TypeKind.SCHAR: BPFType.i8,
+    clang.cindex.TypeKind.SHORT: BPFType.i16,
+    clang.cindex.TypeKind.INT: BPFType.i32,
+    clang.cindex.TypeKind.LONG: BPFType.i64,
+    clang.cindex.TypeKind.LONGLONG: BPFType.i64,
+    clang.cindex.TypeKind.FLOAT: BPFType.u32,
+    clang.cindex.TypeKind.DOUBLE: BPFType.u64,
+    clang.cindex.TypeKind.ENUM: BPFType.i32,
+    clang.cindex.TypeKind.POINTER: BPFType.pointer,
+    clang.cindex.TypeKind.FUNCTIONPROTO: BPFType.pointer,
+    clang.cindex.TypeKind.INCOMPLETEARRAY: BPFType.pointer,
+    clang.cindex.TypeKind.CONSTANTARRAY: BPFType.pointer,
+}
+
+
 @dataclass
 class Feature:
     """
@@ -96,10 +120,9 @@ class Feature:
     name: str
     readarg_p: bool = None
     bpf_tuple: Tuple[BPFVariable] = None
-    alignment: int = None
 
 
-QUERY_ID = (BPFVariable(BPFType.u64, "query_id", clang.cindex.TypeKind.ULONG),)
+QUERY_ID = (BPFVariable("query_id", clang.cindex.TypeKind.ULONG),)
 
 """
 An OU is specified via (operator, postgres_function, feature_types).
@@ -297,47 +320,34 @@ OU_DEFS = [
 
 # The metrics to be defined for every OU.
 OU_METRICS = (
-    BPFVariable(bpf_type=BPFType.u64,
-                name="start_time",
+    BPFVariable(name="start_time",
+                c_type=clang.cindex.TypeKind.ULONG,
+                alignment=8),
+    BPFVariable(name="end_time",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="end_time",
+    BPFVariable(name="cpu_cycles",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="cpu_cycles",
+    BPFVariable(name="instructions",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="instructions",
+    BPFVariable(name="cache_references",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="cache_references",
+    BPFVariable(name="cache_misses",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="cache_misses",
+    BPFVariable(name="ref_cpu_cycles",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="ref_cpu_cycles",
+    BPFVariable(name="network_bytes_read",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="network_bytes_read",
+    BPFVariable(name="network_bytes_written",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="network_bytes_written",
+    BPFVariable(name="disk_bytes_read",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="disk_bytes_read",
+    BPFVariable(name="disk_bytes_written",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="disk_bytes_written",
+    BPFVariable(name="memory_bytes",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="memory_bytes",
+    BPFVariable(name="elapsed_us",
                 c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u64,
-                name="elapsed_us",
-                c_type=clang.cindex.TypeKind.ULONG),
-    BPFVariable(bpf_type=BPFType.u8,
-                name="cpu_id",
+    BPFVariable(name="cpu_id",
                 c_type=clang.cindex.TypeKind.UCHAR),
 )
 
@@ -384,16 +394,21 @@ class OperatingUnit:
         for feature in self.features_list:
             if feature.readarg_p:
                 # This Feature is actually a struct struct that readarg_p will memcpy from user-space.
-                assert (feature.alignment is not None), 'Feature is a struct, so it needs alignment information.'
+                assert (len(feature.bpf_tuple) >= 1), 'We should have some fields in this struct.'
                 # Add all of the struct's fields, sticking the original struct's alignment value on the first attribute.
                 for i, column in enumerate(feature.bpf_tuple):
-                    alignment_string = ' __attribute__ ((aligned ({})))'.format(feature.alignment) if i == 0 else ''
-                    struct_def = struct_def + ('{} {}{};\n'.format(column.bpf_type, column.name, alignment_string))
+                    alignment_string = ''
+                    if i == 0:
+                        assert (column.alignment is not None), \
+                            'This is the first field of a struct, so we should have the alignment.'
+                        alignment_string = ' __attribute__ ((aligned ({})))'.format(column.alignment)
+                    struct_def = struct_def + (
+                        '{} {}{};\n'.format(CLANG_TO_BPF[column.c_type], column.name, alignment_string))
             else:
                 # It's a single stack-allocated argument that we can read directly.
                 assert (len(feature.bpf_tuple) == 1), 'How can something not using readarg_p have multiple fields?'
                 struct_def = struct_def + (
-                    '{} {};\n'.format(feature.bpf_tuple[0].bpf_type, feature.bpf_tuple[0].name))
+                    '{} {};\n'.format(CLANG_TO_BPF[feature.bpf_tuple[0].c_type], feature.bpf_tuple[0].name))
 
         return struct_def
 
@@ -438,8 +453,13 @@ class OperatingUnit:
         for feature in self.features_list:
             if feature.readarg_p:
                 decl = [f'struct DECL_{feature.name}', '{']
-                for column in feature.bpf_tuple:
-                    decl.append(f'{column.bpf_type} {column.name};')
+                for i, column in enumerate(feature.bpf_tuple):
+                    alignment_string = ''
+                    if i == 0:
+                        assert (column.alignment is not None), \
+                            'This is the first field of a struct, so we should have the alignment.'
+                        alignment_string = ' __attribute__ ((aligned ({})))'.format(column.alignment)
+                    decl.append(f'{CLANG_TO_BPF[column.c_type]} {column.name}{alignment_string};')
                 decl.append('};')
                 decls[feature.name] = '\n'.join(decl)
         return decls
@@ -451,30 +471,6 @@ class Model:
 
     TODO(WAN): Come up with a better name for this class.
     """
-
-    # Map from Clang type kinds to BPF types.
-    CLANG_TO_BPF = {
-        clang.cindex.TypeKind.BOOL: BPFType.u8,
-        clang.cindex.TypeKind.CHAR_U: BPFType.u8,
-        clang.cindex.TypeKind.UCHAR: BPFType.u8,
-        clang.cindex.TypeKind.USHORT: BPFType.u16,
-        clang.cindex.TypeKind.UINT: BPFType.u32,
-        clang.cindex.TypeKind.ULONG: BPFType.u64,
-        clang.cindex.TypeKind.ULONGLONG: BPFType.u64,
-        clang.cindex.TypeKind.CHAR_S: BPFType.i8,
-        clang.cindex.TypeKind.SCHAR: BPFType.i8,
-        clang.cindex.TypeKind.SHORT: BPFType.i16,
-        clang.cindex.TypeKind.INT: BPFType.i32,
-        clang.cindex.TypeKind.LONG: BPFType.i64,
-        clang.cindex.TypeKind.LONGLONG: BPFType.i64,
-        clang.cindex.TypeKind.FLOAT: BPFType.u32,
-        clang.cindex.TypeKind.DOUBLE: BPFType.u64,
-        clang.cindex.TypeKind.ENUM: BPFType.i32,
-        clang.cindex.TypeKind.POINTER: BPFType.pointer,
-        clang.cindex.TypeKind.FUNCTIONPROTO: BPFType.pointer,
-        clang.cindex.TypeKind.INCOMPLETEARRAY: BPFType.pointer,
-        clang.cindex.TypeKind.CONSTANTARRAY: BPFType.pointer,
-    }
 
     def __init__(self):
         nodes = clang_parser.ClangParser()
@@ -489,15 +485,14 @@ class Model:
                     feature_list.append(feature)
                     continue
                 # Otherwise, convert the list of fields to BPF types.
-                struct_info = nodes.struct_map[feature.name]
                 bpf_fields: List[BPFVariable] = []
-                for i, field in enumerate(struct_info.fields):
+                for i, field in enumerate(nodes.field_map[feature.name]):
                     try:
                         bpf_fields.append(
                             BPFVariable(
-                                bpf_type=Model.CLANG_TO_BPF[field.canonical_type_kind],
                                 name=field.name,
                                 c_type=field.canonical_type_kind,
+                                alignment=field.alignment if i == 0 else None
                             )
                         )
                     except KeyError as e:
@@ -508,7 +503,7 @@ class Model:
                         exit()
                 new_feature = Feature(feature.name,
                                       bpf_tuple=bpf_fields,
-                                      readarg_p=True, alignment=struct_info.alignment)
+                                      readarg_p=True)
                 feature_list.append(new_feature)
 
             new_ou = OperatingUnit(postgres_function, feature_list)

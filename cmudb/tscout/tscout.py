@@ -156,7 +156,9 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     collector_c = '\n'.join(helper_struct_defs.values()) + '\n' + collector_c
 
     # Replace remaining placeholders in C code.
-    defs = ['{} {}'.format(metric.bpf_type, metric.name) for metric in metrics]
+    defs = ['{} {}{}'.format(model.CLANG_TO_BPF[metric.c_type], metric.name,
+                             ' __attribute__ ((aligned ({})))'.format(metric.alignment) if i == 0 else '') for i, metric
+            in enumerate(metrics)]
     metrics_struct = ';\n'.join(defs) + ';'
     collector_c = collector_c.replace("SUBST_METRICS", metrics_struct)
     accumulate = ['lhs->{} += rhs->{}'.format(metric.name, metric.name) for metric in metrics if
@@ -168,7 +170,7 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     num_cpus = len(utils.get_online_cpus())
     collector_c = collector_c.replace("MAX_CPUS", str(num_cpus))
 
-    # print(collector_c, file=open('./test.c', 'w'))
+    print(collector_c, file=open('./test.c', 'w'))
 
     # Attach USDT probes to the target PID.
     collector_probes = USDT(pid=pid)
