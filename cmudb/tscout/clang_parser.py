@@ -236,14 +236,13 @@ class ClangParser:
         fields = rtti_map[class_name]
         new_fields = []
         # For every field in the base-class-expanded field list for the class,
-        for i, field in enumerate(fields):
+        for field in fields:
             if field.canonical_type_kind != clang.cindex.TypeKind.RECORD:
                 # If the field is not a record type,
                 # just append the field to the list of new fields.
                 new_field = Field(name=f'{prefix}{field.name}',
                                   pg_type=field.pg_type,
-                                  canonical_type_kind=field.canonical_type_kind,
-                                  alignment=classes[class_name].type.get_align() if i == 0 else None)
+                                  canonical_type_kind=field.canonical_type_kind)
                 new_fields.append(new_field)
             else:
                 # If the field is a record type, try adding the list of
@@ -259,4 +258,7 @@ class ClangParser:
                         classes,
                         prefix=prefix + f'{field.name}_')
                     new_fields.extend(expanded_fields)
+        new_fields[0].alignment = classes[class_name].type.get_align()
+        # The alignment value is the struct's alignment, not the field. We assign this to the first field of a
+        # struct since the address of a struct and its first field must be the same.
         return new_fields
