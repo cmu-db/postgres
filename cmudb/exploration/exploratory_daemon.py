@@ -95,6 +95,7 @@ def spin_up_exploratory_instance(replica_port: int, exploratory_port: int, zfs_v
         True if the container started successfully, False otherwise
     """
     print("Taking checkpoint in replica")
+    # LOOK HERE: Consider removing this. Checkpointing has limited benefits for data staleness and can have a huge performance cost.
     checkpoint(replica_port)
     print("Checkpoint complete")
     print("Copying replica data")
