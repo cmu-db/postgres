@@ -169,8 +169,6 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     num_cpus = len(utils.get_online_cpus())
     collector_c = collector_c.replace("MAX_CPUS", str(num_cpus))
 
-    # print(collector_c, file=open('./test.c', 'w'))
-
     # Attach USDT probes to the target PID.
     collector_probes = USDT(pid=pid)
     for ou in operating_units:
@@ -263,7 +261,6 @@ def lost_something(num_lost):
     pass
 
 
-
 def processor(ou, buffered_strings, outdir):
     setproctitle.setproctitle("TScout Processor {}".format(ou.name()))
 
@@ -348,7 +345,7 @@ if __name__ == "__main__":
             ou_processor_queue = mp.Queue()
             ou_processor_queues.append(ou_processor_queue)
             ou_processor = mp.Process(target=processor,
-                                    args=(ou, ou_processor_queue, outdir),)
+                                      args=(ou, ou_processor_queue, outdir), )
             ou_processor.start()
             ou_processors.append(ou_processor)
 
