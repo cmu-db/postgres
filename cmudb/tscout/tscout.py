@@ -1,14 +1,14 @@
 #!/usr/bin/python3
-import multiprocessing as mp
-import sys
-
-from dataclasses import dataclass
-import psutil
-import setproctitle
+import argparse
 import logging
+import multiprocessing as mp
+from dataclasses import dataclass
+
+import psutil
 from bcc import BPF, USDT, PerfHWConfig, PerfType, utils
 
 import model
+import setproctitle
 
 
 @dataclass
@@ -141,7 +141,7 @@ def generate_markers(operation, ou_index):
 
 def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     global helper_struct_defs
-    setproctitle.setproctitle("{} Collector".format(pid))
+    setproctitle.setproctitle("{} TScout Collector".format(pid))
 
     # Read the C code for the Collector.
     with open('collector.c', 'r') as collector_file:
@@ -263,11 +263,12 @@ def lost_something(num_lost):
     pass
 
 
-def processor(ou, buffered_strings):
-    setproctitle.setproctitle("{} Processor".format(ou.name()))
+
+def processor(ou, buffered_strings, outdir):
+    setproctitle.setproctitle("TScout Processor {}".format(ou.name()))
 
     # Open output file, with the name based on the OU.
-    file = open("./{}.csv".format(ou.name()), "w")
+    file = open(f"{outdir}/{ou.name()}.csv", "w")
 
     # Write the OU's feature columns for CSV header,
     # with an additional separator before resource metrics columns.
@@ -303,17 +304,17 @@ def processor(ou, buffered_strings):
         logger.info("Processor for {} shut down.".format(ou.name()))
 
 
-if __name__ == '__main__':
-    # Parse the command line args, in this case,
-    # just the postmaster PID that we're attaching to.
-    if len(sys.argv) < 2:
-        logger.error("USAGE: tscout PID")
-        exit()
-    pid = int(sys.argv[1])
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="TScout")
+    parser.add_argument("pid", type=int, help="Postmaster PID that we're attaching to")
+    parser.add_argument("--outdir", required=False, default=".", help="Training data output directory")
+    args = parser.parse_args()
+    pid = args.pid
+    outdir = args.outdir
 
     postgres = PostgresInstance(pid)
 
-    setproctitle.setproctitle("{} TScout".format(postgres.postgres_pid))
+    setproctitle.setproctitle("{} TScout Coordinator".format(postgres.postgres_pid))
 
     # Read the C code for TScout.
     with open('tscout.c', 'r') as tscout_file:
@@ -347,7 +348,7 @@ if __name__ == '__main__':
             ou_processor_queue = mp.Queue()
             ou_processor_queues.append(ou_processor_queue)
             ou_processor = mp.Process(target=processor,
-                                      args=(ou, ou_processor_queue,))
+                                    args=(ou, ou_processor_queue, outdir),)
             ou_processor.start()
             ou_processors.append(ou_processor)
 

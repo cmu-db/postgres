@@ -20,8 +20,13 @@ ENV PGPORT "15721"
 # BIN_DIR       :   Destination for PostgreSQL binaries.
 ENV BIN_DIR "/home/terrier/repo/build/bin"
 
+ENV http_proxy "http://proxy.pdl.cmu.edu:3128/"
+ENV https_proxy "http://proxy.pdl.cmu.edu:3128/"
+
 # Install packages.
+COPY ./cmudb/env/apt_for_pdl.conf /etc/apt/apt.conf
 COPY ./cmudb/env/packages.sh /packages.sh
+COPY ./cmudb/env/.docker /home/terrier/.docker
 RUN \
     apt-get -y update \
     && apt-get -y install sudo \
@@ -41,12 +46,13 @@ RUN sudo mkdir -p "$PGDATA" \
     && sudo chown --recursive terrier:terrier "$PGDATA" \
     && sudo chmod 700 "$PGDATA"
 
+
 # Copy the contents of the build context (working directory).
 COPY --chown=terrier:terrier . /home/terrier/repo
 
 # Configure and build NoisePage.
 RUN cd /home/terrier/repo \
-    && bash ./cmudb/build/configure.sh debug \
+    && bash ./cmudb/build/configure.sh release \
     && make -j -s \
     && make install -j -s
 

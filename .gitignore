@@ -44,3 +44,4 @@ lib*.pc
 /tmp_install/
 /build/
 /.idea/
+/.vscode/
