@@ -156,8 +156,8 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     collector_c = '\n'.join(helper_struct_defs.values()) + '\n' + collector_c
 
     # Replace remaining placeholders in C code.
-    defs = ['{} {}{}'.format(model.CLANG_TO_BPF[metric.c_type], metric.name, metric.alignment_string()) for i, metric
-            in enumerate(metrics)]
+    defs = ['{} {}{}'.format(model.CLANG_TO_BPF[metric.c_type], metric.name, metric.alignment_string()) for metric in
+            metrics]
     metrics_struct = ';\n'.join(defs) + ';'
     collector_c = collector_c.replace("SUBST_METRICS", metrics_struct)
     accumulate = ['lhs->{} += rhs->{}'.format(metric.name, metric.name) for metric in metrics if
