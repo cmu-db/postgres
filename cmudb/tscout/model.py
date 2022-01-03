@@ -37,7 +37,7 @@ class BPFType(str, Enum):
 class BPFVariable:
     name: str
     c_type: clang.cindex.TypeKind
-    alignment: int = None
+    alignment: int = None  # Non-None for the first field of a struct, using alignment value of the struct.
 
     def alignment_string(self):
         return ' __attribute__ ((aligned ({})))'.format(self.alignment) if self.alignment is not None else ''
@@ -118,7 +118,7 @@ class Feature:
         True if bpf_usdt_readarg_p should be used.
         False if bpf_usdt_readarg should be used.
     bpf_tuple : Tuple[BPFVariable]
-        A tuple of all the BPF-typed variables that comprise this feature.
+        A tuple of all the BPF-typed variables that comprise this feature. First entry should have an alignment.
     """
     name: str
     readarg_p: bool = None

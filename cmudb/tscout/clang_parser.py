@@ -68,7 +68,7 @@ class Field:
     name: str
     pg_type: str
     canonical_type_kind: clang.cindex.TypeKind
-    alignment: int = None
+    alignment: int = None  # Non-None for the first field of a struct, using alignment value of the struct.
 
 
 class ClangParser:
@@ -260,5 +260,6 @@ class ClangParser:
                     new_fields.extend(expanded_fields)
         new_fields[0].alignment = classes[class_name].type.get_align()
         # The alignment value is the struct's alignment, not the field. We assign this to the first field of a
-        # struct since the address of a struct and its first field must be the same.
+        # struct since the address of a struct and its first field must be the same since their memory addresses must be
+        # the same.
         return new_fields
