@@ -350,6 +350,8 @@ OU_METRICS = (
                 c_type=clang.cindex.TypeKind.ULONG),
     BPFVariable(name="elapsed_us",
                 c_type=clang.cindex.TypeKind.ULONG),
+    BPFVariable(name="pid",
+                c_type=clang.cindex.TypeKind.UINT),
     BPFVariable(name="cpu_id",
                 c_type=clang.cindex.TypeKind.UCHAR),
 )

@@ -111,6 +111,7 @@ static bool cpu_end(struct resource_metrics *const metrics) {
   metrics->ref_cpu_cycles = end_value - metrics->ref_cpu_cycles;
 
   metrics->cpu_id = cpu_k;
+  metrics->pid = bpf_get_current_pid_tgid();
 
   return true;
 }
