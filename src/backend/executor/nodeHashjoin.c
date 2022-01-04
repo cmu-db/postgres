@@ -115,6 +115,7 @@
 #include "miscadmin.h"
 #include "pgstat.h"
 #include "tscout/marker.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 #include "utils/sharedtuplestore.h"
 
@@ -637,7 +638,9 @@ ExecInitHashJoin(HashJoin *node, EState *estate, int eflags)
 	const TupleTableSlotOps *ops;
 
         TS_MARKER(ExecHashJoinImpl_features, node->join.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->join.plan.lefttree),
+                  ChildPlanNodeId(node->join.plan.righttree));
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));

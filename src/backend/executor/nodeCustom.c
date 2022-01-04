@@ -35,7 +35,9 @@ ExecInitCustomScan(CustomScan *cscan, EState *estate, int eflags)
 	Index		tlistvarno;
 
         TS_MARKER(ExecCustomScan_features, cscan->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, cscan);
+                  estate->es_plannedstmt->queryId, cscan,
+                  ChildPlanNodeId(cscan->scan.plan.lefttree),
+                  ChildPlanNodeId(cscan->scan.plan.righttree));
 
 	/*
 	 * Allocate the CustomScanState object.  We let the custom scan provider

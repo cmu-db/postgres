@@ -170,7 +170,9 @@ ExecInitMaterial(Material *node, EState *estate, int eflags)
 	Plan	   *outerPlan;
 
         TS_MARKER(ExecMaterial_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->plan.lefttree),
+                  ChildPlanNodeId(node->plan.righttree));
 
 	/*
 	 * create state structure

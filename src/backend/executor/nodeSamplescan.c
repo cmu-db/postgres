@@ -103,7 +103,9 @@ ExecInitSampleScan(SampleScan *node, EState *estate, int eflags)
 	TsmRoutine *tsm;
 
         TS_MARKER(ExecSampleScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->scan.plan.lefttree),
+                  ChildPlanNodeId(node->scan.plan.righttree));
 
 	Assert(outerPlan(node) == NULL);
 	Assert(innerPlan(node) == NULL);

@@ -168,7 +168,9 @@ ExecInitGroup(Group *node, EState *estate, int eflags)
 	const TupleTableSlotOps *tts_ops;
 
         TS_MARKER(ExecGroup_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->plan.lefttree),
+                  ChildPlanNodeId(node->plan.righttree));
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));

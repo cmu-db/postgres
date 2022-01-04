@@ -125,7 +125,11 @@ class Feature:
     bpf_tuple: Tuple[BPFVariable] = None
 
 
-QUERY_ID = (BPFVariable("query_id", clang.cindex.TypeKind.ULONG),)
+QUERY_ID = Feature("QueryId", readarg_p=False, bpf_tuple=(BPFVariable("query_id", clang.cindex.TypeKind.ULONG),))
+LEFT_CHILD_NODE_ID = Feature("left_child_plan_node_id", readarg_p=False,
+                             bpf_tuple=(BPFVariable("left_child_plan_node_id", clang.cindex.TypeKind.INT),))
+RIGHT_CHILD_NODE_ID = Feature("right_child_plan_node_id", readarg_p=False,
+                              bpf_tuple=(BPFVariable("right_child_plan_node_id", clang.cindex.TypeKind.INT),))
 
 """
 An OU is specified via (operator, postgres_function, feature_types).
@@ -141,183 +145,255 @@ feature_types : List[Feature]
 OU_DEFS = [
     ("ExecAgg",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Agg")
+         QUERY_ID,
+         Feature("Agg"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecAppend",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Append")
+         QUERY_ID,
+         Feature("Append"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecCteScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("CteScan")
+         QUERY_ID,
+         Feature("CteScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecCustomScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("CustomScan")
+         QUERY_ID,
+         Feature("CustomScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecForeignScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("ForeignScan")
+         QUERY_ID,
+         Feature("ForeignScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecFunctionScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("FunctionScan")
+         QUERY_ID,
+         Feature("FunctionScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecGather",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Gather")
+         QUERY_ID,
+         Feature("Gather"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecGatherMerge",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("GatherMerge")
+         QUERY_ID,
+         Feature("GatherMerge"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecGroup",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Group")
+         QUERY_ID,
+         Feature("Group"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecHashJoinImpl",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("HashJoin")
+         QUERY_ID,
+         Feature("HashJoin"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecIncrementalSort",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("IncrementalSort")
+         QUERY_ID,
+         Feature("IncrementalSort"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecIndexOnlyScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("IndexOnlyScan")
+         QUERY_ID,
+         Feature("IndexOnlyScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecIndexScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("IndexScan")
+         QUERY_ID,
+         Feature("IndexScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecLimit",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Limit")
+         QUERY_ID,
+         Feature("Limit"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecLockRows",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("LockRows")
+         QUERY_ID,
+         Feature("LockRows"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecMaterial",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Material")
+         QUERY_ID,
+         Feature("Material"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecMergeAppend",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("MergeAppend")
+         QUERY_ID,
+         Feature("MergeAppend"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecMergeJoin",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("MergeJoin")
+         QUERY_ID,
+         Feature("MergeJoin"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecModifyTable",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("ModifyTable")
+         QUERY_ID,
+         Feature("ModifyTable"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecNamedTuplestoreScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("NamedTuplestoreScan")
+         QUERY_ID,
+         Feature("NamedTuplestoreScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecNestLoop",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("NestLoop")
+         QUERY_ID,
+         Feature("NestLoop"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecProjectSet",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("ProjectSet")
+         QUERY_ID,
+         Feature("ProjectSet"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecRecursiveUnion",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("RecursiveUnion")
+         QUERY_ID,
+         Feature("RecursiveUnion"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecResult",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Result")
+         QUERY_ID,
+         Feature("Result"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecSampleScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("SampleScan")
+         QUERY_ID,
+         Feature("SampleScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecSeqScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Scan")
+         QUERY_ID,
+         Feature("Scan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecSetOp",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("SetOp")
+         QUERY_ID,
+         Feature("SetOp"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecSort",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Sort")
+         QUERY_ID,
+         Feature("Sort"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecSubPlan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Plan")
+         QUERY_ID,
+         Feature("Plan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecSubqueryScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("SubqueryScan")
+         QUERY_ID,
+         Feature("SubqueryScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecTableFuncScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("TableFuncScan")
+         QUERY_ID,
+         Feature("TableFuncScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecTidScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("TidScan")
+         QUERY_ID,
+         Feature("TidScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecUnique",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("Unique")
+         QUERY_ID,
+         Feature("Unique"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecValuesScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("ValuesScan")
+         QUERY_ID,
+         Feature("ValuesScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecWindowAgg",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("WindowAgg")
+         QUERY_ID,
+         Feature("WindowAgg"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
     ("ExecWorkTableScan",
      [
-         Feature("QueryId", readarg_p=False, bpf_tuple=QUERY_ID),
-         Feature("WorkTableScan")
+         QUERY_ID,
+         Feature("WorkTableScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID
      ]),
 ]
 

@@ -22,7 +22,6 @@ BPF_HASH(complete_metrics, u64, struct resource_metrics, 32);  // TODO(Matt): Th
 // Stores a snapshot of the metrics at START Marker, waiting to hit an END Marker
 BPF_HASH(running_metrics, u64, struct resource_metrics, 32);  // TODO(Matt): Think about this size more
 
-// We expect `plan_node_id` to be unique within the call stack, even if OUs are recursive.
 static u64 ou_key(const u32 ou, const s32 ou_instance) { return ((u64)ou) << 32 | ou_instance; }
 
 static void metrics_accumulate(struct resource_metrics *const lhs, const struct resource_metrics *const rhs) {

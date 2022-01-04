@@ -980,7 +980,9 @@ ExecInitIncrementalSort(IncrementalSort *node, EState *estate, int eflags)
 	IncrementalSortState *incrsortstate;
 
         TS_MARKER(ExecIncrementalSort_features, node->sort.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->sort.plan.lefttree),
+                  ChildPlanNodeId(node->sort.plan.righttree));
 
 	SO_printf("ExecInitIncrementalSort: initializing sort node\n");
 

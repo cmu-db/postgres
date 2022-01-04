@@ -77,7 +77,9 @@ ExecInitGatherMerge(GatherMerge *node, EState *estate, int eflags)
 	TupleDesc	tupDesc;
 
         TS_MARKER(ExecGatherMerge_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->plan.lefttree),
+                  ChildPlanNodeId(node->plan.righttree));
 
 	/* Gather merge node doesn't have innerPlan node. */
 	Assert(innerPlan(node) == NULL);

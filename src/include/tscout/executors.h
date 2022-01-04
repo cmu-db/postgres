@@ -2,6 +2,11 @@
 
 #include "tscout/marker.h"
 
+// TODO(Matt): Consider a BPF-level Encoder for this as a proof of concept.
+static int ChildPlanNodeId(const struct Plan *const child_plan_node) {
+  return child_plan_node ? child_plan_node->plan_node_id : -1;
+}
+
 /*
  * Wrapper to add TScout markers to an executor. In the executor file, rename
  * the current Exec<blah> function to WrappedExec<blah> and then add

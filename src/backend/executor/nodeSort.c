@@ -172,7 +172,9 @@ ExecInitSort(Sort *node, EState *estate, int eflags)
 	SortState  *sortstate;
 
         TS_MARKER(ExecSort_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->plan.lefttree),
+                  ChildPlanNodeId(node->plan.righttree));
 
 	SO1_printf("ExecInitSort: %s\n",
 			   "initializing sort node");

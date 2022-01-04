@@ -909,7 +909,9 @@ ExecInitIndexScan(IndexScan *node, EState *estate, int eflags)
 	LOCKMODE	lockmode;
 
         TS_MARKER(ExecIndexScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node);
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->scan.plan.lefttree),
+                  ChildPlanNodeId(node->scan.plan.righttree));
 
 	/*
 	 * create state structure
