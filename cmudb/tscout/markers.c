@@ -162,6 +162,8 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
   // Copy completed metrics to output struct
   __builtin_memcpy(&(output->SUBST_FIRST_METRIC), flush_metrics, sizeof(struct resource_metrics));
 
+  output->pid = bpf_get_current_pid_tgid();
+
   // Send output struct to userspace via subsystem's perf ring buffer.
   collector_results_SUBST_INDEX.perf_submit(ctx, output, sizeof(struct SUBST_OU_output));
   SUBST_OU_reset(ou_instance);
