@@ -18,6 +18,7 @@ import clang_parser
 
 logger = logging.getLogger('tscout')
 
+FLOAT_DOUBLE_NDIGITS = 3
 
 @unique
 class BPFType(str, Enum):
@@ -75,9 +76,13 @@ class BPFVariable:
             The serialized value of this variable.
         """
         if self.c_type == clang.cindex.TypeKind.FLOAT:
-            return str(struct.unpack('f', getattr(output_event, self.name).to_bytes(4, byteorder=sys.byteorder))[0])
+            float_val = struct.unpack('f', getattr(output_event, self.name).to_bytes(4, byteorder=sys.byteorder))[0]
+            float_val = round(float_val, FLOAT_DOUBLE_NDIGITS)
+            return str(float_val)
         elif self.c_type == clang.cindex.TypeKind.DOUBLE:
-            return str(struct.unpack('d', getattr(output_event, self.name).to_bytes(8, byteorder=sys.byteorder))[0])
+            double_val = struct.unpack('d', getattr(output_event, self.name).to_bytes(8, byteorder=sys.byteorder))[0]
+            double_val = round(double_val, FLOAT_DOUBLE_NDIGITS)
+            return str(double_val)
         else:
             return str(getattr(output_event, self.name))
 
