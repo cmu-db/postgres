@@ -213,8 +213,11 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
             else:
                 heavy_hitter_counter = heavy_hitter_counter - 1
 
+    lost_collector_events = 0
+
     def lost_collector_event(num_lost):
-        pass
+        nonlocal lost_collector_events
+        lost_collector_events = lost_collector_events + num_lost
 
     def collector_event_builder(output_buffer):
         def collector_event(cpu, data, size):
@@ -254,6 +257,8 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
         except Exception as e:
             logger.warning("Collector for PID {} caught {}.".format(pid, e))
 
+    if lost_collector_events > 0:
+        logger.warning("Collector for PID {} lost {} events.".format(pid, lost_collector_events))
     logger.info("Collector for PID {} shut down.".format(pid))
 
 
