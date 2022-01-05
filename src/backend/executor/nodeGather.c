@@ -65,7 +65,8 @@ ExecInitGather(Gather *node, EState *estate, int eflags)
         TS_MARKER(ExecGather_features, node->plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree));
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* Gather node doesn't have innerPlan node. */
 	Assert(innerPlan(node) == NULL);

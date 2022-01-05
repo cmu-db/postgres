@@ -1446,7 +1446,8 @@ ExecInitMergeJoin(MergeJoin *node, EState *estate, int eflags)
         TS_MARKER(ExecMergeJoin_features, node->join.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->join.plan.lefttree),
-                  ChildPlanNodeId(node->join.plan.righttree));
+                  ChildPlanNodeId(node->join.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));

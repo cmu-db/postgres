@@ -130,6 +130,8 @@ LEFT_CHILD_NODE_ID = Feature("left_child_plan_node_id", readarg_p=False,
                              bpf_tuple=(BPFVariable("left_child_plan_node_id", clang.cindex.TypeKind.INT),))
 RIGHT_CHILD_NODE_ID = Feature("right_child_plan_node_id", readarg_p=False,
                               bpf_tuple=(BPFVariable("right_child_plan_node_id", clang.cindex.TypeKind.INT),))
+STATEMENT_TIMESTAMP = Feature("statement_timestamp", readarg_p=False,
+                              bpf_tuple=(BPFVariable("statement_timestamp", clang.cindex.TypeKind.LONG),))
 
 """
 An OU is specified via (operator, postgres_function, feature_types).
@@ -148,252 +150,288 @@ OU_DEFS = [
          QUERY_ID,
          Feature("Agg"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecAppend",
      [
          QUERY_ID,
          Feature("Append"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecCteScan",
      [
          QUERY_ID,
          Feature("CteScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecCustomScan",
      [
          QUERY_ID,
          Feature("CustomScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecForeignScan",
      [
          QUERY_ID,
          Feature("ForeignScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecFunctionScan",
      [
          QUERY_ID,
          Feature("FunctionScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecGather",
      [
          QUERY_ID,
          Feature("Gather"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecGatherMerge",
      [
          QUERY_ID,
          Feature("GatherMerge"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecGroup",
      [
          QUERY_ID,
          Feature("Group"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecHashJoinImpl",
      [
          QUERY_ID,
          Feature("HashJoin"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecIncrementalSort",
      [
          QUERY_ID,
          Feature("IncrementalSort"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecIndexOnlyScan",
      [
          QUERY_ID,
          Feature("IndexOnlyScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecIndexScan",
      [
          QUERY_ID,
          Feature("IndexScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecLimit",
      [
          QUERY_ID,
          Feature("Limit"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecLockRows",
      [
          QUERY_ID,
          Feature("LockRows"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecMaterial",
      [
          QUERY_ID,
          Feature("Material"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecMergeAppend",
      [
          QUERY_ID,
          Feature("MergeAppend"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecMergeJoin",
      [
          QUERY_ID,
          Feature("MergeJoin"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecModifyTable",
      [
          QUERY_ID,
          Feature("ModifyTable"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecNamedTuplestoreScan",
      [
          QUERY_ID,
          Feature("NamedTuplestoreScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecNestLoop",
      [
          QUERY_ID,
          Feature("NestLoop"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecProjectSet",
      [
          QUERY_ID,
          Feature("ProjectSet"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecRecursiveUnion",
      [
          QUERY_ID,
          Feature("RecursiveUnion"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecResult",
      [
          QUERY_ID,
          Feature("Result"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecSampleScan",
      [
          QUERY_ID,
          Feature("SampleScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecSeqScan",
      [
          QUERY_ID,
          Feature("Scan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecSetOp",
      [
          QUERY_ID,
          Feature("SetOp"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecSort",
      [
          QUERY_ID,
          Feature("Sort"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecSubPlan",
      [
          QUERY_ID,
          Feature("Plan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecSubqueryScan",
      [
          QUERY_ID,
          Feature("SubqueryScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecTableFuncScan",
      [
          QUERY_ID,
          Feature("TableFuncScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecTidScan",
      [
          QUERY_ID,
          Feature("TidScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecUnique",
      [
          QUERY_ID,
          Feature("Unique"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecValuesScan",
      [
          QUERY_ID,
          Feature("ValuesScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecWindowAgg",
      [
          QUERY_ID,
          Feature("WindowAgg"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
     ("ExecWorkTableScan",
      [
          QUERY_ID,
          Feature("WorkTableScan"),
          LEFT_CHILD_NODE_ID,
-         RIGHT_CHILD_NODE_ID
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
      ]),
 ]
 

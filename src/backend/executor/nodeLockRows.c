@@ -302,7 +302,8 @@ ExecInitLockRows(LockRows *node, EState *estate, int eflags)
         TS_MARKER(ExecLockRows_features, node->plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree));
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));

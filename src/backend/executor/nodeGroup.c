@@ -22,6 +22,7 @@
 
 #include "postgres.h"
 
+#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeGroup.h"
 #include "miscadmin.h"
@@ -170,7 +171,8 @@ ExecInitGroup(Group *node, EState *estate, int eflags)
         TS_MARKER(ExecGroup_features, node->plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree));
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));

@@ -16,6 +16,7 @@
 #include "postgres.h"
 
 #include "access/parallel.h"
+#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeSort.h"
 #include "miscadmin.h"
@@ -174,7 +175,8 @@ ExecInitSort(Sort *node, EState *estate, int eflags)
         TS_MARKER(ExecSort_features, node->plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree));
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	SO1_printf("ExecInitSort: %s\n",
 			   "initializing sort node");

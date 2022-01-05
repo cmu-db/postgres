@@ -30,6 +30,7 @@
 #include <math.h>
 
 #include "access/htup_details.h"
+#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeSubplan.h"
 #include "miscadmin.h"
@@ -108,7 +109,8 @@ Datum pg_attribute_always_inline ExecSubPlan(SubPlanState *node,
             node->planstate->state->es_plannedstmt->queryId,
             node->planstate->plan,
             ChildPlanNodeId(node->planstate->plan->lefttree),
-            ChildPlanNodeId(node->planstate->plan->righttree));
+            ChildPlanNodeId(node->planstate->plan->righttree),
+            GetCurrentStatementStartTimestamp());
   TS_MARKER(ExecSubPlan_begin, node->planstate->plan->plan_node_id);
 
   result = WrappedExecSubPlan(node, econtext, isNull);

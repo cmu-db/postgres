@@ -79,6 +79,7 @@
 #include "postgres.h"
 
 #include "access/htup_details.h"
+#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeIncrementalSort.h"
 #include "miscadmin.h"
@@ -982,7 +983,8 @@ ExecInitIncrementalSort(IncrementalSort *node, EState *estate, int eflags)
         TS_MARKER(ExecIncrementalSort_features, node->sort.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->sort.plan.lefttree),
-                  ChildPlanNodeId(node->sort.plan.righttree));
+                  ChildPlanNodeId(node->sort.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	SO_printf("ExecInitIncrementalSort: initializing sort node\n");
 

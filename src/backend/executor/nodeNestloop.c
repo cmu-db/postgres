@@ -21,6 +21,7 @@
 
 #include "postgres.h"
 
+#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeNestloop.h"
 #include "miscadmin.h"
@@ -270,7 +271,8 @@ ExecInitNestLoop(NestLoop *node, EState *estate, int eflags)
         TS_MARKER(ExecNestLoop_features, node->join.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->join.plan.lefttree),
-                  ChildPlanNodeId(node->join.plan.righttree));
+                  ChildPlanNodeId(node->join.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));

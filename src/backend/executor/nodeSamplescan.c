@@ -105,7 +105,8 @@ ExecInitSampleScan(SampleScan *node, EState *estate, int eflags)
         TS_MARKER(ExecSampleScan_features, node->scan.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree));
+                  ChildPlanNodeId(node->scan.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	Assert(outerPlan(node) == NULL);
 	Assert(innerPlan(node) == NULL);

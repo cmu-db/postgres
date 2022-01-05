@@ -11,6 +11,7 @@
 #include "postgres.h"
 
 #include "access/parallel.h"
+#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeCustom.h"
 #include "miscadmin.h"
@@ -37,7 +38,8 @@ ExecInitCustomScan(CustomScan *cscan, EState *estate, int eflags)
         TS_MARKER(ExecCustomScan_features, cscan->scan.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, cscan,
                   ChildPlanNodeId(cscan->scan.plan.lefttree),
-                  ChildPlanNodeId(cscan->scan.plan.righttree));
+                  ChildPlanNodeId(cscan->scan.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/*
 	 * Allocate the CustomScanState object.  We let the custom scan provider

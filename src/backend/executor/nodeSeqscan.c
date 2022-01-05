@@ -129,7 +129,8 @@ ExecInitSeqScan(SeqScan *node, EState *estate, int eflags)
         TS_MARKER(ExecSeqScan_features, node->plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree));
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/*
 	 * Once upon a time it was possible to have an outerPlan of a SeqScan, but

@@ -505,7 +505,8 @@ ExecInitIndexOnlyScan(IndexOnlyScan *node, EState *estate, int eflags)
         TS_MARKER(ExecIndexOnlyScan_features, node->scan.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree));
+                  ChildPlanNodeId(node->scan.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/*
 	 * create state structure

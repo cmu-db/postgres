@@ -241,6 +241,7 @@
 
 #include "access/htup_details.h"
 #include "access/parallel.h"
+#include "access/xact.h"
 #include "catalog/objectaccess.h"
 #include "catalog/pg_aggregate.h"
 #include "catalog/pg_proc.h"
@@ -3279,7 +3280,8 @@ ExecInitAgg(Agg *node, EState *estate, int eflags)
     TS_MARKER(ExecAgg_features, node->plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree));
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));

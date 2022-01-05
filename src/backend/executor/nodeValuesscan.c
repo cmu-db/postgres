@@ -23,6 +23,7 @@
  */
 #include "postgres.h"
 
+#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeValuesscan.h"
 #include "jit/jit.h"
@@ -222,7 +223,8 @@ ExecInitValuesScan(ValuesScan *node, EState *estate, int eflags)
         TS_MARKER(ExecValuesScan_features, node->scan.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree));
+                  ChildPlanNodeId(node->scan.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/*
 	 * ValuesScan should not have any children.

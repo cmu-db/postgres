@@ -15,6 +15,7 @@
 
 #include "postgres.h"
 
+#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeCtescan.h"
 #include "miscadmin.h"
@@ -182,7 +183,8 @@ ExecInitCteScan(CteScan *node, EState *estate, int eflags)
         TS_MARKER(ExecCteScan_features, node->scan.plan.plan_node_id,
                   estate->es_plannedstmt->queryId, node,
                   ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree));
+                  ChildPlanNodeId(node->scan.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
