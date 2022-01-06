@@ -161,7 +161,7 @@ def collector(collector_flags, ou_processor_queues, pid, socket_fd):
     metrics_struct = ';\n'.join(defs) + ';'
     collector_c = collector_c.replace("SUBST_METRICS", metrics_struct)
     accumulate = ['lhs->{} += rhs->{}'.format(metric.name, metric.name) for metric in metrics if
-                  metric.name not in ('start_time', 'end_time', 'cpu_id')]  # don't accumulate these 3 metrics
+                  metric.name not in ('start_time', 'end_time', 'pid', 'cpu_id')]  # don't accumulate these metrics
     metrics_accumulate = ';\n'.join(accumulate) + ';'
     collector_c = collector_c.replace("SUBST_ACCUMULATE", metrics_accumulate)
     collector_c = collector_c.replace("SUBST_FIRST_METRIC", metrics[0].name)

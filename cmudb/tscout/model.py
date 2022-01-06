@@ -20,6 +20,7 @@ logger = logging.getLogger('tscout')
 
 FLOAT_DOUBLE_NDIGITS = 3
 
+
 @unique
 class BPFType(str, Enum):
     """BPF only has signed and unsigned integers."""
@@ -440,7 +441,8 @@ OU_DEFS = [
      ]),
 ]
 
-# The metrics to be defined for every OU.
+# The metrics to be defined for every OU. If you add anything to these metrics, consider if it should be accumulated
+# across invocations and adjust code related to SUBST_ACCUMULATE as needed.
 OU_METRICS = (
     BPFVariable(name="start_time",
                 c_type=clang.cindex.TypeKind.ULONG,
