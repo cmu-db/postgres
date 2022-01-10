@@ -107,9 +107,9 @@ void SUBST_OU_features(struct pt_regs *ctx) {
   memset(features, 0, sizeof(struct SUBST_OU_features));
 
   // Copy features from USDT arg (pointer to features struct in NoisePage) to features struct.
-  SUBST_READARGS
+  SUBST_READARGS;
 
-  // Store the features, waiting for BEGIN, END, and FLUSH.
+  // Store the features, waiting for BEGIN(s), END(s), and FLUSH.
   s32 ou_instance = 0;
   bpf_usdt_readarg(1, ctx, &ou_instance);
   SUBST_OU_complete_features.update(&ou_instance, features);
@@ -126,19 +126,11 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
   bpf_usdt_readarg(1, ctx, &ou_instance);
   u64 key = ou_key(SUBST_INDEX, ou_instance);
 
-  // Retrieve the features
+  // Retrieve the features.
   struct SUBST_OU_features *features = NULL;
   features = SUBST_OU_complete_features.lookup(&ou_instance);
   if (features == NULL) {
     // We don't have any features for this data point.
-    SUBST_OU_reset(ou_instance);
-    return;
-  }
-
-  struct resource_metrics *flush_metrics = NULL;
-  flush_metrics = complete_metrics.lookup(&key);
-  if (flush_metrics == NULL) {
-    // We don't have any metrics for this data point.
     SUBST_OU_reset(ou_instance);
     return;
   }
@@ -150,18 +142,22 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
     bpf_trace_printk("Fatal error. Scratch array lookup failed.");
     return;
   }
-  // Zero initialize output struct for features and metrics
+  // Zero initialize output struct for features and metrics.
   memset(output, 0, sizeof(struct SUBST_OU_output));
+
+  // Copy features to output struct.
+  __builtin_memcpy(&(output->SUBST_FIRST_FEATURE), features, sizeof(struct SUBST_OU_features));
+
+  struct resource_metrics *flush_metrics = NULL;
+  flush_metrics = complete_metrics.lookup(&key);
+  if (flush_metrics) {
+    // We have metrics for this data point.  Copy completed metrics to output struct.
+    __builtin_memcpy(&(output->SUBST_FIRST_METRIC), flush_metrics, sizeof(struct resource_metrics));
+  }
 
   // Set the index of this SUBST_OU so the Collector knows which Processor to send this data point to.
   output->ou_index = SUBST_INDEX;
-
-  // Copy completed features to output struct
-  __builtin_memcpy(&(output->SUBST_FIRST_FEATURE), features, sizeof(struct SUBST_OU_features));
-
-  // Copy completed metrics to output struct
-  __builtin_memcpy(&(output->SUBST_FIRST_METRIC), flush_metrics, sizeof(struct resource_metrics));
-
+  // Set remaining metadata.
   output->pid = bpf_get_current_pid_tgid();
 
   // Send output struct to userspace via subsystem's perf ring buffer.
