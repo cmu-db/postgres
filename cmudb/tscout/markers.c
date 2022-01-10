@@ -152,6 +152,8 @@ void SUBST_OU_flush(struct pt_regs *ctx) {
   flush_metrics = complete_metrics.lookup(&key);
   if (flush_metrics) {
     // We have metrics for this data point.  Copy completed metrics to output struct.
+    // TODO(Matt): We could add an arg at flush markers to be more strict with the state machine about whether we expect
+    // metrics with this flush marker.
     __builtin_memcpy(&(output->SUBST_FIRST_METRIC), flush_metrics, sizeof(struct resource_metrics));
   }
 
