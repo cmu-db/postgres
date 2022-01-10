@@ -14,8 +14,6 @@ static int ChildPlanNodeId(const struct Plan *const child_plan_node) {
             GetCurrentStatementStartTimestamp());                              \
   TS_MARKER(Exec##node_type##_flush, plan->plan_node_id);
 
-//#define TS_EXPLAIN(node_type) (void)0;
-
 /*
  * Wrapper to add TScout markers to an executor. In the executor file, rename
  * the current Exec<blah> function to WrappedExec<blah> and then add
