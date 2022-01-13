@@ -29,7 +29,6 @@
 #include "rewrite/rewriteHandler.h"
 #include "storage/bufmgr.h"
 #include "tcop/tcopprot.h"
-#include "tscout/executors.h"
 #include "utils/builtins.h"
 #include "utils/guc_tables.h"
 #include "utils/json.h"
@@ -1165,15 +1164,12 @@ ExplainNode(PlanState *planstate, List *ancestors,
 	switch (nodeTag(plan))
 	{
 		case T_Result:
-                        TS_EXPLAIN(Result);
 			pname = sname = "Result";
 			break;
 		case T_ProjectSet:
-                        TS_EXPLAIN(ProjectSet);
 			pname = sname = "ProjectSet";
 			break;
 		case T_ModifyTable:
-                        TS_EXPLAIN(ModifyTable);
 			sname = "ModifyTable";
 			switch (((ModifyTable *) plan)->operation)
 			{
@@ -1192,15 +1188,12 @@ ExplainNode(PlanState *planstate, List *ancestors,
 			}
 			break;
 		case T_Append:
-                        TS_EXPLAIN(Append);
 			pname = sname = "Append";
 			break;
 		case T_MergeAppend:
-                        TS_EXPLAIN(MergeAppend);
 			pname = sname = "Merge Append";
 			break;
 		case T_RecursiveUnion:
-                        TS_EXPLAIN(RecursiveUnion);
 			pname = sname = "Recursive Union";
 			break;
 		case T_BitmapAnd:
@@ -1210,41 +1203,32 @@ ExplainNode(PlanState *planstate, List *ancestors,
 			pname = sname = "BitmapOr";
 			break;
 		case T_NestLoop:
-                        TS_EXPLAIN(NestLoop);
 			pname = sname = "Nested Loop";
 			break;
 		case T_MergeJoin:
-                        TS_EXPLAIN(MergeJoin);
 			pname = "Merge";	/* "Join" gets added by jointype switch */
 			sname = "Merge Join";
 			break;
 		case T_HashJoin:
-                        TS_EXPLAIN(HashJoin);
 			pname = "Hash";		/* "Join" gets added by jointype switch */
 			sname = "Hash Join";
 			break;
 		case T_SeqScan:
-                        TS_EXPLAIN(SeqScan);
 			pname = sname = "Seq Scan";
 			break;
 		case T_SampleScan:
-                        TS_EXPLAIN(SampleScan);
 			pname = sname = "Sample Scan";
 			break;
 		case T_Gather:
-                        TS_EXPLAIN(Gather);
 			pname = sname = "Gather";
 			break;
 		case T_GatherMerge:
-                        TS_EXPLAIN(GatherMerge);
 			pname = sname = "Gather Merge";
 			break;
 		case T_IndexScan:
-                        TS_EXPLAIN(IndexScan);
 			pname = sname = "Index Scan";
 			break;
 		case T_IndexOnlyScan:
-                        TS_EXPLAIN(IndexOnlyScan);
 			pname = sname = "Index Only Scan";
 			break;
 		case T_BitmapIndexScan:
@@ -1254,42 +1238,33 @@ ExplainNode(PlanState *planstate, List *ancestors,
 			pname = sname = "Bitmap Heap Scan";
 			break;
 		case T_TidScan:
-                        TS_EXPLAIN(TidScan);
 			pname = sname = "Tid Scan";
 			break;
 		case T_TidRangeScan:
 			pname = sname = "Tid Range Scan";
 			break;
 		case T_SubqueryScan:
-                        TS_EXPLAIN(SubqueryScan);
 			pname = sname = "Subquery Scan";
 			break;
 		case T_FunctionScan:
-                        TS_EXPLAIN(FunctionScan);
 			pname = sname = "Function Scan";
 			break;
 		case T_TableFuncScan:
-                        TS_EXPLAIN(TableFuncScan);
 			pname = sname = "Table Function Scan";
 			break;
 		case T_ValuesScan:
-                        TS_EXPLAIN(ValuesScan);
 			pname = sname = "Values Scan";
 			break;
 		case T_CteScan:
-                        TS_EXPLAIN(CteScan);
 			pname = sname = "CTE Scan";
 			break;
 		case T_NamedTuplestoreScan:
-                        TS_EXPLAIN(NamedTuplestoreScan);
 			pname = sname = "Named Tuplestore Scan";
 			break;
 		case T_WorkTableScan:
-                        TS_EXPLAIN(WorkTableScan);
 			pname = sname = "WorkTable Scan";
 			break;
 		case T_ForeignScan:
-                        TS_EXPLAIN(ForeignScan);
 			sname = "Foreign Scan";
 			switch (((ForeignScan *) plan)->operation)
 			{
@@ -1315,7 +1290,6 @@ ExplainNode(PlanState *planstate, List *ancestors,
 			}
 			break;
 		case T_CustomScan:
-                        TS_EXPLAIN(CustomScan);
 			sname = "Custom Scan";
 			custom_name = ((CustomScan *) plan)->methods->CustomName;
 			if (custom_name)
@@ -1324,26 +1298,21 @@ ExplainNode(PlanState *planstate, List *ancestors,
 				pname = sname;
 			break;
 		case T_Material:
-                        TS_EXPLAIN(Material);
 			pname = sname = "Materialize";
 			break;
 		case T_Memoize:
 			pname = sname = "Memoize";
 			break;
 		case T_Sort:
-                        TS_EXPLAIN(Sort);
 			pname = sname = "Sort";
 			break;
 		case T_IncrementalSort:
-                        TS_EXPLAIN(IncrementalSort);
 			pname = sname = "Incremental Sort";
 			break;
 		case T_Group:
-                        TS_EXPLAIN(Group);
 			pname = sname = "Group";
 			break;
 		case T_Agg:
-                        TS_EXPLAIN(Agg);
 			{
 				Agg		   *agg = (Agg *) plan;
 
@@ -1387,15 +1356,12 @@ ExplainNode(PlanState *planstate, List *ancestors,
 			}
 			break;
 		case T_WindowAgg:
-                        TS_EXPLAIN(WindowAgg);
 			pname = sname = "WindowAgg";
 			break;
 		case T_Unique:
-                        TS_EXPLAIN(Unique);
 			pname = sname = "Unique";
 			break;
 		case T_SetOp:
-                        TS_EXPLAIN(SetOp);
 			sname = "SetOp";
 			switch (((SetOp *) plan)->strategy)
 			{
@@ -1414,15 +1380,12 @@ ExplainNode(PlanState *planstate, List *ancestors,
 			}
 			break;
 		case T_LockRows:
-                        TS_EXPLAIN(LockRows);
 			pname = sname = "LockRows";
 			break;
 		case T_Limit:
-                        TS_EXPLAIN(Limit);
 			pname = sname = "Limit";
 			break;
 		case T_Hash:
-                        TS_EXPLAIN(Hash);
 			pname = sname = "Hash";
 			break;
 		default:

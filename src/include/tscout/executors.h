@@ -7,13 +7,6 @@ static int ChildPlanNodeId(const struct Plan *const child_plan_node) {
   return child_plan_node ? child_plan_node->plan_node_id : -1;
 }
 
-#define TS_EXPLAIN(node_type)                                                  \
-  TS_MARKER(Exec##node_type##_features, plan->plan_node_id,                    \
-            es->pstmt->queryId, plan, ChildPlanNodeId(plan->lefttree),         \
-            ChildPlanNodeId(plan->righttree),                                  \
-            GetCurrentStatementStartTimestamp());                              \
-  TS_MARKER(Exec##node_type##_flush, plan->plan_node_id);
-
 /*
  * Wrapper to add TScout markers to an executor. In the executor file, rename
  * the current Exec<blah> function to WrappedExec<blah> and then add
