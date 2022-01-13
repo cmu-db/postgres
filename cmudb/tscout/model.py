@@ -131,7 +131,9 @@ class Feature:
     bpf_tuple: Tuple[BPFVariable] = None
 
 
-QUERY_ID = Feature("QueryId", readarg_p=False, bpf_tuple=(BPFVariable("query_id", clang.cindex.TypeKind.ULONG),))
+# Internally, Postgres stores query_id as uint64. However, EXPLAIN VERBOSE and pg_stat_statements both represent
+# query_id as BIGINT so TScout stores it as int64 to match this representation.
+QUERY_ID = Feature("QueryId", readarg_p=False, bpf_tuple=(BPFVariable("query_id", clang.cindex.TypeKind.LONG),))
 LEFT_CHILD_NODE_ID = Feature("left_child_plan_node_id", readarg_p=False,
                              bpf_tuple=(BPFVariable("left_child_plan_node_id", clang.cindex.TypeKind.INT),))
 RIGHT_CHILD_NODE_ID = Feature("right_child_plan_node_id", readarg_p=False,
