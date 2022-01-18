@@ -28,6 +28,7 @@
 
 #include "access/htup_details.h"
 #include "access/parallel.h"
+#include "access/xact.h"
 #include "catalog/pg_statistic.h"
 #include "commands/tablespace.h"
 #include "executor/execdebug.h"
@@ -38,6 +39,7 @@
 #include "pgstat.h"
 #include "port/atomics.h"
 #include "port/pg_bitutils.h"
+#include "tscout/executors.h"
 #include "utils/dynahash.h"
 #include "utils/guc.h"
 #include "utils/lsyscache.h"
@@ -102,8 +104,8 @@ ExecHash(PlanState *pstate)
  *		than one batch is required.
  * ----------------------------------------------------------------
  */
-Node *
-MultiExecHash(HashState *node)
+static pg_attribute_always_inline Node *
+WrappedMultiExecHash(HashState *node)
 {
 	/* must provide our own instrumentation support */
 	if (node->ps.instrument)
@@ -126,6 +128,18 @@ MultiExecHash(HashState *node)
 	 * quite a bit more about Hash besides that.
 	 */
 	return NULL;
+}
+
+Node *
+MultiExecHash(HashState *node) {
+  Node *result;
+  TS_MARKER(ExecHash_begin, node->ps.plan->plan_node_id);
+
+  result = WrappedMultiExecHash(node);
+
+  TS_MARKER(ExecHash_end, node->ps.plan->plan_node_id);
+
+  return result;
 }
 
 /* ----------------------------------------------------------------
@@ -355,6 +369,12 @@ ExecInitHash(Hash *node, EState *estate, int eflags)
 {
 	HashState  *hashstate;
 
+        TS_MARKER(ExecHash_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->plan.lefttree),
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
+
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
 
@@ -407,6 +427,8 @@ void
 ExecEndHash(HashState *node)
 {
 	PlanState  *outerPlan;
+
+        TS_MARKER(ExecHash_flush, node->ps.plan->plan_node_id);
 
 	/*
 	 * free exprcontext

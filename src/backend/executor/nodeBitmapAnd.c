@@ -28,8 +28,10 @@
 
 #include "postgres.h"
 
+#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeBitmapAnd.h"
+#include "tscout/executors.h"
 
 
 /* ----------------------------------------------------------------
@@ -60,6 +62,12 @@ ExecInitBitmapAnd(BitmapAnd *node, EState *estate, int eflags)
 	int			i;
 	ListCell   *l;
 	Plan	   *initNode;
+
+        TS_MARKER(ExecBitmapAnd_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->plan.lefttree),
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -106,8 +114,8 @@ ExecInitBitmapAnd(BitmapAnd *node, EState *estate, int eflags)
  *	   MultiExecBitmapAnd
  * ----------------------------------------------------------------
  */
-Node *
-MultiExecBitmapAnd(BitmapAndState *node)
+static pg_attribute_always_inline Node *
+WrappedMultiExecBitmapAnd(BitmapAndState *node)
 {
 	PlanState **bitmapplans;
 	int			nplans;
@@ -166,6 +174,18 @@ MultiExecBitmapAnd(BitmapAndState *node)
 	return (Node *) result;
 }
 
+Node *
+MultiExecBitmapAnd(BitmapAndState *node) {
+  Node *result;
+  TS_MARKER(ExecBitmapAnd_begin, node->ps.plan->plan_node_id);
+
+  result = WrappedMultiExecBitmapAnd(node);
+
+  TS_MARKER(ExecBitmapAnd_end, node->ps.plan->plan_node_id);
+
+  return result;
+}
+
 /* ----------------------------------------------------------------
  *		ExecEndBitmapAnd
  *
@@ -180,6 +200,8 @@ ExecEndBitmapAnd(BitmapAndState *node)
 	PlanState **bitmapplans;
 	int			nplans;
 	int			i;
+
+        TS_MARKER(ExecBitmapAnd_flush, node->ps.plan->plan_node_id);
 
 	/*
 	 * get information from the node

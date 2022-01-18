@@ -12,11 +12,13 @@ static int ChildPlanNodeId(const struct Plan *const child_plan_node) {
  * the current Exec<blah> function to WrappedExec<blah> and then add
  * TS_EXECUTOR_WRAPPER<blah> beneath it. See src/backend/executors for examples.
  *
- * There is a small list of executors that cannot use this macro due to function
- * signature differences. If the macro below changes, be sure to update those
- * executors as well. The current list is:
+ * Some executors cannot use this macro due to function signature differences.
+ * If the macro below changes, be sure to update those executors as well. The
+ * current list is:
  *
+ * src/backend/executors/nodeBitmapAnd.c
  * src/backend/executors/nodeSubplan.c
+ * src/backend/executors/nodeHash.c
  * src/backend/executors/nodeHashJoin.c
  */
 #define TS_EXECUTOR_WRAPPER(node_type)                                         \
