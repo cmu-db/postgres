@@ -305,6 +305,14 @@ OU_DEFS = [
          RIGHT_CHILD_NODE_ID,
          STATEMENT_TIMESTAMP
      ]),
+    ("ExecMemoize",
+     [
+         QUERY_ID,
+         Feature("Memoize"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
+     ]),
     ("ExecMergeAppend",
      [
          QUERY_ID,

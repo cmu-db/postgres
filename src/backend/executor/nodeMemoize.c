@@ -66,11 +66,13 @@
 
 #include "postgres.h"
 
+#include "access/xact.h"
 #include "common/hashfn.h"
 #include "executor/executor.h"
 #include "executor/nodeMemoize.h"
 #include "lib/ilist.h"
 #include "miscadmin.h"
+#include "tscout/executors.h"
 #include "utils/lsyscache.h"
 
 /* States of the ExecMemoize state machine */
@@ -575,8 +577,8 @@ cache_store_tuple(MemoizeState *mstate, TupleTableSlot *slot)
 	return true;
 }
 
-static TupleTableSlot *
-ExecMemoize(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+WrappedExecMemoize(PlanState *pstate)
 {
 	MemoizeState *node = castNode(MemoizeState, pstate);
 	PlanState  *outerNode;
@@ -817,6 +819,8 @@ ExecMemoize(PlanState *pstate)
 	}							/* switch */
 }
 
+TS_EXECUTOR_WRAPPER(Memoize)
+
 MemoizeState *
 ExecInitMemoize(Memoize *node, EState *estate, int eflags)
 {
@@ -825,6 +829,12 @@ ExecInitMemoize(Memoize *node, EState *estate, int eflags)
 	int			i;
 	int			nkeys;
 	Oid		   *eqfuncoids;
+
+        TS_MARKER(ExecMemoize_features, node->plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->plan.lefttree),
+                  ChildPlanNodeId(node->plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -966,6 +976,8 @@ ExecEndMemoize(MemoizeState *node)
 		Assert(mem == node->mem_used);
 	}
 #endif
+
+        TS_MARKER(ExecMemoize_flush, node->ss.ps.plan->plan_node_id);
 
 	/*
 	 * When ending a parallel worker, copy the statistics gathered by the
