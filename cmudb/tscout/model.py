@@ -177,6 +177,22 @@ OU_DEFS = [
          RIGHT_CHILD_NODE_ID,
          STATEMENT_TIMESTAMP
      ]),
+    ("ExecBitmapHeapScan",
+     [
+         QUERY_ID,
+         Feature("BitmapHeapScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
+     ]),
+    ("ExecBitmapIndexScan",
+     [
+         QUERY_ID,
+         Feature("BitmapIndexScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
+     ]),
     ("ExecBitmapOr",
      [
          QUERY_ID,

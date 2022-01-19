@@ -41,12 +41,14 @@
 #include "access/tableam.h"
 #include "access/transam.h"
 #include "access/visibilitymap.h"
+#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeBitmapHeapscan.h"
 #include "miscadmin.h"
 #include "pgstat.h"
 #include "storage/bufmgr.h"
 #include "storage/predicate.h"
+#include "tscout/executors.h"
 #include "utils/memutils.h"
 #include "utils/rel.h"
 #include "utils/snapmgr.h"
@@ -584,8 +586,8 @@ BitmapHeapRecheck(BitmapHeapScanState *node, TupleTableSlot *slot)
  *		ExecBitmapHeapScan(node)
  * ----------------------------------------------------------------
  */
-static TupleTableSlot *
-ExecBitmapHeapScan(PlanState *pstate)
+static pg_attribute_always_inline TupleTableSlot *
+WrappedExecBitmapHeapScan(PlanState *pstate)
 {
 	BitmapHeapScanState *node = castNode(BitmapHeapScanState, pstate);
 
@@ -593,6 +595,8 @@ ExecBitmapHeapScan(PlanState *pstate)
 					(ExecScanAccessMtd) BitmapHeapNext,
 					(ExecScanRecheckMtd) BitmapHeapRecheck);
 }
+
+TS_EXECUTOR_WRAPPER(BitmapHeapScan)
 
 /* ----------------------------------------------------------------
  *		ExecReScanBitmapHeapScan(node)
@@ -649,6 +653,8 @@ void
 ExecEndBitmapHeapScan(BitmapHeapScanState *node)
 {
 	TableScanDesc scanDesc;
+
+        TS_MARKER(ExecBitmapHeapScan_flush, node->ss.ps.plan->plan_node_id);
 
 	/*
 	 * extract information from the node
@@ -707,6 +713,12 @@ ExecInitBitmapHeapScan(BitmapHeapScan *node, EState *estate, int eflags)
 {
 	BitmapHeapScanState *scanstate;
 	Relation	currentRelation;
+
+        TS_MARKER(ExecBitmapHeapScan_features, node->scan.plan.plan_node_id,
+                  estate->es_plannedstmt->queryId, node,
+                  ChildPlanNodeId(node->scan.plan.lefttree),
+                  ChildPlanNodeId(node->scan.plan.righttree),
+                  GetCurrentStatementStartTimestamp());
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
