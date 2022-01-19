@@ -177,6 +177,14 @@ OU_DEFS = [
          RIGHT_CHILD_NODE_ID,
          STATEMENT_TIMESTAMP
      ]),
+    ("ExecBitmapOr",
+     [
+         QUERY_ID,
+         Feature("BitmapOr"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
+     ]),
     ("ExecCteScan",
      [
          QUERY_ID,
