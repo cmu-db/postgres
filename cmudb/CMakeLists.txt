@@ -14,16 +14,20 @@ else ()
     # Run clang-format and update files in place.
     add_custom_target(format
             ${CLANG_FORMAT_BIN}
+            -style=file
             -i
             ${FORMAT_FILES}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             USES_TERMINAL
             )
 
     # Run clang-format and exit with a non-zero exit code if any files need to be reformatted.
     add_custom_target(format-check
             ${CLANG_FORMAT_BIN}
+            -style=file
             --dry-run -Werror
             ${FORMAT_FILES}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             USES_TERMINAL
             )
 
