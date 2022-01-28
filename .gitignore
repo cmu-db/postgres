@@ -43,5 +43,6 @@ lib*.pc
 /Release/
 /tmp_install/
 /build/
+/cmake-build-*
 /.idea/
 /.vscode/
