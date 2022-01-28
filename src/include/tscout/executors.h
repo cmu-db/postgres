@@ -21,13 +21,13 @@ static int ChildPlanNodeId(const struct Plan *const child_plan_node) {
  * src/backend/executors/nodeHash.c
  * src/backend/executors/nodeHashJoin.c
  */
-#define TS_EXECUTOR_WRAPPER(node_type)                                         \
-  static TupleTableSlot *Exec##node_type(PlanState *pstate) {                  \
-    TupleTableSlot *result;                                                    \
-    TS_MARKER(Exec##node_type##_begin, pstate->plan->plan_node_id);            \
-                                                                               \
-    result = WrappedExec##node_type(pstate);                                   \
-                                                                               \
-    TS_MARKER(Exec##node_type##_end, pstate->plan->plan_node_id);              \
-    return result;                                                             \
+#define TS_EXECUTOR_WRAPPER(node_type)                              \
+  static TupleTableSlot *Exec##node_type(PlanState *pstate) {       \
+    TupleTableSlot *result;                                         \
+    TS_MARKER(Exec##node_type##_begin, pstate->plan->plan_node_id); \
+                                                                    \
+    result = WrappedExec##node_type(pstate);                        \
+                                                                    \
+    TS_MARKER(Exec##node_type##_end, pstate->plan->plan_node_id);   \
+    return result;                                                  \
   }
