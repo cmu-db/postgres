@@ -5,7 +5,7 @@ if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
     message(STATUS "[MISSING] clang-format not found, no format and no check-format.")
 else ()
     # The files to be formatted.
-    string(CONCAT FORMAT_FILES
+    file(GLOB_RECURSE FORMAT_FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/tscout/*.c"
             )
 
