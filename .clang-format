@@ -1,0 +1,9 @@
+# This file is here in the root because prior to clang-14,
+# the implementation of style=file formatting
+# > is by far one of the dumbest implementations I've ever heard of.
+# -- https://stackoverflow.com/a/46374122
+
+BasedOnStyle: Google
+DerivePointerAlignment: false
+PointerAlignment: Right
+ColumnLimit: 120
