@@ -454,11 +454,7 @@ ExecInitLimit(Limit *node, EState *estate, int eflags)
 	LimitState *limitstate;
 	Plan	   *outerPlan;
 
-        TS_MARKER(ExecLimit_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(Limit, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
@@ -544,7 +540,7 @@ ExecInitLimit(Limit *node, EState *estate, int eflags)
 void
 ExecEndLimit(LimitState *node)
 {
-        TS_MARKER(ExecLimit_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(Limit, node->ps.plan);
 
 	ExecFreeExprContext(&node->ps);
 	ExecEndNode(outerPlanState(node));

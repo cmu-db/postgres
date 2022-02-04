@@ -180,11 +180,7 @@ ExecInitCteScan(CteScan *node, EState *estate, int eflags)
 	CteScanState *scanstate;
 	ParamExecData *prmdata;
 
-        TS_MARKER(ExecCteScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(CteScan, node->scan.plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
@@ -297,7 +293,7 @@ void
 ExecEndCteScan(CteScanState *node)
 {
 
-        TS_MARKER(ExecCteScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(CteScan, node->ss.ps.plan);
 
 	/*
 	 * Free exprcontext

@@ -470,7 +470,7 @@ ExecReScanTidScan(TidScanState *node)
 void
 ExecEndTidScan(TidScanState *node)
 {
-        TS_MARKER(ExecTidScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(TidScan, node->ss.ps.plan);
 
 	if (node->ss.ss_currentScanDesc)
 		table_endscan(node->ss.ss_currentScanDesc);
@@ -505,11 +505,7 @@ ExecInitTidScan(TidScan *node, EState *estate, int eflags)
 	TidScanState *tidstate;
 	Relation	currentRelation;
         
-        TS_MARKER(ExecTidScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(TidScan, node->scan.plan);
 
 	/*
 	 * create state structure

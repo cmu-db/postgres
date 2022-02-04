@@ -186,11 +186,7 @@ ExecInitResult(Result *node, EState *estate, int eflags)
 {
 	ResultState *resstate;
 
-        TS_MARKER(ExecResult_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(Result, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_MARK | EXEC_FLAG_BACKWARD)) ||
@@ -250,7 +246,7 @@ ExecInitResult(Result *node, EState *estate, int eflags)
 void
 ExecEndResult(ResultState *node)
 {
-        TS_MARKER(ExecResult_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(Result, node->ps.plan);
 
 	/*
 	 * Free the exprcontext

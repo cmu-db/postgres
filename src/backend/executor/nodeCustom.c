@@ -35,11 +35,7 @@ ExecInitCustomScan(CustomScan *cscan, EState *estate, int eflags)
 	Index		scanrelid = cscan->scan.scanrelid;
 	Index		tlistvarno;
 
-        TS_MARKER(ExecCustomScan_features, cscan->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, cscan,
-                  ChildPlanNodeId(cscan->scan.plan.lefttree),
-                  ChildPlanNodeId(cscan->scan.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(CustomScan, cscan->scan.plan);
 
 	/*
 	 * Allocate the CustomScanState object.  We let the custom scan provider
@@ -128,7 +124,7 @@ TS_EXECUTOR_WRAPPER(CustomScan)
 void
 ExecEndCustomScan(CustomScanState *node)
 {
-        TS_MARKER(ExecCustomScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(CustomScan, node->ss.ps.plan);
 
 	Assert(node->methods->EndCustomScan != NULL);
 	node->methods->EndCustomScan(node);

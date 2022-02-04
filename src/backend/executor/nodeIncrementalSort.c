@@ -980,11 +980,7 @@ ExecInitIncrementalSort(IncrementalSort *node, EState *estate, int eflags)
 {
 	IncrementalSortState *incrsortstate;
 
-        TS_MARKER(ExecIncrementalSort_features, node->sort.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->sort.plan.lefttree),
-                  ChildPlanNodeId(node->sort.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(IncrementalSort, node->sort.plan)
 
 	SO_printf("ExecInitIncrementalSort: initializing sort node\n");
 
@@ -1085,7 +1081,7 @@ ExecInitIncrementalSort(IncrementalSort *node, EState *estate, int eflags)
 void
 ExecEndIncrementalSort(IncrementalSortState *node)
 {
-        TS_MARKER(ExecIncrementalSort_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(IncrementalSort, node->ss.ps.plan);
 	SO_printf("ExecEndIncrementalSort: shutting down sort node\n");
 
 	/* clean out the scan tuple */

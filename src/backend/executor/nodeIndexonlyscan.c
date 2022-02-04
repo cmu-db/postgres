@@ -374,7 +374,7 @@ ExecEndIndexOnlyScan(IndexOnlyScanState *node)
 	Relation	indexRelationDesc;
 	IndexScanDesc indexScanDesc;
 
-        TS_MARKER(ExecIndexOnlyScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(IndexOnlyScan, node->ss.ps.plan);
 
 	/*
 	 * extract information from the node
@@ -502,11 +502,7 @@ ExecInitIndexOnlyScan(IndexOnlyScan *node, EState *estate, int eflags)
 	LOCKMODE	lockmode;
 	TupleDesc	tupDesc;
 
-        TS_MARKER(ExecIndexOnlyScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(IndexOnlyScan, node->scan.plan);
 
 	/*
 	 * create state structure

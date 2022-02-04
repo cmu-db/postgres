@@ -369,11 +369,7 @@ ExecInitHash(Hash *node, EState *estate, int eflags)
 {
 	HashState  *hashstate;
 
-        TS_MARKER(ExecHash_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(Hash, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -428,7 +424,7 @@ ExecEndHash(HashState *node)
 {
 	PlanState  *outerPlan;
 
-        TS_MARKER(ExecHash_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(Hash, node->ps.plan);
 
 	/*
 	 * free exprcontext

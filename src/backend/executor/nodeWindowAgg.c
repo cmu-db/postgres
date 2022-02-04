@@ -2266,11 +2266,7 @@ ExecInitWindowAgg(WindowAgg *node, EState *estate, int eflags)
 	TupleDesc	scanDesc;
 	ListCell   *l;
 
-        TS_MARKER(ExecWindowAgg_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(WindowAgg, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -2545,7 +2541,7 @@ ExecEndWindowAgg(WindowAggState *node)
 	PlanState  *outerPlan;
 	int			i;
 
-        TS_MARKER(ExecWindowAgg_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(WindowAgg, node->ss.ps.plan);
 
 	release_partition(node);
 

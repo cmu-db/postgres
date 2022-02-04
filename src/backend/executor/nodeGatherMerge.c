@@ -76,11 +76,7 @@ ExecInitGatherMerge(GatherMerge *node, EState *estate, int eflags)
 	Plan	   *outerNode;
 	TupleDesc	tupDesc;
 
-        TS_MARKER(ExecGatherMerge_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(GatherMerge, node->plan);
 
 	/* Gather merge node doesn't have innerPlan node. */
 	Assert(innerPlan(node) == NULL);
@@ -297,7 +293,7 @@ TS_EXECUTOR_WRAPPER(GatherMerge)
 void
 ExecEndGatherMerge(GatherMergeState *node)
 {
-        TS_MARKER(ExecGatherMerge_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(GatherMerge, node->ps.plan);
 	ExecEndNode(outerPlanState(node));	/* let children clean up first */
 	ExecShutdownGatherMerge(node);
 	ExecFreeExprContext(&node->ps);

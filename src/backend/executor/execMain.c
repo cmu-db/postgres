@@ -57,6 +57,7 @@
 #include "storage/bufmgr.h"
 #include "storage/lmgr.h"
 #include "tcop/utility.h"
+#include "tscout/sampling.h"
 #include "utils/acl.h"
 #include "utils/backend_status.h"
 #include "utils/lsyscache.h"
@@ -1515,6 +1516,8 @@ ExecutePlan(EState *estate,
 {
 	TupleTableSlot *slot;
 	uint64		current_tuple_count;
+
+        TScoutExecutorSample();
 
 	/*
 	 * initialize local variables

@@ -290,11 +290,7 @@ ExecInitFunctionScan(FunctionScan *node, EState *estate, int eflags)
 				natts;
 	ListCell   *lc;
 
-        TS_MARKER(ExecFunctionScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(FunctionScan, node->scan.plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
@@ -533,7 +529,7 @@ ExecEndFunctionScan(FunctionScanState *node)
 {
 	int			i;
 
-        TS_MARKER(ExecFunctionScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(FunctionScan, node->ss.ps.plan);
 
 	/*
 	 * Free the exprcontext

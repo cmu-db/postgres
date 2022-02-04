@@ -3277,11 +3277,7 @@ ExecInitAgg(Agg *node, EState *estate, int eflags)
 	bool		use_hashing = (node->aggstrategy == AGG_HASHED ||
 							   node->aggstrategy == AGG_MIXED);
 
-    TS_MARKER(ExecAgg_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+    TS_EXECUTOR_FEATURES(Agg, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -4389,7 +4385,7 @@ ExecEndAgg(AggState *node)
 	int			numGroupingSets = Max(node->maxsets, 1);
 	int			setno;
 
-        TS_MARKER(ExecAgg_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(Agg, node->ss.ps.plan);
 
 	/*
 	 * When ending a parallel worker, copy the statistics gathered by the

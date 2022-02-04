@@ -173,11 +173,7 @@ ExecInitRecursiveUnion(RecursiveUnion *node, EState *estate, int eflags)
 	RecursiveUnionState *rustate;
 	ParamExecData *prmdata;
 
-        TS_MARKER(ExecRecursiveUnion_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(RecursiveUnion, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -281,7 +277,7 @@ ExecInitRecursiveUnion(RecursiveUnion *node, EState *estate, int eflags)
 void
 ExecEndRecursiveUnion(RecursiveUnionState *node)
 {
-        TS_MARKER(ExecRecursiveUnion_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(RecursiveUnion, node->ps.plan);
 
 	/* Release tuplestores */
 	tuplestore_end(node->working_table);

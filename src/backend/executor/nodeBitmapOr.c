@@ -64,11 +64,7 @@ ExecInitBitmapOr(BitmapOr *node, EState *estate, int eflags)
 	ListCell   *l;
 	Plan	   *initNode;
 
-        TS_MARKER(ExecBitmapOr_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(BitmapOr, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -219,7 +215,7 @@ ExecEndBitmapOr(BitmapOrState *node)
 	int			nplans;
 	int			i;
 
-        TS_MARKER(ExecBitmapOr_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(BitmapOr, node->ps.plan);
 
 	/*
 	 * get information from the node

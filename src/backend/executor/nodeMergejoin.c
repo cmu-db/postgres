@@ -1443,11 +1443,7 @@ ExecInitMergeJoin(MergeJoin *node, EState *estate, int eflags)
 				innerDesc;
 	const TupleTableSlotOps *innerOps;
 
-        TS_MARKER(ExecMergeJoin_features, node->join.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->join.plan.lefttree),
-                  ChildPlanNodeId(node->join.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(MergeJoin, node->join.plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -1640,7 +1636,7 @@ ExecInitMergeJoin(MergeJoin *node, EState *estate, int eflags)
 void
 ExecEndMergeJoin(MergeJoinState *node)
 {
-        TS_MARKER(ExecMergeJoin_flush, node->js.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(MergeJoin, node->js.ps.plan);
 
 	MJ1_printf("ExecEndMergeJoin: %s\n",
 			   "ending node processing");

@@ -220,11 +220,7 @@ ExecInitValuesScan(ValuesScan *node, EState *estate, int eflags)
 	int			i;
 	PlanState  *planstate;
 
-        TS_MARKER(ExecValuesScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(ValuesScan, node->scan.plan);
 
 	/*
 	 * ValuesScan should not have any children.
@@ -338,7 +334,7 @@ ExecInitValuesScan(ValuesScan *node, EState *estate, int eflags)
 void
 ExecEndValuesScan(ValuesScanState *node)
 {
-        TS_MARKER(ExecValuesScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(ValuesScan, node->ss.ps.plan);
 
 	/*
 	 * Free both exprcontexts

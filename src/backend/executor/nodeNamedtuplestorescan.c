@@ -173,7 +173,7 @@ ExecInitNamedTuplestoreScan(NamedTuplestoreScan *node, EState *estate, int eflag
 void
 ExecEndNamedTuplestoreScan(NamedTuplestoreScanState *node)
 {
-        TS_MARKER(ExecNamedTuplestoreScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(NamedTuplestoreScan, node->ss.ps.plan);
 
 	/*
 	 * Free exprcontext

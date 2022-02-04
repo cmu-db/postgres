@@ -487,11 +487,7 @@ ExecInitSetOp(SetOp *node, EState *estate, int eflags)
 	SetOpState *setopstate;
 	TupleDesc	outerDesc;
 
-        TS_MARKER(ExecSetOp_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(SetOp, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -592,7 +588,7 @@ ExecInitSetOp(SetOp *node, EState *estate, int eflags)
 void
 ExecEndSetOp(SetOpState *node)
 {
-        TS_MARKER(ExecSetOp_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(SetOp, node->ps.plan);
 
 	/* clean up tuple table */
 	ExecClearTuple(node->ps.ps_ResultTupleSlot);

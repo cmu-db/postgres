@@ -830,11 +830,7 @@ ExecInitMemoize(Memoize *node, EState *estate, int eflags)
 	int			nkeys;
 	Oid		   *eqfuncoids;
 
-        TS_MARKER(ExecMemoize_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(Memoize, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -977,7 +973,7 @@ ExecEndMemoize(MemoizeState *node)
 	}
 #endif
 
-        TS_MARKER(ExecMemoize_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(Memoize, node->ss.ps.plan);
 
 	/*
 	 * When ending a parallel worker, copy the statistics gathered by the

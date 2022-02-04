@@ -88,6 +88,7 @@
 #include "storage/proc.h"
 #include "storage/standby.h"
 #include "tcop/tcopprot.h"
+#include "tscout/sampling.h"
 #include "tsearch/ts_cache.h"
 #include "utils/acl.h"
 #include "utils/backend_status.h"
@@ -3808,6 +3809,16 @@ static struct config_real ConfigureNamesReal[] =
 		0.0, 0.0, 1.0,
 		NULL, NULL, NULL
 	},
+
+	{
+		{"tscout_executor_sampling_rate", PGC_USERSET, DEVELOPER_OPTIONS,
+			gettext_noop("Sets TScout's executor sampling rate."),
+			NULL
+		},
+		&tscout_executor_sampling_rate,
+		1.0, 0.0, 1.0,
+		NULL, NULL, NULL
+        },
 
 	/* End-of-list marker */
 	{

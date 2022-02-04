@@ -227,11 +227,7 @@ ExecInitProjectSet(ProjectSet *node, EState *estate, int eflags)
 	ListCell   *lc;
 	int			off;
 
-        TS_MARKER(ExecProjectSet_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(ProjectSet, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_MARK | EXEC_FLAG_BACKWARD)));
@@ -330,7 +326,7 @@ ExecInitProjectSet(ProjectSet *node, EState *estate, int eflags)
 void
 ExecEndProjectSet(ProjectSetState *node)
 {
-        TS_MARKER(ExecProjectSet_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(ProjectSet, node->ps.plan);
 
 	/*
 	 * Free the exprcontext

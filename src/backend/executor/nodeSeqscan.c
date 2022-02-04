@@ -126,11 +126,7 @@ ExecInitSeqScan(SeqScan *node, EState *estate, int eflags)
 {
 	SeqScanState *scanstate;
 
-        TS_MARKER(ExecSeqScan_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(SeqScan, node->plan);
 
 	/*
 	 * Once upon a time it was possible to have an outerPlan of a SeqScan, but
@@ -193,7 +189,7 @@ ExecEndSeqScan(SeqScanState *node)
 {
 	TableScanDesc scanDesc;
 
-        TS_MARKER(ExecSeqScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(SeqScan, node->ss.ps.plan);
 
 	/*
 	 * get information from node

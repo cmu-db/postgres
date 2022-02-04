@@ -299,11 +299,7 @@ ExecInitLockRows(LockRows *node, EState *estate, int eflags)
 	List	   *epq_arowmarks;
 	ListCell   *lc;
 
-        TS_MARKER(ExecLockRows_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(LockRows, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & EXEC_FLAG_MARK));
@@ -394,7 +390,7 @@ ExecInitLockRows(LockRows *node, EState *estate, int eflags)
 void
 ExecEndLockRows(LockRowsState *node)
 {
-        TS_MARKER(ExecLockRows_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(LockRows, node->ps.plan);
 
 	/* We may have shut down EPQ already, but no harm in another call */
 	EvalPlanQualEnd(&node->lr_epqstate);

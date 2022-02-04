@@ -2720,11 +2720,7 @@ ExecInitModifyTable(ModifyTable *node, EState *estate, int eflags)
 	int			i;
 	Relation	rel;
 
-        TS_MARKER(ExecModifyTable_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(ModifyTable, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -3179,7 +3175,7 @@ ExecEndModifyTable(ModifyTableState *node)
 {
 	int			i;
 
-        TS_MARKER(ExecModifyTable_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(ModifyTable, node->ps.plan);
 
 	/*
 	 * Allow any FDWs to shut down

@@ -63,11 +63,7 @@ ExecInitBitmapAnd(BitmapAnd *node, EState *estate, int eflags)
 	ListCell   *l;
 	Plan	   *initNode;
 
-        TS_MARKER(ExecBitmapAnd_features, node->plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->plan.lefttree),
-                  ChildPlanNodeId(node->plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(BitmapAnd, node->plan);
 
 	/* check for unsupported flags */
 	Assert(!(eflags & (EXEC_FLAG_BACKWARD | EXEC_FLAG_MARK)));
@@ -201,7 +197,7 @@ ExecEndBitmapAnd(BitmapAndState *node)
 	int			nplans;
 	int			i;
 
-        TS_MARKER(ExecBitmapAnd_flush, node->ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(BitmapAnd, node->ps.plan);
 
 	/*
 	 * get information from the node

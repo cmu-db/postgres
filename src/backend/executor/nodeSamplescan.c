@@ -102,11 +102,7 @@ ExecInitSampleScan(SampleScan *node, EState *estate, int eflags)
 	TableSampleClause *tsc = node->tablesample;
 	TsmRoutine *tsm;
 
-        TS_MARKER(ExecSampleScan_features, node->scan.plan.plan_node_id,
-                  estate->es_plannedstmt->queryId, node,
-                  ChildPlanNodeId(node->scan.plan.lefttree),
-                  ChildPlanNodeId(node->scan.plan.righttree),
-                  GetCurrentStatementStartTimestamp());
+        TS_EXECUTOR_FEATURES(SampleScan, node->scan.plan);
 
 	Assert(outerPlan(node) == NULL);
 	Assert(innerPlan(node) == NULL);
@@ -190,7 +186,7 @@ ExecInitSampleScan(SampleScan *node, EState *estate, int eflags)
 void
 ExecEndSampleScan(SampleScanState *node)
 {
-        TS_MARKER(ExecSampleScan_flush, node->ss.ps.plan->plan_node_id);
+        TS_EXECUTOR_FLUSH(SampleScan, node->ss.ps.plan);
 
 	/*
 	 * Tell sampling function that we finished the scan.
