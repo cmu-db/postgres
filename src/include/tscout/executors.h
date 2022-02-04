@@ -34,7 +34,7 @@ static int ChildPlanNodeId(const struct Plan *const child_plan_node) {
  * src/backend/executors/nodeBitmapOr.c
  * src/backend/executors/nodeSubplan.c
  * src/backend/executors/nodeHash.c
- * src/backend/executors/nodeHashJoin.c
+ * src/backend/executors/nodeHashjoin.c
  */
 #define TS_EXECUTOR_WRAPPER(node_type)                                \
   static TupleTableSlot *Exec##node_type(PlanState *pstate) {         \
