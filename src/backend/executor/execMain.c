@@ -1517,7 +1517,7 @@ ExecutePlan(EState *estate,
 	TupleTableSlot *slot;
 	uint64		current_tuple_count;
 
-        TScoutExecutorSample();
+	TScoutExecutorSample();
 
 	/*
 	 * initialize local variables
