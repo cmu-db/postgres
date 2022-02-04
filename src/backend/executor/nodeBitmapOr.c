@@ -190,14 +190,16 @@ WrappedMultiExecBitmapOr(BitmapOrState *node)
 
 Node *
 MultiExecBitmapOr(BitmapOrState *node) {
-  Node *result;
-  TS_MARKER(ExecBitmapOr_begin, node->ps.plan->plan_node_id);
+  if (tscout_executor_running) {
+    Node *result;
+    TS_MARKER(ExecBitmapOr_begin, node->ps.plan->plan_node_id);
 
-  result = WrappedMultiExecBitmapOr(node);
+    result = WrappedMultiExecBitmapOr(node);
 
-  TS_MARKER(ExecBitmapOr_end, node->ps.plan->plan_node_id);
-
-  return result;
+    TS_MARKER(ExecBitmapOr_end, node->ps.plan->plan_node_id);
+    return result;
+  }
+  return WrappedMultiExecBitmapOr(node);
 }
 
 /* ----------------------------------------------------------------

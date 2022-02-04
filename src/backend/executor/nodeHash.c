@@ -132,14 +132,16 @@ WrappedMultiExecHash(HashState *node)
 
 Node *
 MultiExecHash(HashState *node) {
-  Node *result;
-  TS_MARKER(ExecHash_begin, node->ps.plan->plan_node_id);
+  if (tscout_executor_running) {
+    Node *result;
+    TS_MARKER(ExecHash_begin, node->ps.plan->plan_node_id);
 
-  result = WrappedMultiExecHash(node);
+    result = WrappedMultiExecHash(node);
 
-  TS_MARKER(ExecHash_end, node->ps.plan->plan_node_id);
-
-  return result;
+    TS_MARKER(ExecHash_end, node->ps.plan->plan_node_id);
+    return result;
+  }
+  return WrappedMultiExecHash(node);
 }
 
 /* ----------------------------------------------------------------

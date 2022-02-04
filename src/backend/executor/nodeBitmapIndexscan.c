@@ -125,14 +125,16 @@ WrappedMultiExecBitmapIndexScan(BitmapIndexScanState *node)
 
 Node *
 MultiExecBitmapIndexScan(BitmapIndexScanState *node) {
-  Node *result;
-  TS_MARKER(ExecBitmapIndexScan_begin, node->ss.ps.plan->plan_node_id);
+  if (tscout_executor_running) {
+    Node *result;
+    TS_MARKER(ExecBitmapIndexScan_begin, node->ss.ps.plan->plan_node_id);
 
-  result = WrappedMultiExecBitmapIndexScan(node);
+    result = WrappedMultiExecBitmapIndexScan(node);
 
-  TS_MARKER(ExecBitmapIndexScan_end, node->ss.ps.plan->plan_node_id);
-
-  return result;
+    TS_MARKER(ExecBitmapIndexScan_end, node->ss.ps.plan->plan_node_id);
+    return result;
+  }
+  return WrappedMultiExecBitmapIndexScan(node);
 }
 
 /* ----------------------------------------------------------------
