@@ -3813,7 +3813,7 @@ static struct config_real ConfigureNamesReal[] =
 	{
 		{"tscout_executor_sampling_rate", PGC_USERSET, DEVELOPER_OPTIONS,
 			gettext_noop("Sets TScout's executor sampling rate."),
-			NULL
+			gettext_noop("Use a value between 0.0 (never sample) and 1.0 (sample all).")
 		},
 		&tscout_executor_sampling_rate,
 		1.0, 0.0, 1.0,
