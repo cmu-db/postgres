@@ -117,8 +117,8 @@ static bool cpu_end(struct resource_metrics *const metrics) {
 
 static void disk_end(struct resource_metrics *const metrics, const struct task_struct *const p) {
   // disk metrics, limited to process-wide statistics
-  metrics->disk_bytes_read = (p->ioac.read_bytes - metrics->disk_bytes_read) >> 9;
-  metrics->disk_bytes_written = (p->ioac.write_bytes - metrics->disk_bytes_written) >> 9;
+  metrics->disk_bytes_read = (p->ioac.read_bytes - metrics->disk_bytes_read);
+  metrics->disk_bytes_written = (p->ioac.write_bytes - metrics->disk_bytes_written);
 }
 
 static void net_end(struct resource_metrics *const metrics, const struct task_struct *const p, const int socket_fd_k) {
