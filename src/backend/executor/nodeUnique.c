@@ -33,7 +33,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeUnique.h"
 #include "miscadmin.h"

@@ -22,7 +22,6 @@
 #include "postgres.h"
 
 #include "access/genam.h"
-#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeBitmapIndexscan.h"
 #include "executor/nodeIndexscan.h"

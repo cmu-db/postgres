@@ -108,7 +108,6 @@
 
 #include "access/htup_details.h"
 #include "access/parallel.h"
-#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/hashjoin.h"
 #include "executor/nodeHash.h"

@@ -28,7 +28,6 @@
 
 #include "access/htup_details.h"
 #include "access/parallel.h"
-#include "access/xact.h"
 #include "catalog/pg_statistic.h"
 #include "commands/tablespace.h"
 #include "executor/execdebug.h"

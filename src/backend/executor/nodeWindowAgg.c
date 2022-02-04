@@ -34,7 +34,6 @@
 #include "postgres.h"
 
 #include "access/htup_details.h"
-#include "access/xact.h"
 #include "catalog/objectaccess.h"
 #include "catalog/pg_aggregate.h"
 #include "catalog/pg_proc.h"

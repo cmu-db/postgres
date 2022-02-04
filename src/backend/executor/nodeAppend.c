@@ -57,7 +57,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/execAsync.h"
 #include "executor/execdebug.h"
 #include "executor/execPartition.h"

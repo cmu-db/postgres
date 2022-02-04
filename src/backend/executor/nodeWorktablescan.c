@@ -15,7 +15,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeWorktablescan.h"
 #include "tscout/executors.h"

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "access/xact.h"
 #include "tscout/marker.h"
 #include "tscout/sampling.h"
 

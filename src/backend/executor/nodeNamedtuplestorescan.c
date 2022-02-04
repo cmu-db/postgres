@@ -15,7 +15,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeNamedtuplestorescan.h"
 #include "miscadmin.h"

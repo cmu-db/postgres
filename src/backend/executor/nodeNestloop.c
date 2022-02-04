@@ -21,7 +21,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeNestloop.h"
 #include "miscadmin.h"

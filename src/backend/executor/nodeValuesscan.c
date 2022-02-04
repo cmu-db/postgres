@@ -23,7 +23,6 @@
  */
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeValuesscan.h"
 #include "jit/jit.h"

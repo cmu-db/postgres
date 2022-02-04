@@ -22,7 +22,6 @@
  */
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "catalog/pg_type.h"
 #include "executor/nodeFunctionscan.h"
 #include "funcapi.h"

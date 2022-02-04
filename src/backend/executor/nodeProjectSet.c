@@ -22,7 +22,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeProjectSet.h"
 #include "miscadmin.h"

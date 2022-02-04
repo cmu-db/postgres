@@ -38,7 +38,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/execPartition.h"
 #include "executor/nodeMergeAppend.h"

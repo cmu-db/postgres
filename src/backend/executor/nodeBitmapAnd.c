@@ -28,7 +28,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeBitmapAnd.h"
 #include "tscout/executors.h"

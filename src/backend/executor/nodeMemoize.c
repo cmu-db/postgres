@@ -66,7 +66,6 @@
 
 #include "postgres.h"
 
-#include "access/xact.h"
 #include "common/hashfn.h"
 #include "executor/executor.h"
 #include "executor/nodeMemoize.h"

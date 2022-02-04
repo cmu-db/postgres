@@ -45,7 +45,6 @@
 #include "postgres.h"
 
 #include "access/htup_details.h"
-#include "access/xact.h"
 #include "executor/executor.h"
 #include "executor/nodeSetOp.h"
 #include "miscadmin.h"

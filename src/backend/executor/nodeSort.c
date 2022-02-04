@@ -16,7 +16,6 @@
 #include "postgres.h"
 
 #include "access/parallel.h"
-#include "access/xact.h"
 #include "executor/execdebug.h"
 #include "executor/nodeSort.h"
 #include "miscadmin.h"
