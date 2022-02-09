@@ -4,10 +4,10 @@ import time
 from typing import List
 
 from pgnp_docker import execute_in_container
-from util import execute_sys_command, OutputStrategy, CONTAINER_BIN_DIR
-
+from util import CONTAINER_BIN_DIR, OutputStrategy, execute_sys_command
 
 # SQL functionality
+
 
 def execute_sql(query: str, port: int) -> List[str]:
     """
@@ -26,10 +26,10 @@ def execute_sql(query: str, port: int) -> List[str]:
     env = os.environ.copy()
     env["PGPASSWORD"] = "terrier"
     cmd = f"psql -h localhost -p {port} -U noisepage -t -P pager=off".split(" ")
-    cmd.append(f'--command={query}')
+    cmd.append(f"--command={query}")
     cmd.append("noisepage")
-    sql_command, out, err = execute_sys_command(cmd, env=env,
-                                                output_strategy=OutputStrategy.Capture)
+    # For sql_command, err. pylint: disable=unused-variable
+    sql_command, out, err = execute_sys_command(cmd, env=env, output_strategy=OutputStrategy.CAPTURE)
     return [row.strip() for row in out.split("\n") if row.strip()]
 
 
@@ -65,10 +65,11 @@ def is_pg_ready(container_name: str, port: int) -> bool:
     is_ready
         True if postgres is ready, False otherwise
     """
-    is_ready_res, _, _ = execute_in_container(container_name,
-                                              f"{CONTAINER_BIN_DIR}/pg_isready --host {container_name} --port {port} "
-                                              f"--username noisepage",
-                                              output_strategy=OutputStrategy.Hide)
+    is_ready_res, _, _ = execute_in_container(
+        container_name,
+        f"{CONTAINER_BIN_DIR}/pg_isready --host {container_name} --port {port} " f"--username noisepage",
+        output_strategy=OutputStrategy.HIDE,
+    )
     return is_ready_res.returncode == 0
 
 
@@ -89,14 +90,12 @@ def wait_for_pg_ready(container_name: str, port: int, postgres_process: subproce
     is_ready
         True if postgres is ready, False if postgres failed to startup
     """
-    while not is_pg_ready(container_name,
-                          port) and postgres_process.poll() is None:
+    while not is_pg_ready(container_name, port) and postgres_process.poll() is None:
         time.sleep(1)
 
     # Return code is only set when process exits and postgres proc shouldn't exit
     if postgres_process.returncode is not None:
-        print(
-            f"Postgres instance failed to start up with error code: {postgres_process.returncode}")
+        print(f"Postgres instance failed to start up with error code: {postgres_process.returncode}")
         return False
 
     return True

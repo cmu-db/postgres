@@ -1,22 +1,16 @@
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, List, Mapping, Tuple
+from typing import List, Mapping, Tuple
 
 from clang.cindex import TypeKind
+from tscout import model
 
 # We're assuming that this script is housed in `postgres/cmudb/extensions/tscout`.
 # We calculate the path of TScout relative to this extension and add it to the PythonPath temporarily.
 TSCOUT_EXTENSION_PATH = Path(__file__).parent
 CODEGEN_TEMPLATE_PATH = Path.joinpath(TSCOUT_EXTENSION_PATH, "operating_unit_codegen.c")
 CODEGEN_FILE_PATH = Path.joinpath(TSCOUT_EXTENSION_PATH, "operating_unit_features.h")
-
-TSCOUT_PATH = Path.joinpath(TSCOUT_EXTENSION_PATH, Path("../../tscout/"))
-sys.path.append(TSCOUT_PATH.resolve().__str__())
-
-# And now, we can import TScout.
-from tscout import model
 
 
 @dataclass
@@ -106,9 +100,9 @@ def add_features(features_string, feat_index, ou_xs):
         type_kind = "T_UNKNOWN"
         if value == TypeKind.POINTER:
             type_kind = "T_PTR"
-        elif value == TypeKind.INT or value == TypeKind.UINT:
+        elif value in [TypeKind.INT, TypeKind.UINT]:
             type_kind = "T_INT"
-        elif value == TypeKind.LONG or value == TypeKind.ULONG:
+        elif value in [TypeKind.LONG, TypeKind.ULONG]:
             type_kind = "T_LONG"
         elif value == TypeKind.SHORT:
             type_kind = "T_SHORT"
@@ -120,10 +114,10 @@ def add_features(features_string, feat_index, ou_xs):
             type_kind = "T_BOOL"
         else:
             type_kind = str(value)
-        features_struct_list.append('{ %s, "%s" }' % (type_kind, name))
+        features_struct_list.append(f'{{ {type_kind}, "{name}" }}')
 
     features_struct = str.join(", ", features_struct_list)
-    features_string += "field feat_%d[] = { " % (feat_index) + features_struct + " };"
+    features_string += f"field feat_{feat_index:d}[] = {{ " + features_struct + " };"
 
     return features_string
 
@@ -149,11 +143,11 @@ def fill_in_template(ou_string, ou_index, node_type, ou_xs):
         The codegen template with the given OU's details substituted.
     """
     # Replace the index of the OU.
-    ou_string = ou_string.replace("OU_INDEX", "%d" % (ou_index))
+    ou_string = ou_string.replace("OU_INDEX", f"{ou_index:d}")
     # Replace the name of the OU.
-    ou_string = ou_string.replace("OU_NAME", '"%s"' % (node_type))
+    ou_string = ou_string.replace("OU_NAME", f'"{node_type}"')
     # Compute and replace the number of features.
-    ou_string = ou_string.replace("NUM_Xs", "%d" % (len(ou_xs)))
+    ou_string = ou_string.replace("NUM_Xs", f"{len(ou_xs):d}")
 
     # If there are features, add the list of features.
     # Otherwise, replace with a dummy string.
@@ -165,7 +159,7 @@ def fill_in_template(ou_string, ou_index, node_type, ou_xs):
     return ou_string
 
 
-if __name__ == "__main__":
+def main():
     """
     Generate the TScout features and fill in the codegen template.
     """
@@ -195,7 +189,7 @@ if __name__ == "__main__":
                 )
 
     # Open and analyse the codegen file.
-    with open(str(CODEGEN_TEMPLATE_PATH), "r") as template:
+    with open(str(CODEGEN_TEMPLATE_PATH), "r", encoding="utf-8") as template:
         text = template.read()
 
         # Find a sequence that matches "(ou){.*},".
@@ -228,5 +222,9 @@ if __name__ == "__main__":
 
         text = text.replace(match, ou_struct_list_string)
         text = text.replace(feat_match, features_list_string)
-        with open(CODEGEN_FILE_PATH, "w") as gen_file:
+        with open(CODEGEN_FILE_PATH, "w", encoding="utf-8") as gen_file:
             gen_file.write(text)
+
+
+if __name__ == "__main__":
+    main()

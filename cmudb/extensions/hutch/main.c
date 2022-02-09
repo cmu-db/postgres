@@ -124,7 +124,7 @@ size_t GetFieldSize(c_type type) {
       break;
   }
 
-    // Abort in case of unknown field type.
+  // Abort in case of unknown field type.
   abort();
 }
 

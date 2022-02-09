@@ -2,8 +2,7 @@ import signal
 import subprocess
 import sys
 from enum import Enum
-from typing import List, Tuple, AnyStr
-from typing import Union
+from typing import AnyStr, List, Tuple, Union
 
 # Project (relative to exploration directory)
 PROJECT_ROOT = "../.."
@@ -32,16 +31,18 @@ UTF_8 = "utf-8"
 
 
 class OutputStrategy(Enum):
-    Capture = (subprocess.PIPE, subprocess.PIPE)
-    Print = (sys.stdout, sys.stderr)
-    Hide = (subprocess.DEVNULL, subprocess.DEVNULL)
+    CAPTURE = (subprocess.PIPE, subprocess.PIPE)
+    PRINT = (sys.stdout, sys.stderr)
+    HIDE = (subprocess.DEVNULL, subprocess.DEVNULL)
 
 
-def execute_sys_command(cmd: Union[str, List[str]],
-                        block: bool = True,
-                        output_strategy: OutputStrategy = OutputStrategy.Print,
-                        cwd: str = None,
-                        env=None) -> Tuple[subprocess.Popen, AnyStr, AnyStr]:
+def execute_sys_command(
+    cmd: Union[str, List[str]],
+    block: bool = True,
+    output_strategy: OutputStrategy = OutputStrategy.PRINT,
+    cwd: str = None,
+    env=None,
+) -> Tuple[subprocess.Popen, AnyStr, AnyStr]:
     """
     Execute bash command
     Parameters
@@ -68,8 +69,9 @@ def execute_sys_command(cmd: Union[str, List[str]],
     if isinstance(cmd, str):
         cmd = cmd.split(" ")
 
-    res = subprocess.Popen(cmd, stdout=output_strategy.value[0],
-                           stderr=output_strategy.value[1], cwd=cwd, env=env)
+    res = subprocess.Popen(  # pylint: disable=consider-using-with
+        cmd, stdout=output_strategy.value[0], stderr=output_strategy.value[1], cwd=cwd, env=env
+    )
     out = ""
     err = ""
     if block:

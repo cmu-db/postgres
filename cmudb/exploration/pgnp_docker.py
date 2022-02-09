@@ -1,15 +1,22 @@
 import subprocess
 from typing import AnyStr, Tuple
 
-from util import execute_sys_command, ENV_FOLDER, stop_process, OutputStrategy, \
-    PROJECT_ROOT, EXPLORATORY_COMPOSE, \
-    EXPLORATION_VOLUME_POOL, \
-    EXPLORATORY_PROJECT_NAME, IMAGE_TAG
-
+from util import (
+    ENV_FOLDER,
+    EXPLORATION_VOLUME_POOL,
+    EXPLORATORY_COMPOSE,
+    EXPLORATORY_PROJECT_NAME,
+    IMAGE_TAG,
+    PROJECT_ROOT,
+    OutputStrategy,
+    execute_sys_command,
+    stop_process,
+)
 
 # TODO use docker library (https://github.com/docker/docker-py)
 
 # Docker Utilities
+
 
 def build_image(tag: str):
     """
@@ -32,6 +39,7 @@ def create_volume(docker_volume_dir: str, volume_name: str):
     volume_name
         name of docker volume to remove
     """
+    # docker_volume_dir. pylint: disable=unused-argument
     execute_sys_command(f"sudo docker volume create {volume_name}")
 
 
@@ -62,7 +70,9 @@ def create_container(compose_yml: str, project_name: str) -> subprocess.Popen:
     """
     compose, _, _ = execute_sys_command(
         f"sudo docker-compose -p {project_name} -f {ENV_FOLDER}/{compose_yml} up",
-        block=False, output_strategy=OutputStrategy.Print)
+        block=False,
+        output_strategy=OutputStrategy.PRINT,
+    )
     return compose
 
 
@@ -90,9 +100,9 @@ def destroy_container(compose_yml: str, project_name: str):
     execute_sys_command(f"sudo docker-compose -p {project_name} -f {ENV_FOLDER}/{compose_yml} down --volumes")
 
 
-def execute_in_container(container_name: str, cmd: str, block: bool = True,
-                         output_strategy: OutputStrategy = OutputStrategy.Print) -> \
-        Tuple[subprocess.Popen, AnyStr, AnyStr]:
+def execute_in_container(
+    container_name: str, cmd: str, block: bool = True, output_strategy: OutputStrategy = OutputStrategy.PRINT
+) -> Tuple[subprocess.Popen, AnyStr, AnyStr]:
     """
     Execute bash command in docker container
     Parameters
@@ -114,13 +124,14 @@ def execute_in_container(container_name: str, cmd: str, block: bool = True,
     stderr
         stderr if block is True and output_strategy is Capture
     """
-    docker_cmd = f'docker exec {container_name} /bin/bash -c'.split(" ")
-    docker_cmd.append(f'{cmd}')
+    docker_cmd = f"docker exec {container_name} /bin/bash -c".split(" ")
+    docker_cmd.append(f"{cmd}")
 
     return execute_sys_command(docker_cmd, block=block, output_strategy=output_strategy)
 
 
 # Exploratory functionality
+
 
 def setup_docker_env(docker_volume_dir: str):
     """

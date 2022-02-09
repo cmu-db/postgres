@@ -3,7 +3,7 @@
  * encountered while scanning the Postgres code-base.
  * The scan operation is performed by the Clang parser.
  * See `cmudb/tscout/clang_parser.py`.
- * 
+ *
  */
 typedef enum c_type {
   T_BOOL = 0,

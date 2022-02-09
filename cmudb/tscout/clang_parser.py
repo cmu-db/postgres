@@ -12,24 +12,22 @@ from typing import List, Mapping, Tuple
 
 import clang.cindex
 
-logger = logging.getLogger('tscout')
+logger = logging.getLogger("tscout")
 
 # Expected path of this file: "postgres/cmudb/tscout/"
 
 # Path to the Postgres root.
 POSTGRES_PATH = Path(__file__).parent.parent.parent
 # Path to the Postgres files to parse.
-POSTGRES_FILES = (
-    f'{POSTGRES_PATH}/src/backend/executor/execMain.c',
-)
+POSTGRES_FILES = (f"{POSTGRES_PATH}/src/backend/executor/execMain.c",)
 # The arguments that Clang uses to parse header files.
 CLANG_ARGS = [
-    '-std=c17',
-    f'-I{POSTGRES_PATH}/src/include',
-    '-I/usr/lib/gcc/x86_64-linux-gnu/9/include',
-    '-I/usr/local/include',
-    '-I/usr/include/x86_64-linux-gnu',
-    '-I/usr/include',
+    "-std=c17",
+    f"-I{POSTGRES_PATH}/src/include",
+    "-I/usr/lib/gcc/x86_64-linux-gnu/9/include",
+    "-I/usr/local/include",
+    "-I/usr/include/x86_64-linux-gnu",
+    "-I/usr/include",
 ]
 
 
@@ -47,25 +45,26 @@ def convert_define_to_arg(input_define):
     output_str : str
         String in the format of "-Dvariable=value".
     """
-    var_and_value = input_define.rstrip()[len('#define '):]
-    separator = var_and_value.find(' ')
+    var_and_value = input_define.rstrip()[len("#define ") :]
+    separator = var_and_value.find(" ")
     var = var_and_value[:separator]
-    value = var_and_value[separator + 1:]
-    return f'-D{var}={value}'
+    value = var_and_value[separator + 1 :]
+    return f"-D{var}={value}"
 
 
 # Grab the results of ./configure to make sure that we're passing the same
 # preprocessor #defines to libclang as when compiling Postgres.
 # #defines can affect struct sizing depending on machine environment.
-with open(f'{POSTGRES_PATH}/config.log') as config_file:
+with open(f"{POSTGRES_PATH}/config.log", encoding="utf-8") as config_file:
     for config_line in config_file:
-        if config_line.startswith('#define '):
+        if config_line.startswith("#define "):
             CLANG_ARGS.append(convert_define_to_arg(config_line))
 
 
 @dataclass
 class Field:
     """A field of a struct, as parsed by Clang."""
+
     name: str
     pg_type: str
     canonical_type_kind: clang.cindex.TypeKind
@@ -97,14 +96,14 @@ class ClangParser:
         for postgres_file in POSTGRES_FILES:
             # Parse the translation unit.
             index = clang.cindex.Index.create()
-            tu = index.parse(postgres_file, args=CLANG_ARGS)
+            tunit = index.parse(postgres_file, args=CLANG_ARGS)
 
             # Keep the index and translation unit alive for the rest of init.
             indexes.append(index)
-            translation_units.append(tu)
+            translation_units.append(tunit)
 
             # Add all relevant definitions to the classes map.
-            for node in tu.cursor.get_children():
+            for node in tunit.cursor.get_children():
                 kind_ok = node.kind in [
                     clang.cindex.CursorKind.CLASS_DECL,
                     clang.cindex.CursorKind.STRUCT_DECL,
@@ -160,8 +159,10 @@ class ClangParser:
             node.spelling: [
                 Field(
                     child.displayname,
-                    child.type.spelling if child.type.get_canonical().kind != clang.cindex.TypeKind.RECORD else child.type.get_canonical().get_declaration().spelling,
-                    child.type.get_canonical().kind
+                    child.type.spelling
+                    if child.type.get_canonical().kind != clang.cindex.TypeKind.RECORD
+                    else child.type.get_canonical().get_declaration().spelling,
+                    child.type.get_canonical().kind,
                 )
                 for child in node.get_children()
                 if child.kind == clang.cindex.CursorKind.FIELD_DECL
@@ -172,29 +173,19 @@ class ClangParser:
         # _rtti_map : class name ->
         #               list of fields in the class with base classes expanded, for C++ inheritance.
         self._rtti_map: Mapping[str, List[Field]] = {
-            node_name: self._construct_base_expanded_fields(node_name)
-            for node_name in self._bases
+            node_name: self._construct_base_expanded_fields(node_name) for node_name in self._bases
         }
 
         # field_map: class name ->
         #               list of fields in the class with base classes expanded
         #               and record types expanded
         self.field_map: Mapping[str, List[Field]] = {
-            node_name:
-                self._construct_fully_expanded_fields(
-                    node_name,
-                    classes,
-                    prefix=f'{node_name}_'
-                )
+            node_name: self._construct_fully_expanded_fields(node_name, classes, prefix=f"{node_name}_")
             for node_name in self._bases
         }
 
         self.enum_map: Mapping[str, List[Tuple[str, int]]] = {
-            node: [
-                (child.spelling, child.enum_value)
-                for child in enums[node].get_children()
-            ]
-            for node in enums.keys()
+            node: [(child.spelling, child.enum_value) for child in enum.get_children()] for node, enum in enums.items()
         }
 
     def _construct_base_expanded_fields(self, class_name):
@@ -229,7 +220,7 @@ class ClangParser:
             field_list = base + field_list
         return field_list
 
-    def _construct_fully_expanded_fields(self, class_name, classes, prefix=''):
+    def _construct_fully_expanded_fields(self, class_name, classes, prefix=""):
         """
         Construct the list of base-class- and record-type- expanded fields.
         Depends on self._rtti_map.
@@ -260,9 +251,9 @@ class ClangParser:
             if field.canonical_type_kind != clang.cindex.TypeKind.RECORD:
                 # If the field is not a record type,
                 # just append the field to the list of new fields.
-                new_field = Field(name=f'{prefix}{field.name}',
-                                  pg_type=field.pg_type,
-                                  canonical_type_kind=field.canonical_type_kind)
+                new_field = Field(
+                    name=f"{prefix}{field.name}", pg_type=field.pg_type, canonical_type_kind=field.canonical_type_kind
+                )
                 new_fields.append(new_field)
             else:
                 # If the field is a record type, try adding the list of
@@ -270,13 +261,11 @@ class ClangParser:
                 # However, this is not always possible,
                 # e.g., for non-PostgreSQL structs.
                 if field.pg_type not in rtti_map:
-                    logger.warning(f"No type info for {field.pg_type} "
-                                   f"used in {class_name}.")
+                    logger.warning("No type info for %s used in %s.", field.pg_type, class_name)
                 else:
                     expanded_fields = self._construct_fully_expanded_fields(
-                        field.pg_type,
-                        classes,
-                        prefix=prefix + f'{field.name}_')
+                        field.pg_type, classes, prefix=prefix + f"{field.name}_"
+                    )
                     new_fields.extend(expanded_fields)
         new_fields[0].alignment = classes[class_name].type.get_align()
         # The alignment value is the struct's alignment, not the field. We assign this to the first field of a

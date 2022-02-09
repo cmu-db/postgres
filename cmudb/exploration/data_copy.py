@@ -1,7 +1,7 @@
-from util import execute_sys_command, ZFS_SNAPSHOT_NAME, EXPLORATION_VOLUME_POOL
-
+from util import EXPLORATION_VOLUME_POOL, ZFS_SNAPSHOT_NAME, execute_sys_command
 
 # ZFS Functionality
+
 
 def zfs_create_snapshot(zfs_pool: str, snapshot_name: str):
     """
@@ -53,6 +53,7 @@ def zfs_destroy_pool(pool_name: str):
 
 # Exploratory Data
 
+
 def copy_pgdata_cow(zfs_volume_pool: str, zfs_replica_pool: str):
     """
     Copy replica instance's data for use by the exploratory instance
@@ -64,8 +65,9 @@ def copy_pgdata_cow(zfs_volume_pool: str, zfs_replica_pool: str):
         relative name of zfs pool used to store postgres replica data
     """
     zfs_create_snapshot(f"{zfs_volume_pool}/{zfs_replica_pool}", ZFS_SNAPSHOT_NAME)
-    zfs_clone_snapshot(f"{zfs_volume_pool}/{zfs_replica_pool}@{ZFS_SNAPSHOT_NAME}",
-                       f"{zfs_volume_pool}/{EXPLORATION_VOLUME_POOL}")
+    zfs_clone_snapshot(
+        f"{zfs_volume_pool}/{zfs_replica_pool}@{ZFS_SNAPSHOT_NAME}", f"{zfs_volume_pool}/{EXPLORATION_VOLUME_POOL}"
+    )
 
 
 def destroy_exploratory_data_cow(zfs_volume_pool: str, zfs_replica_pool: str):
