@@ -1,0 +1,13 @@
+# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html
+[flake8]
+max-line-length = 88
+
+# All C90 class violations are reported when the user specifies flake8 --max-complexity
+# All E class violations are “errors” reported by pycodestyle
+# All F class violations are reported by pyflakes
+# All W class violations are “warnings” reported by pycodestyle
+select = C,E,F,W,B
+
+# Disable E501 (line length) to defer to black 
+# Disable E203 (whitespace before ',') for black compatibility
+extend-ignore = E203, E501

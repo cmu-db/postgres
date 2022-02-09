@@ -1,0 +1,78 @@
+[tool.black]
+line-length = 120
+target_version = ["py38"]
+exclude = '\.ipynb'
+
+[tool.isort]
+profile = "black"
+include_trailing_comma = true
+combine_as_imports = true
+
+[tool.pylint.master]
+init-hook='import sys; sys.path.extend(["./cmudb/exploration/","./cmudb/extensions/hutch/","./cmudb/tscout/",])'
+jobs = 4
+good-names = ["i", "j", "k", "v", "e", "df", "f", "fp", "X", "x", "y", "Y", "db", "ou", "fd"]
+extension-pkg-allow-list = [
+    "setproctitle",
+]
+
+[tool.pylint.format]
+max-line-length=120
+
+# disable list taken from https://github.com/PyCQA/pylint/issues/617
+[tool.pylint.messages_control]
+disable = [
+    # For Black Compatibility
+    "bad-continuation", 
+    "bad-whitespace", 
+
+    # Disable too many and too few checks.
+    "too-many-ancestors",
+    "too-many-arguments",
+    "too-many-boolean-expressions",
+    "too-many-branches",
+    "too-many-function-args",
+    "too-many-instance-attributes",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-nested-blocks",
+    "too-many-public-methods",
+    "too-many-return-statements",
+    "too-many-statements",
+    "too-few-public-methods",
+
+    # Let the black handle this.  Note black single long string line 
+    # splitting is experimental so it's disabled.
+    "line-too-long",
+
+    # Disable failure for TODO items in the codebase (code will always have TODOs).
+    "fixme",
+
+    # Disable docstrings checks as we don't require excessive documentation.
+    "missing-docstring",
+
+    # Disable arguments-differ which conflicts with the common pattern
+    # of not exposing all knobs to the method being overridden.
+    "arguments-differ",
+
+    # Because plumbum CLI is used extensively and plumbum __init__
+    # has some magic that Wan can't replicate, it is easier to allow
+    # defining self.members outside of init. A fix would be welcome.
+    "attribute-defined-outside-init",
+
+    # Disable assigning non-slot exception.
+    "assigning-non-slot"
+]
+
+[tool.pylint.similarities]
+# Minimum lines number of a similarity.
+min-similarity-lines = 4
+
+# Ignore comments when computing similarities.
+ignore-comments = true
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings = true
+
+# Ignore imports when computing similarities.
+ignore-imports = true
