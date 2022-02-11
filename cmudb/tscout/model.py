@@ -453,6 +453,15 @@ OU_DEFS = [
          RIGHT_CHILD_NODE_ID,
          STATEMENT_TIMESTAMP
      ]),
+    ("ExecTidRangeScan",
+     [
+         QUERY_ID,
+         Feature("TidRangeScan"),
+         Feature("TidRangeScanState"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
+     ]),
     ("ExecTidScan",
      [
          QUERY_ID,
@@ -530,6 +539,7 @@ OU_METRICS = (
     BPFVariable(name="cpu_id",
                 c_type=clang.cindex.TypeKind.UCHAR),
 )
+
 
 # fmt: on
 
