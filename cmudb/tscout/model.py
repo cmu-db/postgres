@@ -457,7 +457,6 @@ OU_DEFS = [
      [
          QUERY_ID,
          Feature("TidRangeScan"),
-         Feature("TidRangeScanState"),
          LEFT_CHILD_NODE_ID,
          RIGHT_CHILD_NODE_ID,
          STATEMENT_TIMESTAMP
