@@ -540,7 +540,6 @@ OU_METRICS = (
                 c_type=clang.cindex.TypeKind.UCHAR),
 )
 
-
 # fmt: on
 
 
