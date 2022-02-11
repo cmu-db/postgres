@@ -13,7 +13,7 @@ def task_hutch_install():
         "actions": [
             lambda: os.chdir("cmudb/extensions/hutch/"),
             # Generate the necessary features.
-            "sudo PYTHONPATH=../..:$PYTHONPATH python3 tscout_feature_gen.py",
+            "sudo PYTHONPATH=../../tscout:$PYTHONPATH python3 tscout_feature_gen.py",
             # Install the extension into the default build directory's PostgreSQL.
             # Note that the PG_CONFIG env var can be specified to override which
             # PostgreSQL the extension gets installed into.
