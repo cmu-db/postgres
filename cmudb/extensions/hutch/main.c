@@ -67,6 +67,27 @@ static void ExplainOneQueryWrapper(Query *query, int cursorOptions, IntoClause *
 
   TS_MARKER("TS_MARKER <NAME>");
 
+  // We first run the standard explain code path. This is due to an adverse interaction
+  // between hutch and HypoPG.
+  //
+  // HypoPG utilizes two hooks: (1) The ProcessUtility_hook is invoked at the beginning of a
+  // utility command (e.g., EXPLAIN). The hook determines whether HypoPG is compatible
+  // with the current utility command and sets a flag. (2) ExecutorEnd_hook is used
+  // to clear the per-query state (it resets the flag set by the ProcessUtility_hook)
+  //
+  // However, in order for Hutch to generate the X's, we execute an ExecutorStart(),
+  // extract all the X's from the resulting query plan & state, and invoke ExecutorEnd().
+  //
+  // Assuming we are unable/unwilling to clone HypoPG and patch this behavior, then
+  // generating the X's will shutdown HypoPG for this query. This means that HypoPG will
+  // no longer intercept any catalog inquiries about its hypothetical indexes.
+  //
+  // This "fix" assumes that we don't depend on HypoPG interception (e.g., catalog)
+  // to generate the X's. This is because ExplainOnePlan() will also end up
+  // invoking the ExecutorEnd_hook which shuts down HypoPG. As such, we first invoke
+  // ExplainOnePlan() and then we generate the relevant X's.
+  ExplainOnePlan(plan, into, es, queryString, params, queryEnv, &plan_duration, NULL);
+
   if (es->format == EXPLAIN_FORMAT_TSCOUT) {
     queryDesc =
         CreateQueryDesc(plan, queryString, InvalidSnapshot, InvalidSnapshot, None_Receiver, params, queryEnv, 0);
@@ -91,9 +112,6 @@ static void ExplainOneQueryWrapper(Query *query, int cursorOptions, IntoClause *
     ExecutorEnd(queryDesc);
     FreeQueryDesc(queryDesc);
   }
-
-  // Finally, after performing the extension specific operations, run the standard explain code path.
-  ExplainOnePlan(plan, into, es, queryString, params, queryEnv, &plan_duration, NULL);
 }
 
 /**
