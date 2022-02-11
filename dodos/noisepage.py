@@ -48,7 +48,7 @@ def task_np_clean():
     """
     return {
         "actions": [
-            "make -j clean",
+            "make -j -s clean",
         ],
         "file_dep": [ARTIFACT_config_log],
         "verbosity": VERBOSITY_DEFAULT,
@@ -62,7 +62,7 @@ def task_np_build():
     """
     return {
         "actions": [
-            "make -j install-world-bin",
+            "make -j -s install-world-bin",
         ],
         "file_dep": [ARTIFACT_config_log],
         "targets": [ARTIFACT_postgres],

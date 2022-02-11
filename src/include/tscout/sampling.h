@@ -11,4 +11,4 @@ extern double tscout_executor_sampling_rate;  // guc variable (e.g., SET tscout_
  * Called at the start of query execution. For the duration of query execution, check tscout_executor_running before
  * each TScout interaction to see if this query is being tracked.
  */
-void TScoutExecutorSample();
+void TScoutExecutorSample(void);
