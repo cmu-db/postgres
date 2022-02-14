@@ -556,6 +556,14 @@ OU_DEFS = [
          RIGHT_CHILD_NODE_ID,
          STATEMENT_TIMESTAMP
      ]),
+    ("ExecTidRangeScan",
+     [
+         QUERY_ID,
+         Feature("TidRangeScan"),
+         LEFT_CHILD_NODE_ID,
+         RIGHT_CHILD_NODE_ID,
+         STATEMENT_TIMESTAMP
+     ]),
     ("ExecTidScan",
      [
          QUERY_ID,
