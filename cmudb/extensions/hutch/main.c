@@ -8,12 +8,11 @@
 
 #include "commands/createas.h"
 #include "commands/explain.h"
+#include "nodes/pg_list.h"
+#include "operating_unit_features.h"
 #include "optimizer/planner.h"
 #include "parser/parsetree.h"
 #include "utils/builtins.h"
-
-#include "tscout/marker.h"
-#include "operating_unit_features.h"
 
 PG_MODULE_MAGIC;
 void _PG_init(void);
@@ -64,8 +63,6 @@ static void ExplainOneQueryWrapper(Query *query, int cursorOptions, IntoClause *
 
   INSTR_TIME_SET_CURRENT(plan_duration);
   INSTR_TIME_SUBTRACT(plan_duration, plan_start);
-
-  TS_MARKER("TS_MARKER <NAME>");
 
   // We first run the standard explain code path. This is due to an adverse interaction
   // between hutch and HypoPG.
@@ -137,6 +134,7 @@ size_t GetFieldSize(c_type type) {
     case T_DOUBLE:
       return sizeof(double);
     case T_PTR:
+    case T_LIST_PTR:
       return sizeof(void *);
     default:
       break;
@@ -204,6 +202,18 @@ static void ExplainFeatures(Plan *node, ExplainState *es) {
         elog(DEBUG1, "%s: %s", fields[i].name, "<skipped>");
         ExplainPropertyText(fields[i].name, "<skipped>", es);
         break;
+
+      case T_LIST_PTR: {
+        List *list;
+        int length = 0;
+        list = *(List **)((char *)(node) + start_index);
+        if (list != NIL) {
+          length = list->length;
+        }
+        elog(DEBUG1, "%s: %d", fields[i].name, length);
+        ExplainPropertyInteger(fields[i].name, "units", length, es);
+        break;
+      }
 
       default:
         break;

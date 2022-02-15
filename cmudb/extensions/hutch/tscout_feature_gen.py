@@ -67,9 +67,12 @@ def aggregate_features(ou):
     features_list = []
     for feature in ou.features_list:
         for variable in feature.bpf_tuple:
-            if variable.name in OU_EXCLUDED_FEATURES:
+            if variable.pg_type == 'List *':
+                features_list.append((variable.name, variable.pg_type))
+            elif variable.name in OU_EXCLUDED_FEATURES:
                 continue
-            features_list.append((variable.name, variable.c_type))
+            else:
+                features_list.append((variable.name, variable.c_type))
 
     return features_list
 
@@ -98,7 +101,9 @@ def add_features(features_string, feat_index, ou_xs):
     for x in ou_xs:
         (name, value) = x
         type_kind = "T_UNKNOWN"
-        if value == TypeKind.POINTER:
+        if value == "List *":
+            type_kind = "T_LIST_PTR"
+        elif value == TypeKind.POINTER:
             type_kind = "T_PTR"
         elif value in [TypeKind.INT, TypeKind.UINT]:
             type_kind = "T_INT"

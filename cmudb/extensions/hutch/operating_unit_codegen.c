@@ -15,6 +15,7 @@ typedef enum c_type {
   T_ENUM,
   T_PTR,
   T_UNKNOWN,
+  T_LIST_PTR,
 } c_type;
 
 /**
