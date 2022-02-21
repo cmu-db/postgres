@@ -15,7 +15,7 @@ typedef enum c_type {
   T_ENUM,
   T_PTR,
   T_UNKNOWN,
-  T_LIST_PTR,  // This is not a long-term solution if we start defining more encoded types.
+  T_LIST_PTR,  // This is not a long-term solution if we start defining more Reagents.
 } c_type;
 
 /**

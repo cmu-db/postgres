@@ -138,101 +138,101 @@ class Feature:
 
 
 @dataclass
-class Encoder:
+class Reagent:
     """
     Contains logic for encoding a field that points to a complex type to a primitive 8-byte type. For example, rather
     than discard a field that is a pointer to a List, we "feature-ize" that pointer in our output struct to contain
     the length of the List being pointed to.
 
     type_name : str
-        Originally type name in postgres to encode (i.e., List).
+        Original type name in postgres to apply Reagent to. (i.e., List).
     return_type : clang.cindex.TypeKind
         Must be an 8-byte type since it was originally a pointer (i.e., s64).
-    c_encoder : str
-        BPF C code to place a value in a stack variable named encoded from a pointer to type_name named cast_ptr.
+    c_reagent : str
+        BPF C code to place a value in a stack variable named `produced` from a pointer to type_name named `cast_ptr`.
         Please indent 2 spaces for debugging generated code.
     bpf_tuple: Tuple[BPFVariable]
-        The fields of the complex type being encoded. We need this information to add to the HELPER_STRUCT_DEFS.
+        The fields of the complex type in type_name. We need this information to add to the HELPER_STRUCT_DEFS.
     """
 
     type_name: str
     return_type: clang.cindex.TypeKind
-    c_encoder: str
+    c_reagent: str
     bpf_tuple: Tuple[BPFVariable] = None
 
-    def _encoder_name(self):
+    def _reagent_name(self):
         """
         Returns
         -------
-        Name of the encoder BPF C function.
+        Name of the reagent BPF C function.
         """
-        return f"encode_{self.type_name}"
+        return f"reagent_{self.type_name}"
 
-    def encode_one_field(self, field_name):
+    def produce_one_field(self, field_name):
         """
-        Generates the C code to call the encoder for a single field.
-        For example, for a field_name foo encoding a List *:
+        Generates the C code to call the reagent for a single field.
+        For example, for a field_name foo working with a List *:
 
-        s64 encoded_foo = encode_List(&(features->foo));
-        features->foo = encoded_foo;
+        s64 produced_foo = reagent_List(&(features->foo));
+        features->foo = produced_foo;
 
         Parameters
         ----------
         field_name : str
             The name of the field from the BPFVariable.
         """
-        var_name = f"encoded_{field_name}"
+        var_name = f"reagent{field_name}"
         one_field = [
             f"{CLANG_TO_BPF[self.return_type]} ",
             f"{var_name} = ",
-            self._encoder_name(),
+            self._reagent_name(),
             f"(&(features->{field_name}));\n",
             f"features->{field_name} = ",
             f"{var_name};\n",
         ]
         return "".join(one_field)
 
-    def encoder_fn(self):
+    def reagent_fn(self):
         """
-        Generates the C code to encode a single type. For example, to encode a List *:
+        Generates the C code to produce a single field. For example, apply to List *:
 
-        static s64 encode_List(void *raw_ptr) {
+        static s64 reagent_List(void *raw_ptr) {
           struct DECL_List *cast_ptr;
           bpf_probe_read(&cast_ptr, sizeof(struct DECL_List *), raw_ptr);
-          // contents of self.c_encoder, for List that is:
-          s32 encoded = 0;
-          bpf_probe_read(&encoded, sizeof(s32), &(cast_ptr->List_length));
-          // end of self.c_encoder
-          return (s64)encoded;
+          // contents of self.c_reagent, for List that is:
+          s32 produced = 0;
+          bpf_probe_read(&produced, sizeof(s32), &(cast_ptr->List_length));
+          // end of self.c_reagent
+          return (s64)produced;
         }
 
         Returns
         -------
 
         """
-        encoder = [
+        reagent = [
             f"static {CLANG_TO_BPF[self.return_type]} ",
-            self._encoder_name(),
+            self._reagent_name(),
             "(void *raw_ptr) {\n",
             f"  struct DECL_{self.type_name} *cast_ptr;\n",
             f"  bpf_probe_read(&cast_ptr, sizeof(struct DECL_{self.type_name} *), raw_ptr);",
-            self.c_encoder,
-            f"  return ({CLANG_TO_BPF[self.return_type]})encoded;\n",
+            self.c_reagent,
+            f"  return ({CLANG_TO_BPF[self.return_type]})produced;\n",
             "}\n\n",
         ]
-        return "".join(encoder)
+        return "".join(reagent)
 
 
 # The following mass definitions look messy after auto-formatting.
 # fmt: off
 
 # The map below uses the original Postgres field type as the key (meaning it should be a pointer, since non-pointer
-# fields will have their structs unrolled). The value is the Encoder. See the documentation for the Encoder class for
+# fields will have their structs unrolled). The value is the Reagent. See the documentation for the Reagent class for
 # more details about its fields.
-ENCODERS = {
-    'List *': Encoder(type_name='List', return_type=clang.cindex.TypeKind.LONG, c_encoder="""
-  s32 encoded = 0;
-  bpf_probe_read(&encoded, sizeof(s32), &(cast_ptr->List_length));
+REAGENTS = {
+    'List *': Reagent(type_name='List', return_type=clang.cindex.TypeKind.LONG, c_reagent="""
+  s32 produced = 0;
+  bpf_probe_read(&produced, sizeof(s32), &(cast_ptr->List_length));
 """)
 }
 
@@ -775,8 +775,8 @@ class Model:
                         BPFVariable(
                             name=field.name,
                             c_type=field.canonical_type_kind
-                            if field.pg_type not in ENCODERS
-                            else ENCODERS[field.pg_type].return_type,
+                            if field.pg_type not in REAGENTS
+                            else REAGENTS[field.pg_type].return_type,
                             pg_type=field.pg_type,
                             alignment=field.alignment if i == 0 else None,
                         )
@@ -808,9 +808,9 @@ class Model:
             new_ou = OperatingUnit(postgres_function, feature_list)
             operating_units.append(new_ou)
 
-        for encoder in ENCODERS.values():
-            bpf_fields = extract_bpf_fields(encoder.type_name)
-            encoder.bpf_tuple = bpf_fields
+        for reagent in REAGENTS.values():
+            bpf_fields = extract_bpf_fields(reagent.type_name)
+            reagent.bpf_tuple = bpf_fields
 
         self.operating_units = operating_units
         self.metrics = OU_METRICS

@@ -68,7 +68,7 @@ def aggregate_features(ou):
     for feature in ou.features_list:
         for variable in feature.bpf_tuple:
             if variable.pg_type == "List *":
-                # This is not a long-term solution if we start defining more encoded types.
+                # This is not a long-term solution if we start defining more Reagents.
                 features_list.append((variable.name, variable.pg_type))
             elif variable.name in OU_EXCLUDED_FEATURES:
                 continue
@@ -103,7 +103,7 @@ def add_features(features_string, feat_index, ou_xs):
         (name, value) = x
         type_kind = "T_UNKNOWN"
         if value == "List *":
-            type_kind = "T_LIST_PTR"  # This is not a long-term solution if we start defining more encoded types.
+            type_kind = "T_LIST_PTR"  # This is not a long-term solution if we start defining more Reagents.
         elif value == TypeKind.POINTER:
             type_kind = "T_PTR"
         elif value in [TypeKind.INT, TypeKind.UINT]:
