@@ -204,8 +204,9 @@ static void ExplainFeatures(Plan *node, ExplainState *es) {
         break;
 
       case T_LIST_PTR: {
+        // This is effectively the definition of T_LIST_PTR's "Encoder". We could codegen these in the future.
         List *list;
-        int length = 0;
+        int length = 0;  // Default to 0, and only update if List is non-NIL.
         list = *(List **)((char *)(node) + start_index);
         if (list != NIL) {
           length = list->length;
