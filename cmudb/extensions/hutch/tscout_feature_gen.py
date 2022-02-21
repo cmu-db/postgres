@@ -67,7 +67,7 @@ def aggregate_features(ou):
     features_list = []
     for feature in ou.features_list:
         for variable in feature.bpf_tuple:
-            if variable.pg_type == 'List *':
+            if variable.pg_type == "List *":
                 # This is not a long-term solution if we start defining more encoded types.
                 features_list.append((variable.name, variable.pg_type))
             elif variable.name in OU_EXCLUDED_FEATURES:
@@ -179,7 +179,7 @@ def main():
     # Populate the NodeTag's details.
     for (index, ou) in enumerate(modeler.operating_units):
         if ou.name().startswith("Exec"):
-            struct_name = ou.name()[len("Exec"):]
+            struct_name = ou.name()[len("Exec") :]
             pg_struct_name = "T_" + struct_name
             pg_enum_index = None
 
