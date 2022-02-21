@@ -68,6 +68,7 @@ def aggregate_features(ou):
     for feature in ou.features_list:
         for variable in feature.bpf_tuple:
             if variable.pg_type == 'List *':
+                # This is not a long-term solution if we start defining more encoded types.
                 features_list.append((variable.name, variable.pg_type))
             elif variable.name in OU_EXCLUDED_FEATURES:
                 continue
@@ -102,7 +103,7 @@ def add_features(features_string, feat_index, ou_xs):
         (name, value) = x
         type_kind = "T_UNKNOWN"
         if value == "List *":
-            type_kind = "T_LIST_PTR"
+            type_kind = "T_LIST_PTR"  # This is not a long-term solution if we start defining more encoded types.
         elif value == TypeKind.POINTER:
             type_kind = "T_PTR"
         elif value in [TypeKind.INT, TypeKind.UINT]:
@@ -178,7 +179,7 @@ def main():
     # Populate the NodeTag's details.
     for (index, ou) in enumerate(modeler.operating_units):
         if ou.name().startswith("Exec"):
-            struct_name = ou.name()[len("Exec") :]
+            struct_name = ou.name()[len("Exec"):]
             pg_struct_name = "T_" + struct_name
             pg_enum_index = None
 
