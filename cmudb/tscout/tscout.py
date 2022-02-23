@@ -291,18 +291,20 @@ def lost_something(num_lost):
     pass
 
 
-def processor(ou, buffered_strings, outdir):
+def processor(ou, buffered_strings, outdir, append):
     setproctitle.setproctitle(f"TScout Processor {ou.name()}")
 
     # Open output file, with the name based on the OU.
-    file = open(f"{outdir}/{ou.name()}.csv", "w", encoding="utf-8")  # pylint: disable=consider-using-with
+    file = open(f"{outdir}/{ou.name()}.csv", "a" if append else "w",
+                encoding="utf-8")  # pylint: disable=consider-using-with
 
-    # Write the OU's feature columns for CSV header,
-    # with an additional separator before resource metrics columns.
-    file.write(ou.features_columns() + ",")
+    if not append:
+        # Write the OU's feature columns for CSV header,
+        # with an additional separator before resource metrics columns.
+        file.write(ou.features_columns() + ",")
 
-    # Write the resource metrics columns for the CSV header.
-    file.write(",".join(metric.name for metric in metrics) + "\n")
+        # Write the resource metrics columns for the CSV header.
+        file.write(",".join(metric.name for metric in metrics) + "\n")
 
     logger.info("Processor started for %s.", ou.name())
 
@@ -335,9 +337,12 @@ def main():
     parser = argparse.ArgumentParser(description="TScout")
     parser.add_argument("pid", type=int, help="Postmaster PID that we're attaching to")
     parser.add_argument("--outdir", required=False, default=".", help="Training data output directory")
+    parser.add_argument('--append', required=False, default=False, action='store_true', help="Append to training data in output directory")
+    # TODO(Matt): parser.add_argument('--append', default=False, action=argparse.BooleanOptionalAction) with Python 3.9+
     args = parser.parse_args()
     pid = args.pid
     outdir = args.outdir
+    append = args.append
 
     postgres = PostgresInstance(pid)
 
@@ -373,7 +378,7 @@ def main():
             ou_processor_queues.append(ou_processor_queue)
             ou_processor = mp.Process(
                 target=processor,
-                args=(ou, ou_processor_queue, outdir),
+                args=(ou, ou_processor_queue, outdir, append),
             )
             ou_processor.start()
             ou_processors.append(ou_processor)
