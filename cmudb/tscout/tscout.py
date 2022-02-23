@@ -2,6 +2,7 @@
 import argparse
 import logging
 import multiprocessing as mp
+import os
 import sys
 from dataclasses import dataclass
 
@@ -294,9 +295,17 @@ def lost_something(num_lost):
 def processor(ou, buffered_strings, outdir, append):
     setproctitle.setproctitle(f"TScout Processor {ou.name()}")
 
+    file_path = f"{outdir}/{ou.name()}.csv"
+
+    file_mode = "w"
+    if append and os.path.exists(file_path):
+        file_mode = "a"
+    elif append:
+        logger.warning("--append specified but %s does not exist. Creating this file instead.", file_path)
+
     # Open output file, with the name based on the OU.
-    with open(f"{outdir}/{ou.name()}.csv", "a" if append else "w", encoding="utf-8") as file:
-        if not append:
+    with open(file_path, mode=file_mode, encoding="utf-8") as file:
+        if file_mode == "w":
             # Write the OU's feature columns for CSV header,
             # with an additional separator before resource metrics columns.
             file.write(ou.features_columns() + ",")
