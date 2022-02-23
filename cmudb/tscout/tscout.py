@@ -295,49 +295,52 @@ def processor(ou, buffered_strings, outdir, append):
     setproctitle.setproctitle(f"TScout Processor {ou.name()}")
 
     # Open output file, with the name based on the OU.
-    file = open(f"{outdir}/{ou.name()}.csv", "a" if append else "w",
-                encoding="utf-8")  # pylint: disable=consider-using-with
+    with open(f"{outdir}/{ou.name()}.csv", "a" if append else "w", encoding="utf-8") as file:
+        if not append:
+            # Write the OU's feature columns for CSV header,
+            # with an additional separator before resource metrics columns.
+            file.write(ou.features_columns() + ",")
 
-    if not append:
-        # Write the OU's feature columns for CSV header,
-        # with an additional separator before resource metrics columns.
-        file.write(ou.features_columns() + ",")
+            # Write the resource metrics columns for the CSV header.
+            file.write(",".join(metric.name for metric in metrics) + "\n")
 
-        # Write the resource metrics columns for the CSV header.
-        file.write(",".join(metric.name for metric in metrics) + "\n")
+        logger.info("Processor started for %s.", ou.name())
 
-    logger.info("Processor started for %s.", ou.name())
+        try:
+            # Write serialized training data points from shared queue to file.
+            while True:
+                string = buffered_strings.get()
+                file.write(string)
 
-    try:
-        # Write serialized training data points from shared queue to file.
-        while True:
-            string = buffered_strings.get()
-            file.write(string)
-
-    except KeyboardInterrupt:
-        logger.info("Processor for %s caught KeyboardInterrupt.", ou.name())
-        while True:
-            # TScout is shutting down.
-            # Write any remaining training data points.
-            string = buffered_strings.get()
-            if string is None:
-                # Collectors have all shut down, and poison pill
-                # indicates there are no more training data points.
-                logger.info("Processor for %s received poison pill.", ou.name())
-                break
-            file.write(string)
-    except Exception as e:  # pylint: disable=broad-except
-        logger.warning("Processor for %s caught %s", ou.name(), e)
-    finally:
-        file.close()
-        logger.info("Processor for %s shut down.", ou.name())
+        except KeyboardInterrupt:
+            logger.info("Processor for %s caught KeyboardInterrupt.", ou.name())
+            while True:
+                # TScout is shutting down.
+                # Write any remaining training data points.
+                string = buffered_strings.get()
+                if string is None:
+                    # Collectors have all shut down, and poison pill
+                    # indicates there are no more training data points.
+                    logger.info("Processor for %s received poison pill.", ou.name())
+                    break
+                file.write(string)
+        except Exception as e:  # pylint: disable=broad-except
+            logger.warning("Processor for %s caught %s", ou.name(), e)
+        finally:
+            logger.info("Processor for %s shut down.", ou.name())
 
 
 def main():
     parser = argparse.ArgumentParser(description="TScout")
     parser.add_argument("pid", type=int, help="Postmaster PID that we're attaching to")
     parser.add_argument("--outdir", required=False, default=".", help="Training data output directory")
-    parser.add_argument('--append', required=False, default=False, action='store_true', help="Append to training data in output directory")
+    parser.add_argument(
+        "--append",
+        required=False,
+        default=False,
+        action="store_true",
+        help="Append to training data in output directory",
+    )
     # TODO(Matt): parser.add_argument('--append', default=False, action=argparse.BooleanOptionalAction) with Python 3.9+
     args = parser.parse_args()
     pid = args.pid
