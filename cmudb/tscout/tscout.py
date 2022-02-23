@@ -350,7 +350,6 @@ def main():
         action="store_true",
         help="Append to training data in output directory",
     )
-    # TODO(Matt): parser.add_argument('--append', default=False, action=argparse.BooleanOptionalAction) with Python 3.9+
     args = parser.parse_args()
     pid = args.pid
     outdir = args.outdir
