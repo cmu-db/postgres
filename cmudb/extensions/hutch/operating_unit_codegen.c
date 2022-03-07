@@ -16,6 +16,7 @@ typedef enum c_type {
   T_PTR,
   T_UNKNOWN,
   T_LIST_PTR,  // This is not a long-term solution if we start defining more Reagents.
+  T_PADDING,
 } c_type;
 
 /**
@@ -26,6 +27,7 @@ typedef enum c_type {
 typedef struct field {
   c_type type;
   char *name;
+  int padding;
 } field;
 
 /**

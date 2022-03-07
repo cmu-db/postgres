@@ -69,6 +69,8 @@ class Field:
     pg_type: str
     canonical_type_kind: clang.cindex.TypeKind
     alignment: int = None  # Non-None for the first field of a struct, using alignment value of the struct.
+    field_size: int = None  # Size of the field
+    is_padding: bool = False  # Whether this field is a generated padding field.
 
 
 class ClangParser:
@@ -163,6 +165,7 @@ class ClangParser:
                     if child.type.get_canonical().kind != clang.cindex.TypeKind.RECORD
                     else child.type.get_canonical().get_declaration().spelling,
                     child.type.get_canonical().kind,
+                    field_size=child.type.get_size(),
                 )
                 for child in node.get_children()
                 if child.kind == clang.cindex.CursorKind.FIELD_DECL
@@ -252,7 +255,11 @@ class ClangParser:
                 # If the field is not a record type,
                 # just append the field to the list of new fields.
                 new_field = Field(
-                    name=f"{prefix}{field.name}", pg_type=field.pg_type, canonical_type_kind=field.canonical_type_kind
+                    name=f"{prefix}{field.name}",
+                    pg_type=field.pg_type,
+                    canonical_type_kind=field.canonical_type_kind,
+                    is_padding=field.is_padding,
+                    field_size=field.field_size,
                 )
                 new_fields.append(new_field)
             else:
@@ -266,8 +273,36 @@ class ClangParser:
                     expanded_fields = self._construct_fully_expanded_fields(
                         field.pg_type, classes, prefix=prefix + f"{field.name}_"
                     )
+
                     new_fields.extend(expanded_fields)
+
+                    # This is a big band-aid, aimed at temporarily patching the behavior of hutch/TScout when
+                    # it comes to struct alignments. As of this change (Mar 7, 2022), we have that BPF ->
+                    # Python userspace structs don't respect __attribute__((aligned(#))). It doesn't seem like
+                    # ctypes has a way of specifying per-field alignment either...
+                    #
+                    # We can theoretically generate structs for the python collector to read but then Hutch would
+                    # still segfault with the incorrect offsets. The following attempts to compute whether or not
+                    # there will be padding between the last data variable and the end of the struct.
+                    #
+                    # If there is a difference, a manual "padding" field is inserted.
+                    struct_size = classes[field.pg_type].type.get_size()
+                    last_field = rtti_map[field.pg_type][-1]
+                    last_field_offset = int(classes[field.pg_type].type.get_offset(last_field.name) / 8)
+                    last_field_data = last_field.field_size + last_field_offset
+                    if struct_size - last_field_data > 0:
+                        padding = struct_size - last_field_data
+                        new_fields.append(
+                            Field(
+                                name=f"{prefix}{field.name}_padding",
+                                pg_type=None,
+                                canonical_type_kind=clang.cindex.TypeKind.CONSTANTARRAY,
+                                field_size=padding,
+                                is_padding=True,
+                            )
+                        )
         new_fields[0].alignment = classes[class_name].type.get_align()
+
         # The alignment value is the struct's alignment, not the field. We assign this to the first field of a
         # struct since the address of a struct and its first field must be the same since their memory addresses must be
         # the same.

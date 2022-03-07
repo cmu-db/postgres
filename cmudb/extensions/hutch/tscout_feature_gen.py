@@ -24,14 +24,15 @@ class ExtractionOU:
         The index/value of the corresponding enumeration constant in the PostgreSQL source code.
     ou_name: str
         The name of the Operating Unit.
-    features: List[Tuple[str, TypeKind]]
-        The list of (feature-name, feature-data-type) pairs which correspond to the features.
+    features: List[Tuple[str, TypeKind, int]]
+        The list of (feature-name, feature-data-type, padding_field_size) pairs which correspond to the features.
+        padding_field_size is not None only if the field is a padding field.
     """
 
     ou_index: int
     pg_enum_index: int
     ou_name: str
-    features: List[Tuple[str, TypeKind]]
+    features: List[Tuple[str, TypeKind, int]]
 
 
 OU_TO_FEATURE_LIST_MAP: Mapping[int, ExtractionOU] = {}
@@ -52,7 +53,7 @@ OU_EXCLUDED_FEATURES = [
 
 def aggregate_features(ou):
     """
-    Extract the name and type of every feature for the given OU.
+    Extract the name, type, and padding field size of every feature for the given OU.
 
     Parameters
     ----------
@@ -61,19 +62,19 @@ def aggregate_features(ou):
 
     Returns
     -------
-    features_list : List[Tuple[str, clang.cindex.TypeKind]]
-        The [(name, type)] of all features for the given OU.
+    features_list : List[Tuple[str, clang.cindex.TypeKind, int]]
+        The [(name, type, padding_field_size)] of all features for the given OU.
     """
     features_list = []
     for feature in ou.features_list:
         for variable in feature.bpf_tuple:
             if variable.pg_type == "List *":
                 # This is not a long-term solution if we start defining more Reagents.
-                features_list.append((variable.name, variable.pg_type))
+                features_list.append((variable.name, variable.pg_type, variable.padding_field_size))
             elif variable.name in OU_EXCLUDED_FEATURES:
                 continue
             else:
-                features_list.append((variable.name, variable.c_type))
+                features_list.append((variable.name, variable.c_type, variable.padding_field_size))
 
     return features_list
 
@@ -89,8 +90,8 @@ def add_features(features_string, feat_index, ou_xs):
         Initialize with the empty string.
     feat_index : int
         The index of the feature to extract.
-    ou_xs : List[Tuple[str, clang.cindex.TypeKind]]
-        The (names, types) of all the features for the given OU.
+    ou_xs : List[Tuple[str, clang.cindex.TypeKind, int]]
+        The (names, types, padding_field_size) of all the features for the given OU.
 
     Returns
     -------
@@ -100,9 +101,14 @@ def add_features(features_string, feat_index, ou_xs):
     features_string += "\n"
     features_struct_list = []
     for x in ou_xs:
-        (name, value) = x
+        (name, value, padding_field_size) = x
+
         type_kind = "T_UNKNOWN"
-        if value == "List *":
+        padding_field = padding_field_size if padding_field_size else 0
+        if value == TypeKind.CONSTANTARRAY and padding_field_size is not None:
+            # This indicates a padding field.
+            type_kind = "T_PADDING"
+        elif value == "List *":
             type_kind = "T_LIST_PTR"  # This is not a long-term solution if we start defining more Reagents.
         elif value == TypeKind.POINTER:
             type_kind = "T_PTR"
@@ -120,7 +126,7 @@ def add_features(features_string, feat_index, ou_xs):
             type_kind = "T_BOOL"
         else:
             type_kind = str(value)
-        features_struct_list.append(f'{{ {type_kind}, "{name}" }}')
+        features_struct_list.append(f'{{ {type_kind}, "{name}", {padding_field} }}')
 
     features_struct = str.join(", ", features_struct_list)
     features_string += f"field feat_{feat_index:d}[] = {{ " + features_struct + " };"
@@ -140,8 +146,8 @@ def fill_in_template(ou_string, ou_index, node_type, ou_xs):
         The index of the OU.
     node_type : str
         The name of the OU.
-    ou_xs : List[Tuple[str, clang.cindex.TypeKind]]
-        The (name, type) of all features for the OU.
+    ou_xs : List[Tuple[str, clang.cindex.TypeKind, int]]
+        The (name, type, padding) of all features for the OU.
 
     Returns
     -------

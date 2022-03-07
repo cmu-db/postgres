@@ -22,7 +22,7 @@ static void ExplainOneQueryWrapper(Query *query, int cursorOptions, IntoClause *
                                    const char *queryString, ParamListInfo params, QueryEnvironment *queryEnv);
 static void WalkPlan(Plan *plan, ExplainState *es);
 static void ExplainFeatures(Plan *node, ExplainState *es);
-static size_t GetFieldSize(c_type type);
+static size_t GetFieldSize(c_type type, int padding);
 static const char *GetNodeType(Plan *node);
 static const char *GetOperationType(Plan *node);
 
@@ -119,9 +119,10 @@ static void ExplainOneQueryWrapper(Query *query, int cursorOptions, IntoClause *
  * @brief Fetch the size of the field.
  *
  * @param type (c_type) - The C field type.
+ * @param padding (int) - Size of padding if a padding field.
  * @return size_t - Size of the field on the machine.
  */
-size_t GetFieldSize(c_type type) {
+size_t GetFieldSize(c_type type, int padding) {
   switch (type) {
     case T_BOOL:
       return sizeof(bool);
@@ -140,6 +141,8 @@ size_t GetFieldSize(c_type type) {
     case T_PTR:
     case T_LIST_PTR:
       return sizeof(void *);
+    case T_PADDING:
+      return padding;
     default:
       break;
   }
@@ -361,8 +364,8 @@ static void ExplainFeatures(Plan *node, ExplainState *es) {
   }
 
   for (i = 0; i < num_fields; i++) {
-    field_size = GetFieldSize(fields[i].type);
-    next_field_size = i < num_fields - 1 ? GetFieldSize(fields[i + 1].type) : 8;
+    field_size = GetFieldSize(fields[i].type, fields[i].padding);
+    next_field_size = i < num_fields - 1 ? GetFieldSize(fields[i + 1].type, fields[i + 1].padding) : 8;
 
     switch (fields[i].type) {
       case T_BOOL:

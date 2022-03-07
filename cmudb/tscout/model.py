@@ -44,6 +44,18 @@ class BPFVariable:
     pg_type: str = None  # Some BPFVariables don't originate from Postgres (e.g., metrics and metadata) so default None
     alignment: int = None  # Non-None for the first field of a struct, using alignment value of the struct.
 
+    # Indicates whether this field is a padding field used to keep user-space/kernel-space structs in alignment.
+    is_padding: bool = False
+    # Non-None if this field is a padding field. This controls the size of the padding field.
+    padding_field_size: int = None
+
+    def type_string(self):
+        if self.is_padding:
+            assert self.padding_field_size is not None, f"padding_field_size must be set for padding field {self.name}"
+            return f"char {self.name}[{self.padding_field_size}];"
+
+        return f"{CLANG_TO_BPF[self.c_type]} {self.name}{self.alignment_string()};"
+
     def alignment_string(self):
         return f" __attribute__ ((aligned ({self.alignment})))" if self.alignment is not None else ""
 
@@ -63,7 +75,7 @@ class BPFVariable:
             clang.cindex.TypeKind.INCOMPLETEARRAY,
             clang.cindex.TypeKind.CONSTANTARRAY,
         ]
-        return self.c_type not in suppressed
+        return self.c_type not in suppressed and not self.is_padding
 
     def serialize(self, output_event):
         """
@@ -651,7 +663,7 @@ def struct_decl_for_fields(name, bpf_tuple):
     assert len(bpf_tuple) > 0, "We should have some fields in this struct."
     decl = [f"struct DECL_{name}", "{"]
     for column in bpf_tuple:
-        decl.append(f"{CLANG_TO_BPF[column.c_type]} {column.name}{column.alignment_string()};")
+        decl.append(column.type_string())
     decl.append("};\n")
     return "\n".join(decl)
 
@@ -702,15 +714,11 @@ class OperatingUnit:
                 assert len(feature.bpf_tuple) >= 1, "We should have some fields in this struct."
                 # Add all the struct's fields, sticking the original struct's alignment value on the first attribute.
                 for column in feature.bpf_tuple:
-                    struct_def = struct_def + (
-                        f"{CLANG_TO_BPF[column.c_type]} {column.name}{column.alignment_string()};\n"
-                    )
+                    struct_def = struct_def + (column.type_string() + "\n")
             else:
                 # It's a single stack-allocated argument that we can read directly.
                 assert len(feature.bpf_tuple) == 1, "How can something not using readarg_p have multiple fields?"
-                struct_def = struct_def + (
-                    f"{CLANG_TO_BPF[feature.bpf_tuple[0].c_type]} {feature.bpf_tuple[0].name};\n"
-                )
+                struct_def = struct_def + (feature.bpf_tuple[0].type_string() + "\n")
 
         return struct_def
 
@@ -779,6 +787,9 @@ class Model:
                             else REAGENTS[field.pg_type].return_type,
                             pg_type=field.pg_type,
                             alignment=field.alignment if i == 0 else None,
+                            # Propagate information about the padding.
+                            is_padding=field.is_padding,
+                            padding_field_size=field.field_size if field.is_padding else None,
                         )
                     )
                 except KeyError as e:
