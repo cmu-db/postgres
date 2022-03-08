@@ -44,14 +44,11 @@ class BPFVariable:
     pg_type: str = None  # Some BPFVariables don't originate from Postgres (e.g., metrics and metadata) so default None
     alignment: int = None  # Non-None for the first field of a struct, using alignment value of the struct.
 
-    # Indicates whether this field is a padding field used to keep user-space/kernel-space structs in alignment.
-    is_padding: bool = False
     # Non-None if this field is a padding field. This controls the size of the padding field.
     padding_field_size: int = None
 
     def type_string(self):
-        if self.is_padding:
-            assert self.padding_field_size is not None, f"padding_field_size must be set for padding field {self.name}"
+        if self.padding_field_size is not None:
             return f"char {self.name}[{self.padding_field_size}];"
 
         return f"{CLANG_TO_BPF[self.c_type]} {self.name}{self.alignment_string()};"
@@ -75,7 +72,7 @@ class BPFVariable:
             clang.cindex.TypeKind.INCOMPLETEARRAY,
             clang.cindex.TypeKind.CONSTANTARRAY,
         ]
-        return self.c_type not in suppressed and not self.is_padding
+        return self.c_type not in suppressed and not self.padding_field_size
 
     def serialize(self, output_event):
         """
@@ -788,7 +785,6 @@ class Model:
                             pg_type=field.pg_type,
                             alignment=field.alignment if i == 0 else None,
                             # Propagate information about the padding.
-                            is_padding=field.is_padding,
                             padding_field_size=field.field_size if field.is_padding else None,
                         )
                     )

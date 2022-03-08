@@ -22,7 +22,7 @@ static void ExplainOneQueryWrapper(Query *query, int cursorOptions, IntoClause *
                                    const char *queryString, ParamListInfo params, QueryEnvironment *queryEnv);
 static void WalkPlan(Plan *plan, ExplainState *es);
 static void ExplainFeatures(Plan *node, ExplainState *es);
-static size_t GetFieldSize(c_type type, int padding);
+static size_t GetFieldSize(c_type type, const uint32_t padding);
 static const char *GetNodeType(Plan *node);
 static const char *GetOperationType(Plan *node);
 
@@ -119,10 +119,10 @@ static void ExplainOneQueryWrapper(Query *query, int cursorOptions, IntoClause *
  * @brief Fetch the size of the field.
  *
  * @param type (c_type) - The C field type.
- * @param padding (int) - Size of padding if a padding field.
+ * @param padding (uint32_t) - Size of padding if a padding field.
  * @return size_t - Size of the field on the machine.
  */
-size_t GetFieldSize(c_type type, int padding) {
+size_t GetFieldSize(c_type type, const uint32_t padding) {
   switch (type) {
     case T_BOOL:
       return sizeof(bool);
