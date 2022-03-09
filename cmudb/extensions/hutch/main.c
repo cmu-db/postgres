@@ -24,7 +24,6 @@ static void WalkPlan(Plan *plan, ExplainState *es);
 static void ExplainFeatures(Plan *node, ExplainState *es);
 static size_t GetFieldSize(c_type type, const uint32_t padding);
 static const char *GetNodeType(Plan *node);
-static const char *GetOperationType(Plan *node);
 
 static ExplainOneQuery_hook_type chain_ExplainOneQuery = NULL;
 
@@ -182,10 +181,10 @@ static const char *GetNodeType(Plan *node) {
       sname = "Append";
       break;
     case T_MergeAppend:
-      sname = "Merge Append";
+      sname = "MergeAppend";
       break;
     case T_RecursiveUnion:
-      sname = "Recursive Union";
+      sname = "RecursiveUnion";
       break;
     case T_BitmapAnd:
       sname = "BitmapAnd";
@@ -194,73 +193,73 @@ static const char *GetNodeType(Plan *node) {
       sname = "BitmapOr";
       break;
     case T_NestLoop:
-      sname = "Nested Loop";
+      sname = "NestLoop";
       break;
     case T_MergeJoin:
-      sname = "Merge Join";
+      sname = "MergeJoin";
       break;
     case T_HashJoin:
-      sname = "Hash Join";
+      sname = "HashJoin";
       break;
     case T_SeqScan:
-      sname = "Seq Scan";
+      sname = "SeqScan";
       break;
     case T_SampleScan:
-      sname = "Sample Scan";
+      sname = "SampleScan";
       break;
     case T_Gather:
       sname = "Gather";
       break;
     case T_GatherMerge:
-      sname = "Gather Merge";
+      sname = "GatherMerge";
       break;
     case T_IndexScan:
-      sname = "Index Scan";
+      sname = "IndexScan";
       break;
     case T_IndexOnlyScan:
-      sname = "Index Only Scan";
+      sname = "IndexOnlyScan";
       break;
     case T_BitmapIndexScan:
-      sname = "Bitmap Index Scan";
+      sname = "BitmapIndexScan";
       break;
     case T_BitmapHeapScan:
-      sname = "Bitmap Heap Scan";
+      sname = "BitmapHeapScan";
       break;
     case T_TidScan:
-      sname = "Tid Scan";
+      sname = "TidScan";
       break;
     case T_TidRangeScan:
-      sname = "Tid Range Scan";
+      sname = "TidRangeScan";
       break;
     case T_SubqueryScan:
-      sname = "Subquery Scan";
+      sname = "SubqueryScan";
       break;
     case T_FunctionScan:
-      sname = "Function Scan";
+      sname = "FunctionScan";
       break;
     case T_TableFuncScan:
-      sname = "Table Function Scan";
+      sname = "TableFuncScan";
       break;
     case T_ValuesScan:
-      sname = "Values Scan";
+      sname = "ValuesScan";
       break;
     case T_CteScan:
-      sname = "CTE Scan";
+      sname = "CteScan";
       break;
     case T_NamedTuplestoreScan:
-      sname = "Named Tuplestore Scan";
+      sname = "NamedTuplestoreScan";
       break;
     case T_WorkTableScan:
-      sname = "WorkTable Scan";
+      sname = "WorkTableScan";
       break;
     case T_ForeignScan:
-      sname = "Foreign Scan";
+      sname = "ForeignScan";
       break;
     case T_CustomScan:
-      sname = "Custom Scan";
+      sname = "CustomScan";
       break;
     case T_Material:
-      sname = "Materialize";
+      sname = "Material";
       break;
     case T_Memoize:
       sname = "Memoize";
@@ -269,13 +268,13 @@ static const char *GetNodeType(Plan *node) {
       sname = "Sort";
       break;
     case T_IncrementalSort:
-      sname = "Incremental Sort";
+      sname = "IncrementalSort";
       break;
     case T_Group:
       sname = "Group";
       break;
     case T_Agg: {
-      sname = "Aggregate";
+      sname = "Agg";
     } break;
     case T_WindowAgg:
       sname = "WindowAgg";
@@ -304,38 +303,6 @@ static const char *GetNodeType(Plan *node) {
 }
 
 /**
- * @brief Fetch the operation type of the given node.
- * OperationTypes are currently available for nodes of "type":
- * 1. PlannedStmt
- * 2. ModifyTable
- * 3. ForeignScan
- * NOTE - See note in GetNodeType().
- *
- * @param node (Plan *) - Plan node whose operation type is to be fetched.
- * @return const char* - The operation type of the node.
- */
-static const char *GetOperationType(Plan *node) {
-  const char *operation = NULL;
-  switch (((ModifyTable *)node)->operation) {
-    case CMD_SELECT:
-      operation = "Select";
-      break;
-    case CMD_INSERT:
-      operation = "Insert";
-      break;
-    case CMD_UPDATE:
-      operation = "Update";
-      break;
-    case CMD_DELETE:
-      operation = "Delete";
-      break;
-    default:
-      break;
-  }
-  return operation;
-}
-
-/**
  * @brief - Explain the features of the given node.
  *
  * @param node (Plan *) - Plan node to be explained.
@@ -358,10 +325,6 @@ static void ExplainFeatures(Plan *node, ExplainState *es) {
   ExplainPropertyText("node", nodeName, es);
   ExplainPropertyText("tag", nodeTagExplainer, es);
   ExplainPropertyText("node_type", GetNodeType(node), es);
-
-  if (nodeTag(node) == T_ModifyTable) {
-    ExplainPropertyText("operation", GetOperationType(node), es);
-  }
 
   for (i = 0; i < num_fields; i++) {
     field_size = GetFieldSize(fields[i].type, fields[i].padding);
