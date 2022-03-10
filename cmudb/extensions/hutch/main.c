@@ -358,8 +358,6 @@ static void ExplainFeatures(Plan *node, ExplainState *es) {
         break;
 
       case T_PTR:
-        elog(DEBUG1, "%s: %s", fields[i].name, "<skipped>");
-        ExplainPropertyText(fields[i].name, "<skipped>", es);
         break;
 
       case T_LIST_PTR: {
