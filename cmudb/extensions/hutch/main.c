@@ -199,7 +199,7 @@ static const char *GetNodeType(Plan *node) {
       sname = "MergeJoin";
       break;
     case T_HashJoin:
-      sname = "HashJoin";
+      sname = "HashJoinImpl";
       break;
     case T_SeqScan:
       sname = "SeqScan";
