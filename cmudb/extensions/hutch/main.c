@@ -358,6 +358,8 @@ static void ExplainFeatures(Plan *node, ExplainState *es) {
         break;
 
       case T_PTR:
+        // We intentionally don't emit anything for pointers. This is similar to what TScout currently does
+        // for opaque fields that cannot be emitted/converted.
         break;
 
       case T_LIST_PTR: {
