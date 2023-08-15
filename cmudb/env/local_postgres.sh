@@ -13,7 +13,7 @@ ROOT_DIR=$(pwd)
 
 mkdir -p "${BUILD_DIR}"
 echo "You may want to comment out the configure step if you're not regularly switching between debug and release."
-./cmudb/build/configure.sh debug "${BUILD_DIR}"
+#./cmudb/build/configure.sh debug "${BUILD_DIR}"
 make install -j
 rm -rf "${BIN_DIR}"/pgdata
 "${BIN_DIR}"/initdb -D "${BIN_DIR}"/pgdata
