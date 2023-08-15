@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 This file generates data for the ChickenFarm benchmark.
 The goal of this data generator is to vary the level of benefit
